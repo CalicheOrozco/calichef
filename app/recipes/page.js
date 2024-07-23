@@ -14,6 +14,7 @@ function Index () {
   const { userRecipes, originalData } = contextValue
   const [recommended, setRecommended] = useState([])
   const [searchRecipies, setSearchRecipies] = useState('')
+  const [searchTerm, setSearchTerm] = useState('')
 
   useEffect(() => {
     if (userRecipes && originalData) {
@@ -40,15 +41,20 @@ function Index () {
     setSearchRecipies(event.target.value)
   }
 
+  const handleSubmit = event => {
+    event.preventDefault()
+    setSearchTerm(searchRecipies)
+  }
+
   const filteredRecipes = recommended.filter(recipe =>
-    recipe.title.toLowerCase().includes(searchRecipies.toLowerCase())
+    recipe.title.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   return (
     <>
       <Navbar className='pb-10' />
       <div className='container mx-auto py-20 px-4 min-h-screen'>
-        <div className='relative mt-4'>
+        <form onSubmit={handleSubmit} className='relative mt-4'>
           <input
             id='Buscar'
             className='block rounded-md px-6 pt-6 pb-1 w-full text-md text-white bg-neutral-700 appearance-none focus:outline-none focus:ring-0 peer'
@@ -62,7 +68,7 @@ function Index () {
           >
             Buscar
           </label>
-        </div>
+        </form>
         {userRecipes ? (
           <>
             <p className='text-white flex justify-end items-center py-2'>
