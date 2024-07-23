@@ -20,15 +20,15 @@ const Post = () => {
     console.error('CalichefContext no está disponible en el componente Navbar')
   }
 
-  const { AllData } = contextValue
+  const { originalData } = contextValue
 
   useEffect(() => {
-    if (id && AllData) {
-      const recipe = AllData.find(item => item.id === id)
+    if (id && originalData) {
+      const recipe = originalData.find(item => item.id === id)
       if (recipe) {
         const idRecommended = recipe.recommended || []
 
-        const recommended = AllData.filter(item =>
+        const recommended = originalData.filter(item =>
           idRecommended.includes(item.id)
         )
 
@@ -70,7 +70,7 @@ const Post = () => {
         console.error(`Receta con id ${id} no encontrada`)
       }
     }
-  }, [id, AllData])
+  }, [id, originalData])
 
   return (
     <>
