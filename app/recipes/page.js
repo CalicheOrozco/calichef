@@ -48,7 +48,7 @@ function Index () {
     <>
       <Navbar className='pb-10' />
       <div className='container mx-auto py-20 px-4 min-h-screen'>
-        <div className='relative'>
+        <div className='relative mt-4'>
           <input
             id='Buscar'
             className='block rounded-md px-6 pt-6 pb-1 w-full text-md text-white bg-neutral-700 appearance-none focus:outline-none focus:ring-0 peer'
