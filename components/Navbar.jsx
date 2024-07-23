@@ -1,8 +1,8 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
 import { CalichefContext } from '../context/MyContext'
 import { FaSearch } from 'react-icons/fa'
 import { IoRestaurant, IoClose, IoHomeSharp } from 'react-icons/io5'
-
 import Link from 'next/link'
 
 const debounce = (func, wait) => {
@@ -15,6 +15,9 @@ const debounce = (func, wait) => {
 
 export default function Navbar () {
   const [isHomePage, setIsHomePage] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  const router = useRouter()
+  const pathname = usePathname()
 
   const contextValue = useContext(CalichefContext)
   if (!contextValue) {
@@ -102,10 +105,8 @@ export default function Navbar () {
   ])
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setIsHomePage(window.location.pathname === '/')
-    }
-  }, [])
+    setIsHomePage(pathname === '/')
+  }, [pathname])
 
   useEffect(() => {
     handleFilter(searchTerm)
@@ -120,7 +121,36 @@ export default function Navbar () {
   const handleModalSearch = () => {
     handleFilter(searchTerm)
     closeModal()
+    if (!isHomePage) {
+      router.push('/')
+    }
   }
+
+  const handleKeyPress = event => {
+    if (event.key === 'Enter') {
+      handleModalSearch()
+    }
+  }
+
+  const clearFilters = () => {
+    setSearchTerm('')
+    setCountryFilter('All')
+    setDifficultyFilter('All')
+    setLanguageFilter('All')
+    setStarsFilter('All')
+    setAllData(originalData)
+  }
+
+  const areFiltersActive = () => {
+    return (
+      searchTerm !== '' ||
+      countryFilter !== 'All' ||
+      difficultyFilter !== 'All' ||
+      languageFilter !== 'All' ||
+      starsFilter !== 'All'
+    )
+  }
+
   return (
     <>
       <header tabIndex='-1' className='page-header'>
@@ -151,9 +181,10 @@ export default function Navbar () {
                 onClick={openModal}
               />
             ) : (
-              <Link href='/' passHref>
-                <FaSearch className='mx-2 cursor-pointer hover:text-green-300 text-2xl' />
-              </Link>
+              <FaSearch
+                className='mx-2 cursor-pointer hover:text-green-300 text-2xl'
+                onClick={openModal}
+              />
             )}
           </div>
         </div>
@@ -175,6 +206,7 @@ export default function Navbar () {
                   placeholder='Buscar...'
                   value={searchTerm}
                   onChange={handleSearch}
+                  onKeyPress={handleKeyPress}
                   className='w-full p-2 border rounded'
                   aria-label='Buscar'
                 />
@@ -233,7 +265,15 @@ export default function Navbar () {
                 </select>
               </div>
 
-              <div className='flex justify-end'>
+              <div className='flex justify-end gap-x-4'>
+                {areFiltersActive() && (
+                  <button
+                    onClick={clearFilters}
+                    className='bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded'
+                  >
+                    Limpiar
+                  </button>
+                )}
                 <button
                   onClick={handleModalSearch}
                   className='bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded'
