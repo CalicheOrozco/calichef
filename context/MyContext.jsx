@@ -27,6 +27,7 @@ const MyProvider = ({ children }) => {
   const [dataUK, setDataUK] = useState(null)
   const [dataOther, setDataOther] = useState(null)
   const [originalData, setOriginalData] = useState(null)
+
   useEffect(() => {
     async function fetchData () {
       const db = await openDB(DB_NAME, 1, {
@@ -34,155 +35,59 @@ const MyProvider = ({ children }) => {
           db.createObjectStore(STORE_NAME)
         }
       })
-      const cachedDataMexico = await db.get(STORE_NAME, 'dataMexico')
+
+      const fetchAndCacheData = async (key, url, setDataFunc) => {
+        const cachedData = await db.get(STORE_NAME, key)
+        if (cachedData) {
+          setDataFunc(cachedData)
+        } else {
+          const response = await fetch(url)
+          const data = await response.json()
+          setDataFunc(data)
+          db.put(STORE_NAME, data, key)
+        }
+      }
+
+      await fetchAndCacheData('dataMexico', '/mexico.json', setDataMexico)
+      await fetchAndCacheData('dataSpain', '/spain.json', setDataSpain)
+      await fetchAndCacheData('dataLATAM', '/LATAM.json', setDataLATAM)
+      await fetchAndCacheData('dataUSA', '/USA.json', setDataUSA)
+      await fetchAndCacheData(
+        'dataAustralia',
+        '/australia.json',
+        setDataAustralia
+      )
+      await fetchAndCacheData('dataCanada', '/canada.json', setDataCanada)
+      await fetchAndCacheData('dataUK', '/UK.json', setDataUK)
+      await fetchAndCacheData('dataOthers', '/others.json', setDataOther)
+
       const cachedUserRecipes = await db.get(STORE_NAME, 'userRecipes')
-      const cachedDataSpain = await db.get(STORE_NAME, 'dataSpain')
-      const cachedDataLATAM = await db.get(STORE_NAME, 'dataLATAM')
-      const cachedDataUSA = await db.get(STORE_NAME, 'dataUSA')
-      const cachedDataAustralia = await db.get(STORE_NAME, 'dataAustralia')
-      const cachedDataCanada = await db.get(STORE_NAME, 'dataCanada')
-      const cachedDataOthers = await db.get(STORE_NAME, 'dataOthers')
-      const cachedDataUK = await db.get(STORE_NAME, 'dataUK')
-      if (cachedUserRecipes) {
-        userRecipes === null && (await setUserRecipes(cachedUserRecipes))
-      } else {
+      setUserRecipes(cachedUserRecipes || [])
+      if (!cachedUserRecipes) {
         db.put(STORE_NAME, [], 'userRecipes')
-        setUserRecipes([])
-      }
-
-      if (cachedDataMexico) {
-        dataMexico === null && (await setDataMexico(cachedDataMexico))
-        AllData === null && (await setAllData(cachedDataMexico))
-      } else {
-        fetch('/mexico.json')
-          .then(response => response.json())
-          .then(data => {
-            setDataMexico(data)
-            db.put(STORE_NAME, data, 'dataMexico')
-            if (!AllData || AllData.length === 0) {
-              setAllData(data)
-            }
-          })
-      }
-
-      if (cachedDataSpain) {
-        dataSpain === null && (await setDataSpain(cachedDataSpain))
-      } else {
-        fetch('/spain.json')
-          .then(response => response.json())
-          .then(data => {
-            setDataSpain(data)
-            db.put(STORE_NAME, data, 'dataSpain')
-          })
-      }
-
-      if (cachedDataLATAM) {
-        dataLATAM === null && (await setDataLATAM(cachedDataLATAM))
-      } else {
-        fetch('/LATAM.json')
-          .then(response => response.json())
-          .then(data => {
-            setDataLATAM(data)
-            db.put(STORE_NAME, data, 'dataLATAM')
-          })
-      }
-
-      if (cachedDataUSA) {
-        dataUSA === null && (await setDataUSA(cachedDataUSA))
-      } else {
-        fetch('/USA.json')
-          .then(response => response.json())
-          .then(data => {
-            setDataUSA(data)
-            db.put(STORE_NAME, data, 'dataUSA')
-          })
-      }
-
-      if (cachedDataAustralia) {
-        dataAustralia === null && (await setDataAustralia(cachedDataAustralia))
-      } else {
-        fetch('/australia.json')
-          .then(response => response.json())
-          .then(data => {
-            setDataAustralia(data)
-            db.put(STORE_NAME, data, 'dataAustralia')
-          })
-      }
-
-      if (cachedDataCanada) {
-        dataCanada === null && (await setDataCanada(cachedDataCanada))
-      } else {
-        fetch('/canada.json')
-          .then(response => response.json())
-          .then(data => {
-            setDataCanada(data)
-            db.put(STORE_NAME, data, 'dataCanada')
-          })
-      }
-
-      if (cachedDataUK) {
-        dataUK === null && (await setDataUK(cachedDataUK))
-      } else {
-        fetch('/UK.json')
-          .then(response => response.json())
-          .then(data => {
-            setDataUK(data)
-            db.put(STORE_NAME, data, 'dataUK')
-          })
-      }
-
-      if (cachedDataOthers) {
-        dataOther === null && (await setDataOther(cachedDataOthers))
-      } else {
-        fetch('/others.json')
-          .then(response => response.json())
-          .then(data => {
-            setDataOther(data)
-            db.put(STORE_NAME, data, 'dataOthers')
-          })
       }
     }
 
-    // validar si la data está en el cache
     fetchData()
   }, [])
 
   useEffect(() => {
-    if (
-      dataMexico &&
-      dataSpain &&
-      dataLATAM &&
-      dataUSA &&
-      dataAustralia &&
-      dataCanada &&
-      dataUK &&
+    const allDataSets = [
+      dataMexico,
+      dataSpain,
+      dataLATAM,
+      dataUSA,
+      dataAustralia,
+      dataCanada,
+      dataUK,
       dataOther
-    ) {
-      const finalData = [
-        ...dataMexico,
-        ...dataSpain,
-        ...dataLATAM,
-        ...dataUSA,
-        ...dataAustralia,
-        ...dataCanada,
-        ...dataUK,
-        ...dataOther
-      ]
-      // ordenar por el rating_count más alto
-      finalData.sort((a, b) => b.rating_count - a.rating_count)
+    ].filter(data => data)
 
+    if (allDataSets.length > 0) {
+      const finalData = allDataSets.flat()
+      finalData.sort((a, b) => b.rating_count - a.rating_count)
       setAllData(finalData)
       setOriginalData(finalData)
-    } else if (dataMexico && dataSpain && dataLATAM) {
-      const finalData = [...dataMexico, ...dataSpain, ...dataLATAM]
-      setAllData(finalData)
-      setOriginalData(finalData)
-    } else if (dataMexico && (!dataSpain || dataSpain.length === 0)) {
-      setAllData(dataMexico)
-      setOriginalData(dataMexico)
-    } else if (dataSpain && (!dataMexico || dataMexico.length === 0)) {
-      setAllData(dataSpain)
-      setOriginalData(dataSpain)
     }
   }, [
     dataMexico,
