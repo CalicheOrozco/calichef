@@ -11,14 +11,15 @@ function Index () {
     console.error('CalichefContext no está disponible en el componente Navbar')
   }
 
-  const { userRecipes, AllData } = contextValue
+  const { userRecipes, originalData } = contextValue
   const [recommended, setRecommended] = useState([])
+  const [searchRecipies, setSearchRecipies] = useState('')
 
   useEffect(() => {
-    if (userRecipes && AllData) {
+    if (userRecipes && originalData) {
       const idRecommended = userRecipes || []
 
-      const recommended = AllData.filter(item =>
+      const recommended = originalData.filter(item =>
         idRecommended.includes(item.id)
       )
 
@@ -33,19 +34,42 @@ function Index () {
       }))
       setRecommended(recommendedDetails)
     }
-  }, [userRecipes, AllData])
+  }, [userRecipes, originalData])
+
+  const handleSearch = event => {
+    setSearchRecipies(event.target.value)
+  }
+
+  const filteredRecipes = recommended.filter(recipe =>
+    recipe.title.toLowerCase().includes(searchRecipies.toLowerCase())
+  )
 
   return (
     <>
       <Navbar className='pb-10' />
       <div className='container mx-auto py-20 px-4 min-h-screen'>
+        <div className='relative'>
+          <input
+            id='Buscar'
+            className='block rounded-md px-6 pt-6 pb-1 w-full text-md text-white bg-neutral-700 appearance-none focus:outline-none focus:ring-0 peer'
+            placeholder=' '
+            value={searchRecipies}
+            onChange={handleSearch}
+          />
+          <label
+            htmlFor='Buscar'
+            className='absolute text-md text-zinc-400 duration-150 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-5 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3'
+          >
+            Buscar
+          </label>
+        </div>
         {userRecipes ? (
           <>
             <p className='text-white flex justify-end items-center py-2'>
-              {userRecipes.length} recetas encontradas
+              {filteredRecipes.length} recetas encontradas
             </p>
             <div className='flex flex-wrap justify-center md:justify-between items-center gap-y-5'>
-              {recommended.slice(0, 250).map((item) => (
+              {filteredRecipes.slice(0, 250).map(item => (
                 <Card
                   key={item.id} // Asegúrate de que el key esté en el componente Card
                   id={item.id}
