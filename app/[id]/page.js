@@ -5,7 +5,7 @@ import { useEffect, useState, useContext } from 'react'
 import Navbar from '@/components/Navbar'
 import Head from 'next/head'
 import { CalichefContext } from '../../context/MyContext'
-
+import '../globals.css'
 
 const Post = () => {
   // Obtener el id de la receta desde la URL

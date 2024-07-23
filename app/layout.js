@@ -1,9 +1,6 @@
-import { Inter } from 'next/font/google'
-import './globals.css'
+import React from 'react'
 import { MyProvider } from '../context/MyContext'
-import Head from 'next/head'
-
-const inter = Inter({ subsets: ['latin'] })
+import './globals.css'
 
 export const metadata = {
   title: 'Calichef',
@@ -13,7 +10,7 @@ export const metadata = {
 export default function RootLayout ({ children }) {
   return (
     <html lang='en'>
-      <Head>
+      <head>
         <link rel='manifest' href='/manifest.json' />
         <link rel='icon' href='/favicon2.ico' />
         <meta name='robots' content='noarchive' />
@@ -22,8 +19,8 @@ export default function RootLayout ({ children }) {
           name='viewport'
           content='width=device-width, initial-scale=1, shrink-to-fit=no'
         />
-      </Head>
-      <body className={inter.className}>
+      </head>
+      <body>
         <MyProvider>{children}</MyProvider>
       </body>
     </html>
