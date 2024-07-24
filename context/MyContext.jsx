@@ -85,7 +85,8 @@ const MyProvider = ({ children }) => {
 
     if (allDataSets.length > 0) {
       const finalData = allDataSets.flat()
-      finalData.sort((a, b) => b.rating_count - a.rating_count)
+      // ordenar de manera aleatoria
+      finalData.sort(() => Math.random() - 0.5)
       setAllData(finalData)
       setOriginalData(finalData)
     }
