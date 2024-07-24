@@ -46,6 +46,12 @@ function Index () {
     setSearchTerm(searchRecipies)
   }
 
+  const handleKeyPress = event => {
+    if (event.key === 'Enter') {
+      handleModalSearch()
+    }
+  }
+
   const filteredRecipes = recommended.filter(recipe =>
     recipe.title.toLowerCase().includes(searchTerm.toLowerCase())
   )
@@ -61,6 +67,7 @@ function Index () {
             placeholder=' '
             value={searchRecipies}
             onChange={handleSearch}
+            onKeyPress={handleKeyPress}
           />
           <label
             htmlFor='Buscar'
