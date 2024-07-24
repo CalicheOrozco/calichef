@@ -64,6 +64,9 @@ export default function Navbar () {
       filteredData = filteredData.filter(item =>
         item.title.toLowerCase().includes(searchTermValue.toLowerCase())
       )
+      searchTermValue === ''
+        ? filteredData?.sort(() => Math.random() - 0.5)
+        : filteredData?.sort((a, b) => b.rating_count - a.rating_count)
     }
     if (countryFilter !== 'All') {
       filteredData = filteredData.filter(
@@ -71,6 +74,9 @@ export default function Navbar () {
           item.Country &&
           item.Country.toLowerCase() === countryFilter.toLowerCase()
       )
+      searchTermValue === ''
+        ? filteredData?.sort(() => Math.random() - 0.5)
+        : filteredData?.sort((a, b) => b.rating_count - a.rating_count)
     }
     if (difficultyFilter !== 'All') {
       filteredData = filteredData.filter(
@@ -78,6 +84,9 @@ export default function Navbar () {
           item.Dificultad &&
           item.Dificultad.toLowerCase() === difficultyFilter.toLowerCase()
       )
+      searchTermValue === ''
+        ? filteredData?.sort(() => Math.random() - 0.5)
+        : filteredData?.sort((a, b) => b.rating_count - a.rating_count)
     }
     if (languageFilter !== 'All') {
       filteredData = filteredData.filter(
@@ -85,6 +94,9 @@ export default function Navbar () {
           item.language &&
           item.language.toLowerCase() === languageFilter.toLowerCase()
       )
+      searchTermValue === ''
+        ? filteredData?.sort(() => Math.random() - 0.5)
+        : filteredData?.sort((a, b) => b.rating_count - a.rating_count)
     }
     if (starsFilter !== 'All') {
       filteredData = filteredData.filter(
@@ -92,10 +104,10 @@ export default function Navbar () {
           item.rating_score &&
           Math.floor(item.rating_score) === parseInt(starsFilter)
       )
+      searchTermValue === ''
+        ? filteredData?.sort(() => Math.random() - 0.5)
+        : filteredData?.sort((a, b) => b.rating_count - a.rating_count)
     }
-    filteredData === originalData
-      ? filteredData?.sort(() => Math.random() - 0.5)
-      : filteredData?.sort((a, b) => b.rating_count - a.rating_count)
 
     setAllData(filteredData)
   }
