@@ -93,6 +93,10 @@ export default function Navbar () {
           Math.floor(item.rating_score) === parseInt(starsFilter)
       )
     }
+    filteredData === originalData
+      ? filteredData?.sort(() => Math.random() - 0.5)
+      : filteredData?.sort((a, b) => b.rating_count - a.rating_count)
+
     setAllData(filteredData)
   }
 
