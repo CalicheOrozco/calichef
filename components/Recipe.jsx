@@ -1,6 +1,8 @@
 import React, { useContext, useState, useEffect } from 'react'
 import { FaStar, FaStarHalf } from 'react-icons/fa'
+import { TbNotes, TbNotesOff } from 'react-icons/tb'
 import { CalichefContext } from '../context/MyContext'
+import { FaShareFromSquare } from 'react-icons/fa6'
 import { openDB } from 'idb'
 import Card from './Card'
 
@@ -185,29 +187,33 @@ export default function Recipe ({
                     </core-rating>
                   </div>
 
-                  <div className='flex justify-center items-center py-6'>
+                  <div className='flex justify-around items-center py-6'>
                     {isSaved ? (
-                      <button
-                        onClick={handleDeleteRecipe}
-                        className='bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded'
-                      >
-                        Eliminar receta
-                      </button>
+                      // TbNotesOff
+                      <div className='flex flex-col justify-center items-center '>
+                        <TbNotesOff
+                          onClick={handleDeleteRecipe}
+                          className='text-red-500 hover:text-red-700 text-4xl font-semibold'
+                        />
+                        <span className='text-white'>Eliminar</span>
+                      </div>
                     ) : (
-                      <button
-                        onClick={handleSaveRecipe}
-                        className='bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded'
-                      >
-                        Guardar receta
-                      </button>
-                    )
-                    }
-                    <button
-                    onClick={handleShareRecipe}
-                    className='bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded ml-4'
-                  >
-                    Compartir
-                  </button>
+                      // TbNotes
+                      <div className='flex flex-col justify-center items-center '>
+                        <TbNotes
+                          onClick={handleSaveRecipe}
+                          className='text-white hover:text-gray-500 text-4xl font-semibold'
+                        />
+                        <span className='text-white'>Guardar</span>
+                      </div>
+                    )}
+                    <div className='flex flex-col justify-center items-center'>
+                      <FaShareFromSquare
+                        onClick={handleShareRecipe}
+                        className='text-white hover:text-gray-500 text-4xl font-semibold'
+                      />
+                      <span className='text-white'>Compartir</span>
+                    </div>
                   </div>
                 </div>
               </div>
