@@ -102,6 +102,24 @@ export default function Recipe ({
     }
   }
 
+  const handleShareRecipe = () => {
+    const shareData = {
+      title: `Receta: ${title}`,
+      text: `¡Mira esta receta increíble que encontré! ${title}`,
+      url: window.location.href
+    }
+
+    if (navigator.share) {
+      navigator.share(shareData).catch(error => {
+        console.error('Error al compartir:', error)
+      })
+    } else {
+      navigator.clipboard.writeText(shareData.url).then(() => {
+        alert('Enlace copiado al portapapeles.')
+      })
+    }
+  }
+
   return (
     <main className='bg-black text-white'>
       <div className='page-content flex flex-col'>
@@ -182,7 +200,14 @@ export default function Recipe ({
                       >
                         Guardar receta
                       </button>
-                    )}
+                    )
+                    }
+                    <button
+                    onClick={handleShareRecipe}
+                    className='bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded ml-4'
+                  >
+                    Compartir
+                  </button>
                   </div>
                 </div>
               </div>
