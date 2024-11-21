@@ -216,6 +216,7 @@ export default function Recipe ({
                     </div>
                   </div>
                 </div>
+                <hr className='separator--silver-60' />
               </div>
             </div>
           </div>
