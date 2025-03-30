@@ -493,6 +493,7 @@ export default function Recipe({
                 rating_count={item.rating_count}
                 time={item.total_time}
                 img_url={item.img_url}
+                category={item.category}
               />
             ))}
           </div>

@@ -7,7 +7,7 @@ import { openDB } from 'idb'
 const DB_NAME = 'calicheDatabase'
 const STORE_NAME = 'dataStore'
 
-function Card ({ title, rating_score, rating_count, time, img_url, id }) {
+function Card ({ title, rating_score, rating_count, time, img_url, id, category }) {
   const contextValue = useContext(CalichefContext)
 
   if (!contextValue) {
@@ -90,7 +90,7 @@ function Card ({ title, rating_score, rating_count, time, img_url, id }) {
   }
 
   return (
-    <div className='relative bg-white rounded-lg shadow-lg overflow-hidden w-[347px] h-[380px] mx-auto transform transition duration-300 md:hover:scale-105 cursor-pointer md:hover:shadow-2xl'>
+    <div className='relative bg-neutral-800 rounded-lg shadow-lg overflow-hidden w-[347px] h-[380px] mx-auto transform transition duration-300 md:hover:scale-105 cursor-pointer md:hover:shadow-2xl border border-neutral-700'>
       <div className='relative'>
         <Link href={`/${id}`} passHref>
           <img src={img_url} alt={title} className='w-full h-60 object-cover' />
@@ -130,7 +130,7 @@ function Card ({ title, rating_score, rating_count, time, img_url, id }) {
       <Link href={`/${id}`} passHref>
         <div>
           <div className='p-4'>
-            <h5 className='text-lg font-bold mb-2'>{title}</h5>
+            <h2 className='text-lg font-semibold mb-2 line-clamp-2 text-white'>{title}</h2>
             <div className='flex items-center justify-between'>
               <div className='flex items-center'>
                 {stars.map((star, index) => (
@@ -144,11 +144,15 @@ function Card ({ title, rating_score, rating_count, time, img_url, id }) {
                     )}
                   </span>
                 ))}
-                <span className='ml-2 text-gray-600'>{rating_score}</span>
-                <span className='ml-2 text-gray-600'>({rating_count})</span>
+                <span className='ml-2 text-gray-400'>{rating_score}</span>
+                <span className='ml-2 text-gray-400'>({rating_count})</span>
               </div>
-              <div className='text-gray-600'>{time}</div>
+              <div className='text-gray-400'>{time}</div>
             </div>
+            <div className='text-gray-400 pt-4'>
+            {Array.isArray(category) ? category.join(', ') : category}
+          </div>
+
           </div>
           <div className='flex items-center justify-end pr-4 pb-4'>
             <i className='fas fa-ellipsis-v'></i>

@@ -268,7 +268,7 @@ export default function Navbar () {
   return (
     <>
       <header tabIndex='-1' className='page-header'>
-        <div className='w-full flex flex-row h-16 md:h-20 bg-white px-2 md:px-4 justify-between items-center'>
+        <div className='w-full flex flex-row h-16 md:h-20 bg-neutral-800 border-b border-neutral-700 px-2 md:px-4 justify-between items-center'>
           <Link href='/' className='w-48 md:w-96' passHref>
             <img className='object-contain' src='/calichefLogo.png' alt='Calichef Logo' />
           </Link>
@@ -300,9 +300,9 @@ export default function Navbar () {
       {isModalOpen && (
         <div className='fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-75 overflow-y-auto md:overflow-hidden'>
           <div className='relative min-h-screen md:min-h-fit w-full flex items-center justify-center p-4'>
-            <div className='bg-white w-full md:w-2/3 p-4 md:p-8 rounded-2xl shadow-xl max-w-2xl'>
+            <div className='bg-neutral-800 border border-neutral-700 w-full md:w-2/3 p-4 md:p-8 rounded-2xl shadow-xl max-w-2xl'>
               <div className='flex justify-between items-center mb-4 md:mb-6'>
-                <h2 className='text-xl md:text-2xl font-semibold text-gray-800'>Filtrar Recetas</h2>
+                <h2 className='text-xl md:text-2xl font-semibold text-white'>Filtrar Recetas</h2>
                 <IoClose
                   className='text-2xl md:text-3xl text-gray-500 hover:text-red-600 transition-colors duration-200 cursor-pointer'
                   onClick={closeModal}
@@ -317,18 +317,18 @@ export default function Navbar () {
                     value={searchTerm}
                     onChange={handleSearch}
                     onKeyPress={handleKeyPress}
-                    className='w-full px-3 md:px-4 py-2 md:py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200 text-sm md:text-base'
+                    className='w-full px-3 md:px-4 py-2 md:py-3 border-2 border-neutral-700 bg-neutral-700 text-white rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200 text-sm md:text-base'
                     aria-label='Buscar'
                   />
                 </div>
 
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4'>
                   <div className='space-y-1 md:space-y-2'>
-                    <label className='block text-xs md:text-sm font-medium text-gray-700'>País</label>
+                    <label className='block text-xs md:text-sm font-medium text-gray-300'>País</label>
                     <select
                       value={countryFilter}
                       onChange={e => setCountryFilter(e.target.value)}
-                      className='w-full p-2 md:p-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200 text-sm md:text-base'
+                      className='w-full p-2 md:p-3 border-2 border-neutral-700 bg-neutral-700 text-white rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200 text-sm md:text-base'
                     >
                       <option value='All'>Todos los países</option>
                       {getAvailableOptions('country').map(({ code, name }) => (
@@ -340,11 +340,11 @@ export default function Navbar () {
                   </div>
 
                   <div className='space-y-1 md:space-y-2'>
-                    <label className='block text-xs md:text-sm font-medium text-gray-700'>Dificultad</label>
+                    <label className='block text-xs md:text-sm font-medium text-gray-300'>Dificultad</label>
                     <select
                       value={difficultyFilter}
                       onChange={e => setDifficultyFilter(e.target.value)}
-                      className='w-full p-2 md:p-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200 text-sm md:text-base'
+                      className='w-full p-2 md:p-3 border-2 border-neutral-700 bg-neutral-700 text-white rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200 text-sm md:text-base'
                     >
                       <option value='All'>Todas las dificultades</option>
                       {getAvailableOptions('difficulty').map(({ code, name }) => (
@@ -356,11 +356,11 @@ export default function Navbar () {
                   </div>
 
                   <div className='space-y-1 md:space-y-2'>
-                    <label className='block text-xs md:text-sm font-medium text-gray-700'>Idioma</label>
+                    <label className='block text-xs md:text-sm font-medium text-gray-300'>Idioma</label>
                     <select
                       value={languageFilter}
                       onChange={e => setLanguageFilter(e.target.value)}
-                      className='w-full p-2 md:p-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200 text-sm md:text-base'
+                      className='w-full p-2 md:p-3 border-2 border-neutral-700 bg-neutral-700 text-white rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200 text-sm md:text-base'
                     >
                       <option value='All'>Todos los idiomas</option>
                       {getAvailableOptions('language').map(({ code, name }) => (
@@ -372,11 +372,11 @@ export default function Navbar () {
                   </div>
 
                   <div className='space-y-1 md:space-y-2'>
-                    <label className='block text-xs md:text-sm font-medium text-gray-700'>Calificación</label>
+                    <label className='block text-xs md:text-sm font-medium text-gray-300'>Calificación</label>
                     <select
                       value={starsFilter}
                       onChange={e => setStarsFilter(e.target.value)}
-                      className='w-full p-2 md:p-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200 text-sm md:text-base'
+                      className='w-full p-2 md:p-3 border-2 border-neutral-700 bg-neutral-700 text-white rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200 text-sm md:text-base'
                     >
                       <option value='All'>Todas las estrellas</option>
                       {getAvailableOptions('rating').sort().map(rating => (
