@@ -32,6 +32,7 @@ export default function Home () {
                   rating_count={item.rating_count}
                   time={item.total_time}
                   img_url={item.image_url}
+                  category={item.category}
                 />
               ))}
             </div>
