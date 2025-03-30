@@ -92,7 +92,9 @@ function Card ({ title, rating_score, rating_count, time, img_url, id }) {
   return (
     <div className='relative bg-white rounded-lg shadow-lg overflow-hidden w-[347px] h-[380px] mx-auto transform transition duration-300 md:hover:scale-105 cursor-pointer md:hover:shadow-2xl'>
       <div className='relative'>
-        <img src={img_url} alt={title} className='w-full h-60 object-cover' />
+        <Link href={`/${id}`} passHref>
+          <img src={img_url} alt={title} className='w-full h-60 object-cover' />
+        </Link>
         <div className='absolute top-2 right-2 text-4xl'>
           {isSaved ? (
             <FaHeart
