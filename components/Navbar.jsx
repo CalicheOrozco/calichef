@@ -71,8 +71,8 @@ export default function Navbar () {
     if (countryFilter !== 'All') {
       filteredData = filteredData.filter(
         item =>
-          item.Country &&
-          item.Country.toLowerCase() === countryFilter.toLowerCase()
+          item.country &&
+          item.country.includes(countryFilter)
       )
       searchTermValue === ''
         ? filteredData?.sort(() => Math.random() - 0.5)
@@ -81,8 +81,8 @@ export default function Navbar () {
     if (difficultyFilter !== 'All') {
       filteredData = filteredData.filter(
         item =>
-          item.Dificultad &&
-          item.Dificultad.toLowerCase() === difficultyFilter.toLowerCase()
+          item.difficulty &&
+          item.difficulty.toLowerCase() === difficultyFilter.toLowerCase()
       )
       searchTermValue === ''
         ? filteredData?.sort(() => Math.random() - 0.5)
@@ -102,7 +102,7 @@ export default function Navbar () {
       filteredData = filteredData.filter(
         item =>
           item.rating_score &&
-          Math.floor(item.rating_score) === parseInt(starsFilter)
+          Math.floor(parseFloat(item.rating_score)) === parseInt(starsFilter)
       )
       searchTermValue === ''
         ? filteredData?.sort(() => Math.random() - 0.5)
@@ -168,54 +168,103 @@ export default function Navbar () {
   }
 
   // Add these new functions after the areFiltersActive function
-  const getAvailableOptions = (field) => {
-    if (!originalData) return []
+  const difficultyMap = {
+    'E': 'Fácil',
+    'M': 'Medio',
+    'A': 'Avanzado'
+  };
 
-    let filteredData = [...originalData]
+  const languageMap = {
+    'ES': 'Español',
+    'EN': 'English'
+  };
+
+  const countryMap = {
+    'MX': 'México',
+    'US': 'United States',
+    'CA': 'Canada',
+    'AU': 'Australia',
+    'UK': 'United Kingdom',
+    'AR': 'Argentina',
+    'CO': 'Colombia',
+    'AT': 'Austria',
+    "CH": "Chile",
+    "EAU": "United Arab Emirates",
+    "ES": "España",
+    "GT": "Guatemala",
+    "ID": "Indonesia",
+    "IS": "Islandia",
+    "KSA": "Kingdom of Saudi Arabia",
+    "MY": "Malaysia",
+    "NO": "Norway",
+    "PA": "Panamá",
+    "PH": "Philippines",
+    "PE": "Perú",
+    "PY": "Paraguay",
+    "SG": "Singapore",
+    "SE": "Sweden",
+  };
+
+  const getAvailableOptions = (field) => {
+    if (!originalData) return [];
+
+    let filteredData = [...originalData];
 
     // Apply current filters except for the field we're getting options for
     if (searchTerm && field !== 'search') {
       filteredData = filteredData.filter(item =>
         item.title.toLowerCase().includes(searchTerm.toLowerCase())
-      )
+      );
     }
-    if (countryFilter !== 'All' && field !== 'Country') {
+    if (countryFilter !== 'All' && field !== 'country') {
       filteredData = filteredData.filter(
-        item => item.Country && item.Country.toLowerCase() === countryFilter.toLowerCase()
-      )
+        item => item.country && item.country.includes(countryFilter)
+      );
     }
-    if (difficultyFilter !== 'All' && field !== 'Dificultad') {
+    if (difficultyFilter !== 'All' && field !== 'difficulty') {
       filteredData = filteredData.filter(
-        item => item.Dificultad && item.Dificultad.toLowerCase() === difficultyFilter.toLowerCase()
-      )
+        item => item.difficulty && item.difficulty === difficultyFilter
+      );
     }
     if (languageFilter !== 'All' && field !== 'language') {
       filteredData = filteredData.filter(
-        item => item.language && item.language.toLowerCase() === languageFilter.toLowerCase()
-      )
+        item => item.language && item.language === languageFilter
+      );
     }
     if (starsFilter !== 'All' && field !== 'rating') {
       filteredData = filteredData.filter(
-        item => item.rating_score && Math.floor(item.rating_score) === parseInt(starsFilter)
-      )
+        item => item.rating_score && Math.floor(parseFloat(item.rating_score)) === parseInt(starsFilter)
+      );
     }
 
     // Get unique values for the specified field
-    const uniqueValues = new Set(
-      filteredData
-        .map(item => {
-          if (field === 'rating') {
-            return Math.floor(item.rating_score)
-          }
-          return item[field]
-        })
-        .filter(Boolean)
-    )
+    const uniqueValues = new Set();
+    filteredData.forEach(item => {
+      if (field === 'country' && item.country) {
+        item.country.forEach(country => uniqueValues.add(country));
+      } else if (field === 'difficulty' && item.difficulty) {
+        uniqueValues.add(item.difficulty);
+      } else if (field === 'language' && item.language) {
+        uniqueValues.add(item.language);
+      } else if (field === 'rating' && item.rating_score) {
+        uniqueValues.add(Math.floor(parseFloat(item.rating_score)).toString());
+      }
+    });
 
-    return Array.from(uniqueValues)
-  }
+    const values = Array.from(uniqueValues);
+    
+    // Map the values to their full names
+    if (field === 'country') {
+      return values.map(code => ({ code, name: countryMap[code] || code })).sort((a, b) => a.name.localeCompare(b.name));
+    } else if (field === 'difficulty') {
+      return values.map(code => ({ code, name: difficultyMap[code] || code })).sort((a, b) => a.name.localeCompare(b.name));
+    } else if (field === 'language') {
+      return values.map(code => ({ code, name: languageMap[code] || code })).sort((a, b) => a.name.localeCompare(b.name));
+    }
+    
+    return values.sort();
+  };
 
-  // Update the render section where the select elements are
   return (
     <>
       <header tabIndex='-1' className='page-header'>
@@ -282,9 +331,9 @@ export default function Navbar () {
                       className='w-full p-2 md:p-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200 text-sm md:text-base'
                     >
                       <option value='All'>Todos los países</option>
-                      {getAvailableOptions('Country').map(country => (
-                        <option key={country} value={country}>
-                          {country}
+                      {getAvailableOptions('country').map(({ code, name }) => (
+                        <option key={code} value={code}>
+                          {name}
                         </option>
                       ))}
                     </select>
@@ -298,9 +347,9 @@ export default function Navbar () {
                       className='w-full p-2 md:p-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200 text-sm md:text-base'
                     >
                       <option value='All'>Todas las dificultades</option>
-                      {getAvailableOptions('Dificultad').map(difficulty => (
-                        <option key={difficulty} value={difficulty}>
-                          {difficulty === 'fácil' ? 'Fácil' : difficulty === 'medio' ? 'Media' : 'Difícil'}
+                      {getAvailableOptions('difficulty').map(({ code, name }) => (
+                        <option key={code} value={code}>
+                          {name}
                         </option>
                       ))}
                     </select>
@@ -314,9 +363,9 @@ export default function Navbar () {
                       className='w-full p-2 md:p-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200 text-sm md:text-base'
                     >
                       <option value='All'>Todos los idiomas</option>
-                      {getAvailableOptions('language').map(language => (
-                        <option key={language} value={language}>
-                          {language === 'Spanish' ? 'Español' : 'Inglés'}
+                      {getAvailableOptions('language').map(({ code, name }) => (
+                        <option key={code} value={code}>
+                          {name}
                         </option>
                       ))}
                     </select>
