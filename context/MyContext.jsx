@@ -29,42 +29,55 @@ const MyProvider = ({ children }) => {
   const [originalData, setOriginalData] = useState(null)
 
   useEffect(() => {
-    async function fetchData () {
-      const db = await openDB(DB_NAME, 1, {
-        upgrade (db) {
-          db.createObjectStore(STORE_NAME)
+    async function fetchData() {
+      try {
+        const db = await openDB(DB_NAME, 1, {
+          upgrade(db) {
+            db.createObjectStore(STORE_NAME)
+          }
+        })
+
+        const fetchAndCacheData = async (key, url, setDataFunc) => {
+          try {
+            const cachedData = await db.get(STORE_NAME, key)
+            if (cachedData) {
+              setDataFunc(cachedData)
+              return
+            }
+            const response = await fetch(url)
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
+            const data = await response.json()
+            setDataFunc(data)
+            await db.put(STORE_NAME, data, key)
+          } catch (error) {
+            console.error(`Error fetching ${key}:`, error)
+            setDataFunc([]) // Set empty array instead of null on error
+          }
         }
-      })
 
-      const fetchAndCacheData = async (key, url, setDataFunc) => {
-        const cachedData = await db.get(STORE_NAME, key)
-        if (cachedData) {
-          setDataFunc(cachedData)
-        } else {
-          const response = await fetch(url)
-          const data = await response.json()
-          setDataFunc(data)
-          db.put(STORE_NAME, data, key)
+        // Fetch all data in parallel
+        const dataFetches = [
+          ['dataMexico', '/mexico.json', setDataMexico],
+          ['dataSpain', '/spain.json', setDataSpain],
+          ['dataLATAM', '/LATAM.json', setDataLATAM],
+          ['dataUSA', '/USA.json', setDataUSA],
+          ['dataAustralia', '/australia.json', setDataAustralia],
+          ['dataCanada', '/canada.json', setDataCanada],
+          ['dataUK', '/UK.json', setDataUK],
+          ['dataOthers', '/others.json', setDataOther]
+        ].map(([key, url, setter]) => fetchAndCacheData(key, url, setter))
+
+        // Handle user recipes separately to avoid blocking other data
+        const cachedUserRecipes = await db.get(STORE_NAME, 'userRecipes')
+        setUserRecipes(cachedUserRecipes || [])
+        if (!cachedUserRecipes) {
+          await db.put(STORE_NAME, [], 'userRecipes')
         }
-      }
 
-      await fetchAndCacheData('dataMexico', '/mexico.json', setDataMexico)
-      await fetchAndCacheData('dataSpain', '/spain.json', setDataSpain)
-      await fetchAndCacheData('dataLATAM', '/LATAM.json', setDataLATAM)
-      await fetchAndCacheData('dataUSA', '/USA.json', setDataUSA)
-      await fetchAndCacheData(
-        'dataAustralia',
-        '/australia.json',
-        setDataAustralia
-      )
-      await fetchAndCacheData('dataCanada', '/canada.json', setDataCanada)
-      await fetchAndCacheData('dataUK', '/UK.json', setDataUK)
-      await fetchAndCacheData('dataOthers', '/others.json', setDataOther)
-
-      const cachedUserRecipes = await db.get(STORE_NAME, 'userRecipes')
-      setUserRecipes(cachedUserRecipes || [])
-      if (!cachedUserRecipes) {
-        db.put(STORE_NAME, [], 'userRecipes')
+        // Wait for all fetches to complete
+        await Promise.all(dataFetches)
+      } catch (error) {
+        console.error('Database error:', error)
       }
     }
 
@@ -81,25 +94,19 @@ const MyProvider = ({ children }) => {
       dataCanada,
       dataUK,
       dataOther
-    ].filter(data => data)
+    ]
 
-    if (allDataSets.length > 0) {
-      const finalData = allDataSets.flat()
-      // ordenar de manera aleatoria
-      finalData.sort(() => Math.random() - 0.5)
+    // Only update if we have at least one non-null dataset
+    if (allDataSets.some(data => Array.isArray(data))) {
+      const finalData = allDataSets
+        .filter(Array.isArray)
+        .flat()
+        .sort(() => Math.random() - 0.5)
+      
       setAllData(finalData)
       setOriginalData(finalData)
     }
-  }, [
-    dataMexico,
-    dataSpain,
-    dataLATAM,
-    dataUSA,
-    dataAustralia,
-    dataCanada,
-    dataUK,
-    dataOther
-  ])
+  }, [dataMexico, dataSpain, dataLATAM, dataUSA, dataAustralia, dataCanada, dataUK, dataOther])
 
   return (
     <CalichefContext.Provider
