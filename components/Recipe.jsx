@@ -9,13 +9,12 @@ import Card from './Card'
 const DB_NAME = 'calicheDatabase'
 const STORE_NAME = 'dataStore'
 
-export default function Recipe ({
+export default function Recipe({
   id,
   title,
   img_url,
   tm_versions,
   rating_score,
-  rating_count,
   difficulty,
   cooking_time,
   total_time,
@@ -25,7 +24,11 @@ export default function Recipe ({
   steps,
   tags,
   tips,
-  recommended
+  recommended,
+  category,
+  collections,
+  country,
+  language
 }) {
   const [isSaved, setIsSaved] = useState(false)
 
@@ -136,14 +139,24 @@ export default function Recipe ({
                   >
                     <img
                       sizes='(min-width: 1333px) 600px, (min-width: 992px) 667px, (min-width: 768px) 496px, (min-width: 576px) 767px, (min-width: 0px) 575px'
-                      src={img_url}
+                      src={img_url} // Change back to img_url
                       alt={title}
                       title={title}
                     />
+
                   </core-image-loader>
                 </div>
 
                 <div className='recipe-card__info bg-black'>
+                  {category && (
+                    <div className='flex flex-wrap gap-2 mb-4'>
+                      {category.map((cat, index) => (
+                        <span key={index} className='bg-gray-700 text-white px-3 py-1 rounded-full text-sm'>
+                          {cat}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                   <div
                     className='recipe-card__tm-version'
                     id='tm-versions-modal'
@@ -181,9 +194,7 @@ export default function Recipe ({
                         </button>
                       </core-fetch-modal>
                       <span className='ml-2 text-white'>{rating_score}</span>
-                      <span className='core-rating__label'>
-                        ({rating_count})
-                      </span>
+                      {/* Remove or modify the rating count display */}
                     </core-rating>
                   </div>
 
@@ -304,60 +315,53 @@ export default function Recipe ({
                 Ingredientes
               </h3>
               <core-list-section>
-                <ul id='ingredients-0'>
-                  {ingredients?.map((ingredient, index) => (
-                    <li key={index} className='core-list-section__item py-1'>
-                      {ingredient}
-                    </li>
-                  ))}
+                <ul id='ingredients-0' className='space-y-4'>
+                  {ingredients && typeof ingredients === 'object' ? 
+                    Object.entries(ingredients).map(([group, items]) => (
+                      <div key={group}>
+                        {group !== 'Sin título' && <h4 className="text-white font-semibold mt-3 mb-2">{group}</h4>}
+                        {Array.isArray(items) && items.map((ingredient, index) => (
+                          <li key={`${group}-${index}`} className='flex items-center justify-between py-2 px-4 rounded-lg'>
+                            <div className='flex items-center gap-3'>
+                              {ingredient.image && 
+                                <div className='w-14 h-14 flex items-center justify-center'>
+                                  <img src={ingredient.image} alt={ingredient.name} className="w-10 h-10 object-cover" />
+                                </div>
+                              }
+                              <div>
+                                <span className='text-white'>{ingredient.name}</span>
+                                {ingredient.description && 
+                                  <span className="text-gray-400 text-sm block">{ingredient.description}</span>
+                                }
+                              </div>
+                            </div>
+                            {ingredient.amount && 
+                              <span className="text-gray-300 text-sm">{ingredient.amount}</span>
+                            }
+                          </li>
+                        ))}
+                      </div>
+                    ))
+                  : null}
                 </ul>
               </core-list-section>
             </div>
             <hr className='separator--silver-60' />
             <div id='nutritions-desktop' className='nutritions-wrapper'>
               <div className='nutritions pb-5'>
-                <dl>
-                  <h3 id='ingredients-title' className='text-white pb-5'>
-                    Inf. nutricional
-                  </h3>
-                  <dd>{nutritions?.inf_nutricional}</dd>
-                  {nutritions?.calorias && (
-                    <>
-                      <dt className='text-white font-bold'>Calorías</dt>
-                      <dd>{nutritions?.calorias}</dd>
-                    </>
-                  )}
-                  {nutritions?.proteina && (
-                    <>
-                      <dt className='text-white font-bold'>Proteína</dt>
-                      <dd>{nutritions?.proteina}</dd>
-                    </>
-                  )}
-                  {nutritions?.carbohidratos && (
-                    <>
-                      <dt className='text-white font-bold'>Carbohidratos</dt>
-                      <dd>{nutritions?.carbohidratos}</dd>
-                    </>
-                  )}
-                  {nutritions?.grasa && (
-                    <>
-                      <dt className='text-white font-bold'>Grasa</dt>
-                      <dd>{nutritions?.grasa}</dd>
-                    </>
-                  )}
-                  {nutritions?.grasa_saturada && (
-                    <>
-                      <dt className='text-white font-bold'>Grasa Saturada</dt>
-                      <dd>{nutritions?.grasa_saturada}</dd>
-                    </>
-                  )}
-                  {nutritions?.fibra && (
-                    <>
-                      <dt className='text-white font-bold'>Fibra</dt>
-                      <dd>{nutritions?.fibra}</dd>
-                    </>
-                  )}
-                </dl>
+                <div className='bg-black bg-opacity-80 p-6 rounded-lg'>
+                  <h3 className='text-2xl font-bold mb-2'>Nutrition</h3>
+                  <p className='text-gray-400 mb-4'>per 1 porción</p>
+                  
+                  <div className='space-y-4'>
+                    {nutritions?.map((item, index) => (
+                      <div key={index} className='flex justify-between items-center border-b border-gray-700 pb-2'>
+                        <span className='text-lg capitalize'>{item.name}</span>
+                        <span className='text-lg text-gray-300'>{item.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
               <hr className='separator--silver-60' />
             </div>
