@@ -52,7 +52,11 @@ const Post = () => {
           steps: recipe.steps,
           tags: recipe.tags,
           tips: recipe.tips,
-          recommended: recipe.recommended
+          recommended: recipe.recommended,
+          category: recipe.category,
+          collections: recipe.collections,
+          country: recipe.country,
+          language: recipe.language
         }
         setRecipe(recipeDetails)
 
