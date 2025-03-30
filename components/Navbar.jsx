@@ -167,135 +167,194 @@ export default function Navbar () {
     )
   }
 
+  // Add these new functions after the areFiltersActive function
+  const getAvailableOptions = (field) => {
+    if (!originalData) return []
+
+    let filteredData = [...originalData]
+
+    // Apply current filters except for the field we're getting options for
+    if (searchTerm && field !== 'search') {
+      filteredData = filteredData.filter(item =>
+        item.title.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    }
+    if (countryFilter !== 'All' && field !== 'Country') {
+      filteredData = filteredData.filter(
+        item => item.Country && item.Country.toLowerCase() === countryFilter.toLowerCase()
+      )
+    }
+    if (difficultyFilter !== 'All' && field !== 'Dificultad') {
+      filteredData = filteredData.filter(
+        item => item.Dificultad && item.Dificultad.toLowerCase() === difficultyFilter.toLowerCase()
+      )
+    }
+    if (languageFilter !== 'All' && field !== 'language') {
+      filteredData = filteredData.filter(
+        item => item.language && item.language.toLowerCase() === languageFilter.toLowerCase()
+      )
+    }
+    if (starsFilter !== 'All' && field !== 'rating') {
+      filteredData = filteredData.filter(
+        item => item.rating_score && Math.floor(item.rating_score) === parseInt(starsFilter)
+      )
+    }
+
+    // Get unique values for the specified field
+    const uniqueValues = new Set(
+      filteredData
+        .map(item => {
+          if (field === 'rating') {
+            return Math.floor(item.rating_score)
+          }
+          return item[field]
+        })
+        .filter(Boolean)
+    )
+
+    return Array.from(uniqueValues)
+  }
+
+  // Update the render section where the select elements are
   return (
     <>
       <header tabIndex='-1' className='page-header'>
-        <div className='w-full flex flex-row h-20 bg-white md:h-full px-4 justify-between items-center'>
-          <Link href='/' className='w-96' passHref>
-            <img className='' src='/calichefLogo.png' alt='Calichef Logo' />
+        <div className='w-full flex flex-row h-16 md:h-20 bg-white px-2 md:px-4 justify-between items-center'>
+          <Link href='/' className='w-48 md:w-96' passHref>
+            <img className='object-contain' src='/calichefLogo.png' alt='Calichef Logo' />
           </Link>
 
-          <div className='w-full flex text-green-600 flex-row justify-end items-center md:items-center'>
+          <div className='flex text-green-600 flex-row items-center gap-2 md:gap-4'>
             {userRecipes && userRecipes.length > 0 ? (
               <Link href='/recipes' passHref>
                 <div className='flex justify-center items-center hover:text-green-300'>
-                  <span className='text-xl'>({userRecipes.length})</span>
-                  <IoRestaurant className='mx-2 cursor-pointer text-3xl ' />
+                  <span className='text-base md:text-xl'>({userRecipes.length})</span>
+                  <IoRestaurant className='mx-1 md:mx-2 cursor-pointer text-2xl md:text-3xl' />
                 </div>
               </Link>
             ) : null}
             <div>
               <Link href='/' passHref>
                 <div className='flex items-center cursor-pointer'>
-                  <IoHomeSharp className='text-green-600 hover:text-green-300 text-3xl' />
+                  <IoHomeSharp className='text-green-600 hover:text-green-300 text-2xl md:text-3xl' />
                 </div>
               </Link>
             </div>
-            {isHomePage ? (
-              <FaSearch
-                className='mx-2 cursor-pointer hover:text-green-300 text-2xl'
-                onClick={openModal}
-              />
-            ) : (
-              <FaSearch
-                className='mx-2 cursor-pointer hover:text-green-300 text-2xl'
-                onClick={openModal}
-              />
-            )}
+            <FaSearch
+              className='cursor-pointer hover:text-green-300 text-xl md:text-2xl'
+              onClick={openModal}
+            />
           </div>
         </div>
       </header>
 
       {isModalOpen && (
-        <div className='fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-75'>
-          <div className='bg-white md:w-2/3 p-4 rounded-lg'>
-            <div className='flex justify-end'>
-              <IoClose
-                className='text-2xl hover:text-red-600 cursor-pointer mb-4'
-                onClick={closeModal}
-              />
-            </div>
-            <div className='flex flex-col w-full h-full gap-y-4 justify-center items-center'>
-              <div className='w-full'>
-                <input
-                  type='text'
-                  placeholder='Buscar...'
-                  value={searchTerm}
-                  onChange={handleSearch}
-                  onKeyPress={handleKeyPress}
-                  className='w-full p-2 border rounded'
-                  aria-label='Buscar'
+        <div className='fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-75 overflow-y-auto md:overflow-hidden'>
+          <div className='relative min-h-screen md:min-h-fit w-full flex items-center justify-center p-4'>
+            <div className='bg-white w-full md:w-2/3 p-4 md:p-8 rounded-2xl shadow-xl max-w-2xl'>
+              <div className='flex justify-between items-center mb-4 md:mb-6'>
+                <h2 className='text-xl md:text-2xl font-semibold text-gray-800'>Filtrar Recetas</h2>
+                <IoClose
+                  className='text-2xl md:text-3xl text-gray-500 hover:text-red-600 transition-colors duration-200 cursor-pointer'
+                  onClick={closeModal}
                 />
               </div>
-              <div className='mb-4 w-full space-y-2'>
-                <select
-                  value={countryFilter}
-                  onChange={e => setCountryFilter(e.target.value)}
-                  className='w-full p-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500'
-                >
-                  <option value='All'>País</option>
-                  <option value='Mexico'>México</option>
-                  <option value='Spain'>España</option>
-                  <option value='LATAM'>LATAM</option>
-                  <option value='USA'>USA</option>
-                  <option value='Australia'>Australia</option>
-                  <option value='Canada'>Canadá</option>
-                  <option value='UK'>Reino Unido</option>
-                  <option value='Arabia'>Arabia</option>
-                  <option value='Austria'>Austria</option>
-                  <option value='Emiratos'>Emiratos</option>
-                  <option value='Malasia'>Malasia</option>
-                  <option value='Suiza'>Suiza</option>
-                </select>
-                <select
-                  value={difficultyFilter}
-                  onChange={e => setDifficultyFilter(e.target.value)}
-                  className='w-full p-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500'
-                >
-                  <option value='All'>Dificultad</option>
-                  <option value='fácil'>Fácil</option>
-                  <option value='medio'>Media</option>
-                  <option value='avanzado'>Difícil</option>
-                </select>
-                <select
-                  value={languageFilter}
-                  onChange={e => setLanguageFilter(e.target.value)}
-                  className='w-full p-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500'
-                >
-                  <option value='All'>Idioma</option>
-                  <option value='Spanish'>Español</option>
-                  <option value='English'>Inglés</option>
-                </select>
 
-                <select
-                  value={starsFilter}
-                  onChange={e => setStarsFilter(e.target.value)}
-                  className='w-full p-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500'
-                >
-                  <option value='All'>Estrellas</option>
-                  <option value='1'>1 estrella</option>
-                  <option value='2'>2 estrellas</option>
-                  <option value='3'>3 estrellas</option>
-                  <option value='4'>4 estrellas</option>
-                  <option value='5'>5 estrellas</option>
-                </select>
-              </div>
+              <div className='space-y-4 md:space-y-6'>
+                <div className='relative'>
+                  <input
+                    type='text'
+                    placeholder='Buscar recetas...'
+                    value={searchTerm}
+                    onChange={handleSearch}
+                    onKeyPress={handleKeyPress}
+                    className='w-full px-3 md:px-4 py-2 md:py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200 text-sm md:text-base'
+                    aria-label='Buscar'
+                  />
+                </div>
 
-              <div className='flex justify-end gap-x-4'>
-                {areFiltersActive() && (
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4'>
+                  <div className='space-y-1 md:space-y-2'>
+                    <label className='block text-xs md:text-sm font-medium text-gray-700'>País</label>
+                    <select
+                      value={countryFilter}
+                      onChange={e => setCountryFilter(e.target.value)}
+                      className='w-full p-2 md:p-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200 text-sm md:text-base'
+                    >
+                      <option value='All'>Todos los países</option>
+                      {getAvailableOptions('Country').map(country => (
+                        <option key={country} value={country}>
+                          {country}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className='space-y-1 md:space-y-2'>
+                    <label className='block text-xs md:text-sm font-medium text-gray-700'>Dificultad</label>
+                    <select
+                      value={difficultyFilter}
+                      onChange={e => setDifficultyFilter(e.target.value)}
+                      className='w-full p-2 md:p-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200 text-sm md:text-base'
+                    >
+                      <option value='All'>Todas las dificultades</option>
+                      {getAvailableOptions('Dificultad').map(difficulty => (
+                        <option key={difficulty} value={difficulty}>
+                          {difficulty === 'fácil' ? 'Fácil' : difficulty === 'medio' ? 'Media' : 'Difícil'}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className='space-y-1 md:space-y-2'>
+                    <label className='block text-xs md:text-sm font-medium text-gray-700'>Idioma</label>
+                    <select
+                      value={languageFilter}
+                      onChange={e => setLanguageFilter(e.target.value)}
+                      className='w-full p-2 md:p-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200 text-sm md:text-base'
+                    >
+                      <option value='All'>Todos los idiomas</option>
+                      {getAvailableOptions('language').map(language => (
+                        <option key={language} value={language}>
+                          {language === 'Spanish' ? 'Español' : 'Inglés'}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className='space-y-1 md:space-y-2'>
+                    <label className='block text-xs md:text-sm font-medium text-gray-700'>Calificación</label>
+                    <select
+                      value={starsFilter}
+                      onChange={e => setStarsFilter(e.target.value)}
+                      className='w-full p-2 md:p-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200 text-sm md:text-base'
+                    >
+                      <option value='All'>Todas las estrellas</option>
+                      {getAvailableOptions('rating').sort().map(rating => (
+                        <option key={rating} value={rating}>
+                          {rating} {rating === 1 ? 'estrella' : 'estrellas'}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className='flex justify-end gap-x-2 md:gap-x-4 pt-4 md:pt-6'>
+                  {areFiltersActive() && (
+                    <button
+                      onClick={clearFilters}
+                      className='px-4 md:px-6 py-2 md:py-3 rounded-xl bg-red-50 text-red-600 font-medium hover:bg-red-100 transition-colors duration-200 text-sm md:text-base'
+                    >
+                      Limpiar
+                    </button>
+                  )}
                   <button
-                    onClick={clearFilters}
-                    className='bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded'
+                    onClick={handleModalSearch}
+                    className='px-4 md:px-6 py-2 md:py-3 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 transition-colors duration-200 text-sm md:text-base'
                   >
-                    Limpiar
+                    Aplicar
                   </button>
-                )}
-                <button
-                  onClick={handleModalSearch}
-                  className='bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded'
-                >
-                  Buscar
-                </button>
+                </div>
               </div>
             </div>
           </div>
