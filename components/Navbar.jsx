@@ -6,13 +6,13 @@ import { FaSearch } from 'react-icons/fa'
 import { IoRestaurant, IoClose, IoHomeSharp } from 'react-icons/io5'
 import Link from 'next/link'
 
-const debounce = (func, wait) => {
+const debounce = (func, wait = 1000) => {
   let timeout
   return (...args) => {
+    const context = this
     if (timeout) clearTimeout(timeout)
     timeout = setTimeout(() => {
-      timeout = null
-      func.apply(this, args)
+      func.apply(context, args)
     }, wait)
   }
 }
@@ -47,116 +47,14 @@ export default function Navbar () {
     isModalOpen,
     setIsModalOpen,
     categoryFilter,
-    setCategoryFilter,
-    ingredientFilter,
-    setIngredientFilter
+    setCategoryFilter
   } = contextValue
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [cookingTimeFilter, setCookingTimeFilter] = useState('All')
   const [finalTimeFilter, setFinalTimeFilter] = useState('All')
 
-  const getIngredients = () => {
-    if (!originalData) return [];
-    
-    // Crear clave de caché que incluya todos los filtros activos
-    const cacheKey = JSON.stringify({
-      searchTerm,
-      countryFilter,
-      difficultyFilter,
-      languageFilter,
-      starsFilter,
-      ingredientFilter
-    });
-    
-    if (window._ingredientsCache?.[cacheKey]) {
-      return window._ingredientsCache[cacheKey];
-    }
-    
-    // Aplicar todos los filtros excepto el de ingredientes
-    let filteredData = originalData.filter(item => {
-      if (searchTerm && !item.title.toLowerCase().includes(searchTerm.toLowerCase())) return false;
-      if (countryFilter !== 'All' && !item.country?.includes(countryFilter)) return false;
-      if (difficultyFilter !== 'All' && item.difficulty !== difficultyFilter) return false;
-      if (languageFilter !== 'All' && item.language !== languageFilter) return false;
-      if (starsFilter !== 'All' && (!item.rating_score || Math.floor(parseFloat(item.rating_score)) !== parseInt(starsFilter))) return false;
-      return true;
-    });
 
-    // Si hay ingredientes seleccionados, filtrar las recetas que los contengan
-    if (ingredientFilter.length > 0) {
-      filteredData = filteredData.filter(item => {
-        if (!item.ingredients) return false;
-        const ingredientSet = new Set();
-        
-        const processIngredients = (ingredients) => {
-          if (Array.isArray(ingredients)) {
-            ingredients.forEach(ing => {
-              if (typeof ing === 'object' && ing.name) {
-                ingredientSet.add(ing.name.toLowerCase());
-              } else if (typeof ing === 'string') {
-                ingredientSet.add(ing.toLowerCase());
-              }
-            });
-          } else if (typeof ingredients === 'object') {
-            Object.values(ingredients).forEach(group => {
-              if (Array.isArray(group)) processIngredients(group);
-            });
-          }
-        };
-        
-        processIngredients(item.ingredients);
-        return ingredientFilter.every(ing => {
-          const normalizedIng = ing.toLowerCase();
-          return ingredientSet.has(normalizedIng);
-        });
-      });
-    }
-    
-    const ingredientCount = new Map();
-    // Procesar y contar ingredientes disponibles
-    const processIngredients = (ingredients, count = new Map()) => {
-      if (Array.isArray(ingredients)) {
-        ingredients.forEach(ing => {
-          const name = typeof ing === 'object' ? ing.name : ing;
-          if (name) {
-            let normalizedName = name.toLowerCase().trim();
-            if (normalizedName.startsWith('de ')) {
-              normalizedName = normalizedName.slice(3);
-            }
-            count.set(normalizedName, (count.get(normalizedName) || 0) + 1);
-          }
-        });
-      } else if (typeof ingredients === 'object') {
-        Object.values(ingredients).forEach(group => {
-          if (Array.isArray(group)) processIngredients(group, count);
-        });
-      }
-      return count;
-    };
-
-    // Procesar ingredientes de las recetas filtradas
-    for (const item of filteredData) {
-      if (item.ingredients) {
-        const itemIngredients = processIngredients(item.ingredients);
-        itemIngredients.forEach((count, name) => {
-          ingredientCount.set(name, (ingredientCount.get(name) || 0) + count);
-        });
-      }
-    }
-
-    const result = Array.from(ingredientCount.entries())
-      .map(([name, count]) => ({ name, count }))
-      .sort((a, b) => b.count - a.count);
-    
-    // Almacenar en caché
-    if (!window._ingredientsCache) window._ingredientsCache = {};
-    window._ingredientsCache[cacheKey] = result;
-    
-    return result;
-  }
-
-  const ingredients = getIngredients();
 
   const getCategories = () => {
     if (!originalData) return [];
@@ -194,34 +92,7 @@ export default function Navbar () {
       );
     }
     
-    if (ingredientFilter.length > 0) {
-      filteredData = filteredData.filter(item => {
-        if (!item.ingredients) return false;
-        const ingredientSet = new Set();
-        
-        const processIngredients = (ingredients) => {
-          if (Array.isArray(ingredients)) {
-            ingredients.forEach(ing => {
-              if (typeof ing === 'object' && ing.name) {
-                ingredientSet.add(ing.name.toLowerCase());
-              } else if (typeof ing === 'string') {
-                ingredientSet.add(ing.toLowerCase());
-              }
-            });
-          } else if (typeof ingredients === 'object') {
-            Object.values(ingredients).forEach(group => {
-              if (Array.isArray(group)) processIngredients(group);
-            });
-          }
-        };
-        
-        processIngredients(item.ingredients);
-        return ingredientFilter.every(ing => {
-          const normalizedIng = ing.toLowerCase();
-          return ingredientSet.has(normalizedIng);
-        });
-      });
-    }
+        false
     
     const categoryCount = {};
     filteredData.forEach(item => {
@@ -251,14 +122,28 @@ export default function Navbar () {
       searchTermValue = ''
     }
 
+    // Optimización: Salir temprano si no hay término de búsqueda ni filtros activos
+    if (!searchTermValue && 
+        countryFilter === 'All' && 
+        difficultyFilter === 'All' && 
+        languageFilter === 'All' && 
+        starsFilter === 'All' && 
+        cookingTimeFilter === 'All' && 
+        finalTimeFilter === 'All' && 
+        categoryFilter.length === 0) {
+      setAllData(originalData)
+      return
+    }
+
     // Crear un Map para rastrear recetas únicas por ID
     const uniqueRecipes = new Map()
     let filteredData = [...originalData]
 
     // Aplicar filtros en orden
     if (searchTermValue && searchTermValue.trim() !== '') {
+      const searchTermLower = searchTermValue.toLowerCase().trim()
       filteredData = filteredData.filter(item =>
-        item.title.toLowerCase().includes(searchTermValue.toLowerCase().trim())
+        item.title.toLowerCase().includes(searchTermLower)
       )
     }
 
@@ -334,50 +219,7 @@ export default function Navbar () {
       })
     }
 
-    if (ingredientFilter && ingredientFilter.length > 0) {
-      filteredData = filteredData.filter(item => {
-        if (!item.ingredients) return false;
-        const getAllIngredientNames = (ingredients) => {
-          let names = new Set();
-          const processIngredient = (name) => {
-            if (!name || typeof name !== 'string') return '';
-            let processedName = name.toLowerCase().trim();
-            if (processedName.startsWith('de ')) {
-              processedName = processedName.slice(3);
-            }
-            return processedName;
-          };
 
-          const addIngredient = (ing) => {
-            if (typeof ing === 'object' && ing.name) {
-              names.add(processIngredient(ing.name));
-            } else if (typeof ing === 'string') {
-              names.add(processIngredient(ing));
-            }
-          };
-
-          if (Array.isArray(ingredients)) {
-            ingredients.forEach(addIngredient);
-          } else if (typeof ingredients === 'object') {
-            Object.values(ingredients).forEach(group => {
-              if (Array.isArray(group)) {
-                group.forEach(addIngredient);
-              }
-            });
-          }
-          return names;
-        };
-        
-        const ingredientNames = getAllIngredientNames(item.ingredients);
-        return ingredientFilter.every(ing => {
-          if (!ing) return true;
-          const processedFilter = ing.toLowerCase().startsWith('de ') ? 
-            ing.toLowerCase().slice(3).trim() : 
-            ing.toLowerCase().trim();
-          return ingredientNames.has(processedFilter);
-        });
-      });
-    }
 
     // Ordenar resultados
     filteredData = searchTermValue ? 
@@ -385,7 +227,7 @@ export default function Navbar () {
       filteredData.sort(() => Math.random() - 0.5)
 
     setAllData(filteredData)
-  }, [originalData, countryFilter, difficultyFilter, languageFilter, starsFilter, categoryFilter, ingredientFilter, setAllData])
+  }, [originalData, countryFilter, difficultyFilter, languageFilter, starsFilter, categoryFilter, setAllData])
 
   useEffect(() => {
     const savedSearchTerm = localStorage.getItem('searchTerm');
@@ -400,7 +242,7 @@ export default function Navbar () {
   }, [originalData, setSearchTerm, setAllData]);
 
   const debouncedHandleFilter = useCallback(
-    debounce(handleFilter, 300),
+    debounce(handleFilter, 500),
     [handleFilter]
   );
 
@@ -441,7 +283,7 @@ export default function Navbar () {
     setLanguageFilter('All')
     setStarsFilter('All')
     setCategoryFilter([])
-    setIngredientFilter([])
+
     setCookingTimeFilter('All')
     setFinalTimeFilter('All')
     handleFilter('')
@@ -455,7 +297,6 @@ export default function Navbar () {
       languageFilter !== 'All' ||
       starsFilter !== 'All' ||
       categoryFilter.length > 0 ||
-      ingredientFilter.length > 0 ||
       finalTimeFilter!== 'All' ||
       cookingTimeFilter !== 'All'
     )
@@ -558,76 +399,7 @@ export default function Navbar () {
           case '45': return timeValue <= 45 && timeValue > 1;
           default: return true;
         }
-      })
-    }
-    
-    if (ingredientFilter.length > 0 && field !== 'ingredients') {
-      filteredData = filteredData.filter(item => {
-        if (!item.ingredients) return false;
-        const ingredientSet = new Set();
-        
-        const processIngredients = (ingredients) => {
-          if (Array.isArray(ingredients)) {
-            ingredients.forEach(ing => {
-              if (typeof ing === 'object' && ing.name) {
-                ingredientSet.add(ing.name.toLowerCase());
-              } else if (typeof ing === 'string') {
-                ingredientSet.add(ing.toLowerCase());
-              }
-            });
-          } else if (typeof ingredients === 'object') {
-            Object.values(ingredients).forEach(group => {
-              if (Array.isArray(group)) processIngredients(group);
-            });
-          }
-        };
-        
-        processIngredients(item.ingredients);
-        return ingredientFilter.every(ing => {
-          const normalizedIng = ing.toLowerCase();
-          return ingredientSet.has(normalizedIng);
-        });
       });
-    }
-    if (difficultyFilter !== 'All' && field !== 'difficulty') {
-      filteredData = filteredData.filter(
-        item => item.difficulty && item.difficulty === difficultyFilter
-      );
-    }
-    if (languageFilter !== 'All' && field !== 'language') {
-      filteredData = filteredData.filter(
-        item => item.language && item.language === languageFilter
-      );
-    }
-    if (starsFilter !== 'All' && field !== 'rating') {
-      filteredData = filteredData.filter(
-        item => item.rating_score && Math.floor(parseFloat(item.rating_score)) === parseInt(starsFilter)
-      );
-    }
-    if (cookingTimeFilter !== 'All' && field !== 'cooking_time') {
-      filteredData = filteredData.filter(item => {
-        if (!item.cooking_time_value) return false;
-        const timeValue = parseInt(item.cooking_time_value);
-        switch(cookingTimeFilter) {
-          case '15': return timeValue <= 15  && timeValue > 1;
-          case '30': return timeValue <= 30  && timeValue > 1;
-          case '45': return timeValue <= 45 && timeValue > 1;
-          default: return true;
-        }
-      });
-    }
-
-    if (finalTimeFilter!== 'All' && field!== 'final_time') {
-      filteredData = filteredData.filter(item => {
-        if (!item.total_time_value) return false;
-        const timeValue = parseInt(item.total_time_value);
-        switch(finalTimeFilter) {
-          case '15': return timeValue <= 15  && timeValue > 1;
-          case '30': return timeValue <= 30  && timeValue > 1;
-          case '45': return timeValue <= 45 && timeValue > 1;
-          default: return true;
-        }
-      })
     }
     
     // Aplicar filtro de categoría si existe y no es el campo actual
@@ -639,36 +411,6 @@ export default function Navbar () {
       });
     }
     
-    // Apply ingredient filter
-    if (ingredientFilter.length > 0 && field !== 'ingredients') {
-      filteredData = filteredData.filter(item => {
-        if (!item.ingredients) return false;
-        const ingredientSet = new Set();
-        
-        const processIngredients = (ingredients) => {
-          if (Array.isArray(ingredients)) {
-            ingredients.forEach(ing => {
-              if (typeof ing === 'object' && ing.name) {
-                ingredientSet.add(ing.name.toLowerCase());
-              } else if (typeof ing === 'string') {
-                ingredientSet.add(ing.toLowerCase());
-              }
-            });
-          } else if (typeof ingredients === 'object') {
-            Object.values(ingredients).forEach(group => {
-              if (Array.isArray(group)) processIngredients(group);
-            });
-          }
-        };
-        
-        processIngredients(item.ingredients);
-        return ingredientFilter.every(ing => {
-          const normalizedIng = ing.toLowerCase();
-          return ingredientSet.has(normalizedIng);
-        });
-      });
-    }
-
     // Get unique values for the specified field
     const uniqueValues = new Set();
     filteredData.forEach(item => {
@@ -949,58 +691,6 @@ export default function Navbar () {
                             </div>
                         </div>
 
-                        <div className='space-y-2'>
-                            <h3 className='text-lg font-semibold text-white'>Ingredientes</h3>
-                            <div className='relative mb-4'>
-                                <input
-                                    type='text'
-                                    placeholder='Buscar ingredientes...'
-                                    className='w-full px-3 md:px-4 py-2 md:py-3 border-2 border-neutral-700 bg-neutral-700 text-white rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200 text-sm md:text-base'
-                                    onChange={(e) => {
-                                        const searchValue = e.target.value.toLowerCase();
-                                        requestAnimationFrame(() => {
-                                            const ingredientsList = document.querySelector('.ingredients-list');
-                                            if (ingredientsList) {
-                                                Array.from(ingredientsList.children).forEach(child => {
-                                                    const ingredientName = child.querySelector('span').textContent.toLowerCase();
-                                                    child.style.display = ingredientName.includes(searchValue) ? 'flex' : 'none';
-                                                });
-                                            }
-                                        });
-                                    }}
-                                />
-                            </div>
-                            <div className='space-y-2 max-h-60 overflow-y-auto ingredients-list'>
-                                {ingredients.map((ingredient) => (
-                                    <div
-                                        key={ingredient.name}
-                                        className='flex items-center justify-between p-2 hover:bg-neutral-700 rounded-lg cursor-pointer transition-colors duration-200'
-                                        onClick={() => {
-                                            const newFilter = ingredientFilter.includes(ingredient.name)
-                                                ? ingredientFilter.filter(ing => ing !== ingredient.name)
-                                                : [...ingredientFilter, ingredient.name];
-                                            setIngredientFilter(newFilter);
-                                        }}
-                                    >
-                                        <div className='flex items-center'>
-                                            <input
-                                                type="checkbox"
-                                                checked={ingredientFilter.includes(ingredient.name)}
-                                                onChange={() => {
-                                                    const newFilter = ingredientFilter.includes(ingredient.name)
-                                                        ? ingredientFilter.filter(ing => ing !== ingredient.name)
-                                                        : [...ingredientFilter, ingredient.name];
-                                                    setIngredientFilter(newFilter);
-                                                }}
-                                                className='w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500'
-                                            />
-                                            <span className='ml-3 text-white'>{ingredient.name}</span>
-                                        </div>
-                                        <span className='text-gray-400'>{ingredient.count} resultados</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
                     </div>
                 </div>
                 <div className='sticky bottom-0 bg-neutral-900 py-4 border-t border-neutral-700 p-4 md:p-8'>
