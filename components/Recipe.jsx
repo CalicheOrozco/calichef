@@ -17,7 +17,6 @@ export default function Recipe({
   tm_versions,
   rating_score,
   difficulty,
-  cooking_time,
   total_time,
   porciones,
   ingredients,
@@ -29,9 +28,16 @@ export default function Recipe({
   category,
   collections,
   country,
-  language
+  language,
+  cooking_time,
 }) {
   const [isSaved, setIsSaved] = useState(false)
+
+  const difficultyMap = {
+    'E': 'Fácil',
+    'M': 'Medio',
+    'A': 'Avanzado'
+  }
 
   const rating = rating_score?.toString().split('.') || ['0', '0']
   const rating_integer = parseInt(rating[0]) || 0
@@ -236,8 +242,9 @@ export default function Recipe({
             </div>
           </div>
         </div>
-        <div className='icons py-5'>
-          <div className='flex gap-y-4 flex-wrap justify-around items-center'>
+        <div className='py-5'>
+          
+          <div className='flex gap-y-4 flex-wrap justify-around items-center mt-6'>
             <div id='rc-icon-difficulty' className='core-feature-icons__item'>
               <span
                 id='rc-icon-difficulty-icon'
@@ -252,7 +259,7 @@ export default function Recipe({
                 className='core-feature-icons__text text-center'
               >
                 <span className='core-feature-icons__subtitle'>Dificultad</span>
-                {difficulty}
+                <span className='text-white'>{difficultyMap[difficulty] || difficulty}</span>
               </label>
             </div>
             <div id='rc-icon-active-time' className='core-feature-icons__item'>
@@ -266,12 +273,12 @@ export default function Recipe({
               ></span>
               <label
                 id='rc-icon-active-time-text'
-                className='core-feature-icons__text text-center'
+                className='core-feature-icons__text text-center group'
               >
-                <span className='core-feature-icons__subtitle'>
+                <span className='core-feature-icons__subtitle transition-colors duration-200'>
                   Tiempo de preparación
                 </span>
-                {cooking_time}
+                <span className='text-white'>{cooking_time}</span>
               </label>
             </div>
             <div id='rc-icon-total-time' className='core-feature-icons__item'>
@@ -324,32 +331,41 @@ export default function Recipe({
                     Object.entries(ingredients).map(([group, items]) => (
                       <div key={group}>
                         {group !== 'Sin título' && <h4 className="text-white font-semibold mt-3 mb-2">{group}</h4>}
-                        {Array.isArray(items) && items.map((ingredient, index) => (
-                          <li key={`${group}-${index}`} className='flex items-center justify-between py-2 px-4 rounded-lg'>
-                            <div className='flex items-center gap-3'>
-                              {ingredient.image && 
-                                <div className='w-14 h-14 flex items-center justify-center'>
-                                  <Image 
-                                    src={ingredient.image} 
-                                    alt={ingredient.name} 
-                                    width={40}
-                                    height={40}
-                                    className="object-cover"
-                                  />
-                                </div>
-                              }
-                              <div>
-                                <span className='text-white'>{ingredient.name}</span>
-                                {ingredient.description && 
-                                  <span className="text-gray-400 text-sm block">{ingredient.description}</span>
+                        {Array.isArray(items) && items.map((ingredient, index) => {
+                          // Procesar el nombre del ingrediente
+                          let processedName = ingredient.name;
+                          if (processedName.startsWith('de ')) {
+                            processedName = processedName.slice(3);
+                          }
+                          processedName = processedName.charAt(0).toUpperCase() + processedName.slice(1);
+                          
+                          return (
+                            <li key={`${group}-${index}`} className='flex items-center justify-between py-2 px-4 rounded-lg hover:bg-neutral-800 transition-colors duration-200'>
+                              <div className='flex items-center gap-3'>
+                                {ingredient.image && 
+                                  <div className='w-14 h-14 flex items-center justify-center'>
+                                    <Image 
+                                      src={ingredient.image} 
+                                      alt={processedName} 
+                                      width={40}
+                                      height={40}
+                                      className="object-cover"
+                                    />
+                                  </div>
                                 }
+                                <div>
+                                  <span className='text-white'>{processedName}</span>
+                                  {ingredient.description && 
+                                    <span className="text-gray-400 text-sm block">{ingredient.description}</span>
+                                  }
+                                </div>
                               </div>
-                            </div>
-                            {ingredient.amount && 
-                              <span className="text-gray-300 text-sm">{ingredient.amount}</span>
-                            }
-                          </li>
-                        ))}
+                              {ingredient.amount && 
+                                <span className="text-gray-300 text-sm">{ingredient.amount}</span>
+                              }
+                            </li>
+                          );
+                        })}
                       </div>
                     ))
                   : null}

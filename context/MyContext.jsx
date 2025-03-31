@@ -18,6 +18,7 @@ const MyProvider = ({ children }) => {
   const [starsFilter, setStarsFilter] = useState('All')
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [categoryFilter, setCategoryFilter] = useState([])
+  const [ingredientFilter, setIngredientFilter] = useState([])
 
   const [dataMexico, setDataMexico] = useState(null)
   const [dataSpain, setDataSpain] = useState(null)
@@ -130,7 +131,9 @@ const MyProvider = ({ children }) => {
         isModalOpen,
         setIsModalOpen,
         categoryFilter,
-        setCategoryFilter
+        setCategoryFilter,
+        ingredientFilter,
+        setIngredientFilter
       }}
     >
       {children}

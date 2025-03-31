@@ -43,10 +43,10 @@ const Post = () => {
           tm_versions: recipe.tm_versions,
           rating_score: recipe.rating_score,
           rating_count: recipe.rating_count,
-          difficulty: recipe.Dificultad,
+          difficulty: recipe.difficulty,
           cooking_time: recipe.cooking_time,
           total_time: recipe.total_time,
-          porciones: recipe.Porciones,
+          porciones: recipe.porciones,
           ingredients: recipe.ingredients,
           nutritions: recipe.nutritions,
           steps: recipe.steps,
@@ -105,6 +105,8 @@ const Post = () => {
             tags={recipe.tags}
             tips={recipe.tips}
             recommended={recommended}
+        
+
           />
         ) : (
           <div className='flex justify-center items-center h-screen'>
