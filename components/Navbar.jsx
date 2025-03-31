@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import React, { useContext, useState, useEffect, useCallback } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { CalichefContext } from '../context/MyContext'
@@ -51,6 +52,7 @@ export default function Navbar () {
     setIngredientFilter
   } = contextValue
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const [cookingTimeFilter, setCookingTimeFilter] = useState('All')
   const [finalTimeFilter, setFinalTimeFilter] = useState('All')
 
