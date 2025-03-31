@@ -127,36 +127,33 @@ function Card ({ title, rating_score, rating_count, time, img_url, id, category 
           )}
         </div>
       </div>
-      <Link href={`/${id}`} passHref>
-        <div>
-          <div className='p-4'>
-            <h2 className='text-lg font-semibold mb-2 line-clamp-2 text-white'>{title}</h2>
-            <div className='flex items-center justify-between'>
-              <div className='flex items-center'>
-                {stars.map((star, index) => (
-                  <span key={index}>
-                    {star === 1 ? (
-                      <FaStar className='text-yellow-500' />
-                    ) : star === 2 ? (
-                      <FaStarHalf className='text-yellow-500' />
-                    ) : (
-                      <FaStar className='text-gray-300' />
-                    )}
-                  </span>
-                ))}
-                <span className='ml-2 text-gray-400'>{rating_score}</span>
-                <span className='ml-2 text-gray-400'>({rating_count})</span>
-              </div>
-              <div className='text-gray-400'>{time}</div>
+      <Link href={`/${id}`} className='block'>
+        <div className='p-4'>
+          <h2 className='text-lg font-semibold mb-2 line-clamp-2 text-white'>{title}</h2>
+          <div className='flex items-center justify-between'>
+            <div className='flex items-center'>
+              {stars.map((star, index) => (
+                <span key={index}>
+                  {star === 1 ? (
+                    <FaStar className='text-yellow-500' />
+                  ) : star === 2 ? (
+                    <FaStarHalf className='text-yellow-500' />
+                  ) : (
+                    <FaStar className='text-gray-300' />
+                  )}
+                </span>
+              ))}
+              <span className='ml-2 text-gray-400'>{rating_score}</span>
+              <span className='ml-2 text-gray-400'>({rating_count})</span>
             </div>
-            <div className='text-gray-400 pt-4'>
+            <div className='text-gray-400'>{time}</div>
+          </div>
+          <div className='text-gray-400 pt-4'>
             {Array.isArray(category) ? category.join(', ') : category}
           </div>
-
-          </div>
-          <div className='flex items-center justify-end pr-4 pb-4'>
-            <i className='fas fa-ellipsis-v'></i>
-          </div>
+        </div>
+        <div className='flex items-center justify-end pr-4 pb-4'>
+          <i className='fas fa-ellipsis-v'></i>
         </div>
       </Link>
     </div>

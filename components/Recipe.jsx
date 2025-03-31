@@ -5,6 +5,7 @@ import { CalichefContext } from '../context/MyContext'
 import { FaShareFromSquare } from 'react-icons/fa6'
 import { openDB } from 'idb'
 import Card from './Card'
+import Image from 'next/image'
 
 const DB_NAME = 'calicheDatabase'
 const STORE_NAME = 'dataStore'
@@ -137,11 +138,14 @@ export default function Recipe({
                     id='recipe-card__image-loader'
                     loaded='true'
                   >
-                    <img
+                    <Image
                       sizes='(min-width: 1333px) 600px, (min-width: 992px) 667px, (min-width: 768px) 496px, (min-width: 576px) 767px, (min-width: 0px) 575px'
-                      src={img_url} // Change back to img_url
+                      src={img_url}
                       alt={title}
                       title={title}
+                      width={600}
+                      height={400}
+                      priority
                     />
 
                   </core-image-loader>
@@ -325,7 +329,13 @@ export default function Recipe({
                             <div className='flex items-center gap-3'>
                               {ingredient.image && 
                                 <div className='w-14 h-14 flex items-center justify-center'>
-                                  <img src={ingredient.image} alt={ingredient.name} className="w-10 h-10 object-cover" />
+                                  <Image 
+                                    src={ingredient.image} 
+                                    alt={ingredient.name} 
+                                    width={40}
+                                    height={40}
+                                    className="object-cover"
+                                  />
                                 </div>
                               }
                               <div>
@@ -484,18 +494,23 @@ export default function Recipe({
         <div className='recommended-recipes'>
           <h2 className='text-white pb-4'>Recetas alternativas</h2>
           <div className='flex flex-wrap justify-center md:justify-between items-center gap-y-5'>
-            {recommended.map((item, index) => (
-              <Card
-                key={item.id}
-                id={item.id}
-                title={item.title}
-                rating_score={item.rating_score}
-                rating_count={item.rating_count}
-                time={item.total_time}
-                img_url={item.img_url}
-                category={item.category}
-              />
-            ))}
+            {recommended
+              .filter(item => item.id !== id) // Filter out the current recipe
+              .filter((item, index, self) => 
+                index === self.findIndex((t) => t.id === item.id) // Filter out duplicates
+              )
+              .map((item) => (
+                <Card
+                  key={item.id}
+                  id={item.id}
+                  title={item.title}
+                  rating_score={item.rating_score}
+                  rating_count={item.rating_count}
+                  time={item.total_time}
+                  img_url={item.img_url}
+                  category={item.category}
+                />
+              ))}
           </div>
         </div>
       )}

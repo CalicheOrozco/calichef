@@ -1,9 +1,12 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-hooks/rules-of-hooks */
 import React, { useContext, useState, useEffect, useCallback } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { CalichefContext } from '../context/MyContext'
 import { FaSearch } from 'react-icons/fa'
 import { IoRestaurant, IoClose, IoHomeSharp } from 'react-icons/io5'
 import Link from 'next/link'
+import Image from 'next/image'
 
 const debounce = (func, wait) => {
   let timeout
@@ -22,7 +25,10 @@ export default function Navbar () {
   const contextValue = useContext(CalichefContext)
   if (!contextValue) {
     console.error('CalichefContext no está disponible en el componente Navbar')
+    return null
   }
+
+
   const {
     setAllData,
     userRecipes,
@@ -38,8 +44,107 @@ export default function Navbar () {
     starsFilter,
     setStarsFilter,
     isModalOpen,
-    setIsModalOpen
+    setIsModalOpen,
+    categoryFilter,
+    setCategoryFilter
   } = contextValue
+
+  const getCategories = () => {
+    if (!originalData) return [];
+    
+    let filteredData = [...originalData];
+
+    // Aplicar filtros actuales excepto categorías
+    if (searchTerm) {
+      filteredData = filteredData.filter(item =>
+        item.title.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    if (countryFilter !== 'All') {
+      filteredData = filteredData.filter(item => item.country && item.country.includes(countryFilter));
+    }
+    if (difficultyFilter !== 'All') {
+      filteredData = filteredData.filter(item => item.difficulty && item.difficulty === difficultyFilter);
+    }
+    if (languageFilter !== 'All') {
+      filteredData = filteredData.filter(item => item.language && item.language === languageFilter);
+    }
+    if (starsFilter !== 'All') {
+      filteredData = filteredData.filter(item => 
+        item.rating_score && Math.floor(parseFloat(item.rating_score)) === parseInt(starsFilter)
+      );
+    }
+    
+    const categoryCount = {};
+    filteredData.forEach(item => {
+      if (item.category) {
+        const categories = Array.isArray(item.category) ? item.category : [item.category];
+        categories.forEach(category => {
+          categoryCount[category] = (categoryCount[category] || 0) + 1;
+        });
+      }
+    });
+
+    return Object.entries(categoryCount)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count);
+  }
+
+  const categories = getCategories();
+
+  const handleFilter = searchTermValue => {
+    if (!originalData || !Array.isArray(originalData)) {
+      setAllData([])
+      return
+    }
+
+    let filteredData = [...originalData]
+
+    const applyFilter = (condition, filterFn) => {
+      if (condition && Array.isArray(filteredData)) {
+        filteredData = filteredData.filter(filterFn)
+        filteredData = searchTermValue === ''
+          ? filteredData.sort(() => Math.random() - 0.5)
+          : filteredData.sort((a, b) => b.rating_count - a.rating_count)
+      }
+    }
+
+    applyFilter(
+      searchTermValue,
+      item => item.title.toLowerCase().includes(searchTermValue.toLowerCase())
+    )
+
+    applyFilter(
+      countryFilter !== 'All',
+      item => item.country && item.country.includes(countryFilter)
+    )
+
+    applyFilter(
+      difficultyFilter !== 'All',
+      item => item.difficulty && item.difficulty.toLowerCase() === difficultyFilter.toLowerCase()
+    )
+
+    applyFilter(
+      languageFilter !== 'All',
+      item => item.language && item.language.toLowerCase() === languageFilter.toLowerCase()
+    )
+
+    applyFilter(
+      starsFilter !== 'All',
+      item => item.rating_score && Math.floor(parseFloat(item.rating_score)) === parseInt(starsFilter)
+    )
+
+    applyFilter(
+      categoryFilter.length > 0,
+      item => {
+        if (!item.category) return false;
+        const categories = Array.isArray(item.category) ? item.category : [item.category];
+        return categoryFilter.some(cat => categories.includes(cat));
+      }
+    )
+
+    setAllData(filteredData)
+  }
 
   useEffect(() => {
     const savedSearchTerm = localStorage.getItem('searchTerm')
@@ -58,66 +163,15 @@ export default function Navbar () {
     debouncedHandleFilter(event.target.value)
   }
 
-  const handleFilter = searchTermValue => {
-    let filteredData = originalData
-    if (searchTermValue) {
-      filteredData = filteredData.filter(item =>
-        item.title.toLowerCase().includes(searchTermValue.toLowerCase())
-      )
-      searchTermValue === ''
-        ? filteredData?.sort(() => Math.random() - 0.5)
-        : filteredData?.sort((a, b) => b.rating_count - a.rating_count)
-    }
-    if (countryFilter !== 'All') {
-      filteredData = filteredData.filter(
-        item =>
-          item.country &&
-          item.country.includes(countryFilter)
-      )
-      searchTermValue === ''
-        ? filteredData?.sort(() => Math.random() - 0.5)
-        : filteredData?.sort((a, b) => b.rating_count - a.rating_count)
-    }
-    if (difficultyFilter !== 'All') {
-      filteredData = filteredData.filter(
-        item =>
-          item.difficulty &&
-          item.difficulty.toLowerCase() === difficultyFilter.toLowerCase()
-      )
-      searchTermValue === ''
-        ? filteredData?.sort(() => Math.random() - 0.5)
-        : filteredData?.sort((a, b) => b.rating_count - a.rating_count)
-    }
-    if (languageFilter !== 'All') {
-      filteredData = filteredData.filter(
-        item =>
-          item.language &&
-          item.language.toLowerCase() === languageFilter.toLowerCase()
-      )
-      searchTermValue === ''
-        ? filteredData?.sort(() => Math.random() - 0.5)
-        : filteredData?.sort((a, b) => b.rating_count - a.rating_count)
-    }
-    if (starsFilter !== 'All') {
-      filteredData = filteredData.filter(
-        item =>
-          item.rating_score &&
-          Math.floor(parseFloat(item.rating_score)) === parseInt(starsFilter)
-      )
-      searchTermValue === ''
-        ? filteredData?.sort(() => Math.random() - 0.5)
-        : filteredData?.sort((a, b) => b.rating_count - a.rating_count)
-    }
 
-    setAllData(filteredData)
-  }
 
   const debouncedHandleFilter = useCallback(debounce(handleFilter, 600), [
     originalData,
     countryFilter,
     difficultyFilter,
     languageFilter,
-    starsFilter
+    starsFilter,
+    categoryFilter
   ])
 
   useEffect(() => {
@@ -126,7 +180,7 @@ export default function Navbar () {
 
   useEffect(() => {
     handleFilter(searchTerm)
-  }, [countryFilter, difficultyFilter, languageFilter, starsFilter])
+  }, [countryFilter, difficultyFilter, languageFilter, starsFilter, categoryFilter])
 
   const openModal = () => {
     setIsModalOpen(true)
@@ -154,6 +208,7 @@ export default function Navbar () {
     setDifficultyFilter('All')
     setLanguageFilter('All')
     setStarsFilter('All')
+    setCategoryFilter([])
     setAllData(originalData)
   }
 
@@ -163,7 +218,8 @@ export default function Navbar () {
       countryFilter !== 'All' ||
       difficultyFilter !== 'All' ||
       languageFilter !== 'All' ||
-      starsFilter !== 'All'
+      starsFilter !== 'All' ||
+      categoryFilter !== 'All'
     )
   }
 
@@ -270,7 +326,14 @@ export default function Navbar () {
       <header tabIndex='-1' className='page-header'>
         <div className='w-full flex flex-row h-16 md:h-20 bg-neutral-800 border-b border-neutral-700 px-2 md:px-4 justify-between items-center'>
           <Link href='/' className='w-48 md:w-96' passHref>
-            <img className='object-contain' src='/calichefLogo.png' alt='Calichef Logo' />
+            <Image 
+              className='object-contain w-auto h-auto'
+              src='/calichefLogo.png'
+              alt='Calichef Logo'
+              width={200}
+              height={40}
+              priority
+            />
           </Link>
 
           <div className='flex text-green-600 flex-row items-center gap-2 md:gap-4'>
@@ -385,6 +448,40 @@ export default function Navbar () {
                         </option>
                       ))}
                     </select>
+                  </div>
+                </div>
+
+                <div className='space-y-2'>
+                  <h3 className='text-lg font-semibold text-white'>Categoría</h3>
+                  <div className='space-y-2 max-h-60 overflow-y-auto'>
+                    {categories.map((category) => (
+                      <div 
+                        key={category.name}
+                        className='flex items-center justify-between p-2 hover:bg-neutral-700 rounded-lg cursor-pointer'
+                        onClick={() => {
+                          const newFilter = categoryFilter.includes(category.name)
+                            ? categoryFilter.filter(cat => cat !== category.name)
+                            : [...categoryFilter, category.name]
+                          setCategoryFilter(newFilter)
+                        }}
+                      >
+                        <div className='flex items-center'>
+                          <input
+                            type="checkbox"
+                            checked={categoryFilter.includes(category.name)}
+                            onChange={() => {
+                              const newFilter = categoryFilter.includes(category.name)
+                                ? categoryFilter.filter(cat => cat !== category.name)
+                                : [...categoryFilter, category.name]
+                              setCategoryFilter(newFilter)
+                            }}
+                            className='w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500'
+                          />
+                          <span className='ml-3 text-white'>{category.name}</span>
+                        </div>
+                        <span className='text-gray-400'>{category.count} resultados</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
