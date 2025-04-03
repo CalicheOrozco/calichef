@@ -15,7 +15,7 @@ export default function Home () {
 
   return (
     <>
-      <Navbar className='pb-10' />
+      <Navbar countRecipies={AllData?.length} className='pb-10' />
       <div className='container mx-auto py-20 px-4 min-h-screen'>
         {AllData ? (
           <>
