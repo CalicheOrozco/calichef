@@ -134,10 +134,8 @@ function Card ({ title, rating_score, rating_count, time, img_url, id, category 
             <div className='flex items-center'>
               {stars.map((star, index) => (
                 <span key={index}>
-                  {star === 1 ? (
+                  {star === 1 || star === 2 ? (
                     <FaStar className='text-yellow-500' />
-                  ) : star === 2 ? (
-                    <FaStarHalf className='text-yellow-500' />
                   ) : (
                     <FaStar className='text-gray-300' />
                   )}

@@ -2,7 +2,7 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { CalichefContext } from '../context/MyContext'
-import { FaSearch } from 'react-icons/fa'
+import { FaSearch, FaStar } from 'react-icons/fa'
 import { IoRestaurant, IoClose, IoHomeSharp } from 'react-icons/io5'
 import Link from 'next/link'
 
@@ -17,9 +17,9 @@ const debounce = (func, wait = 1000) => {
   }
 }
 
-export default function Navbar () {
+export default function Navbar ({countRecipies }) {
+  console.log('countRecipies', countRecipies)
   const [isHomePage, setIsHomePage] = useState(false)
-  const [mounted, setMounted] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
 
@@ -28,6 +28,8 @@ export default function Navbar () {
     console.error('CalichefContext no está disponible en el componente Navbar')
     return null
   }
+
+  const { AllData } = contextValue
 
 
   const {
@@ -69,9 +71,9 @@ export default function Navbar () {
       );
     }
     
-    if (countryFilter !== 'All') {
+    if (!countryFilter.includes('All')) {
       filteredData = filteredData.filter(
-        item => item.country && item.country.includes(countryFilter)
+        item => item.country && countryFilter.some(country => item.country.includes(country))
       );
     }
     
@@ -81,9 +83,9 @@ export default function Navbar () {
       );
     }
     
-    if (languageFilter !== 'All') {
+    if (!languageFilter.includes('All')) {
       filteredData = filteredData.filter(
-        item => item.language && item.language === languageFilter
+        item => item.language && languageFilter.includes(item.language)
       );
     }
     
@@ -113,7 +115,7 @@ export default function Navbar () {
               const value = parseInt(numberMatch[1]);
               const unit = unitMatch[1].toLowerCase();
 
-              // Si es 'h', lo multiplicamos por 60 para convertirlo a minutos
+              // Si es 'h', lo multiplicamos por 60 para convertirlo a Minutos
               if (unit === 'h') {
                 totalMinutes += value * 60;
               } else if (unit === 'min') {
@@ -139,17 +141,17 @@ export default function Navbar () {
           case '15': return totalMinutes <= 15;
           case '30': return totalMinutes <= 30;
           case '45': return totalMinutes <= 45;
+          case '60': return totalMinutes >= 60;
           default: return true;
         }
       });
     }
     
     if (finalTimeFilter !== 'All') {
-      console.log('finalTimeFilter',finalTimeFilter)
       filteredData = filteredData.filter(item => {
         if (!item.total_time) return false;
         
-        // Caso especial para tiempos mayores a 1 hora
+        // Caso especial para tiempos mayores a 1 Hora
         if (finalTimeFilter === '>1h') {
           return /h/i.test(item.total_time);
         }
@@ -169,7 +171,7 @@ export default function Navbar () {
               const value = parseInt(numberMatch[1]);
               const unit = unitMatch[1].toLowerCase();
 
-              // Si es 'h', lo multiplicamos por 60 para convertirlo a minutos
+              // Si es 'h', lo multiplicamos por 60 para convertirlo a Minutos
               if (unit === 'h') {
                 totalMinutes += value * 60;
               } else if (unit === 'min') {
@@ -233,9 +235,9 @@ export default function Navbar () {
 
     // Optimización: Salir temprano si no hay término de búsqueda ni filtros activos
     if (!searchTermValue && 
-        countryFilter === 'All' && 
+        countryFilter.includes('All') && 
         difficultyFilter === 'All' && 
-        languageFilter === 'All' && 
+        languageFilter.includes('All') && 
         starsFilter === 'All' && 
         cookingTimeFilter === 'All' && 
         finalTimeFilter === 'All' && 
@@ -265,9 +267,9 @@ export default function Navbar () {
       return false
     })
 
-    if (countryFilter !== 'All') {
+    if (!countryFilter.includes('All')) {
       filteredData = filteredData.filter(item =>
-        item.country && item.country.includes(countryFilter)
+        item.country && countryFilter.some(country => item.country.includes(country))
       )
     }
 
@@ -277,9 +279,9 @@ export default function Navbar () {
       )
     }
 
-    if (languageFilter !== 'All') {
+    if (!languageFilter.includes('All')) {
       filteredData = filteredData.filter(item =>
-        item.language === languageFilter
+        item.language && languageFilter.includes(item.language)
       )
     }
 
@@ -308,7 +310,7 @@ export default function Navbar () {
               const value = parseInt(numberMatch[1]);
               const unit = unitMatch[1].toLowerCase();
 
-              // Si es 'h', lo multiplicamos por 60 para convertirlo a minutos
+              // Si es 'h', lo multiplicamos por 60 para convertirlo a Minutos
               if (unit === 'h') {
                 totalMinutes += value * 60;
               } else if (unit === 'min') {
@@ -334,6 +336,7 @@ export default function Navbar () {
           case '15': return totalMinutes <= 15;
           case '30': return totalMinutes <= 30;
           case '45': return totalMinutes <= 45;
+          case '60': return totalMinutes >= 60;
           default: return true;
         }
       });
@@ -343,7 +346,7 @@ export default function Navbar () {
       filteredData = filteredData.filter(item => {
         if (!item.total_time) return false;
         
-        // Caso especial para tiempos mayores a 1 hora
+        // Caso especial para tiempos mayores a 1 Hora
         if (finalTimeFilter === '>1h') {
           return /h/i.test(item.total_time);
         }
@@ -363,7 +366,7 @@ export default function Navbar () {
               const value = parseInt(numberMatch[1]);
               const unit = unitMatch[1].toLowerCase();
 
-              // Si es 'h', lo multiplicamos por 60 para convertirlo a minutos
+              // Si es 'h', lo multiplicamos por 60 para convertirlo a Minutos
               if (unit === 'h') {
                 totalMinutes += value * 60;
               } else if (unit === 'min') {
@@ -462,9 +465,9 @@ export default function Navbar () {
 
   const clearFilters = () => {
     setSearchTerm('')
-    setCountryFilter('All')
+    setCountryFilter(['All'])
     setDifficultyFilter('All')
-    setLanguageFilter('All')
+    setLanguageFilter(['All'])
     setStarsFilter('All')
     setCategoryFilter([])
 
@@ -476,9 +479,9 @@ export default function Navbar () {
   const areFiltersActive = () => {
     return (
       searchTerm !== '' ||
-      countryFilter !== 'All' ||
+      !countryFilter.includes('All') ||
       difficultyFilter !== 'All' ||
-      languageFilter !== 'All' ||
+      !languageFilter.includes('All') ||
       starsFilter !== 'All' ||
       categoryFilter.length > 1 ||
       finalTimeFilter!== 'All' ||
@@ -536,9 +539,9 @@ export default function Navbar () {
       );
     }
     
-    if (countryFilter !== 'All' && field !== 'country') {
+    if (!countryFilter.includes('All') && field !== 'country') {
       filteredData = filteredData.filter(
-        item => item.country && item.country.includes(countryFilter)
+        item => item.country && countryFilter.some(country => item.country.includes(country))
       );
     }
     
@@ -548,9 +551,9 @@ export default function Navbar () {
       );
     }
     
-    if (languageFilter !== 'All' && field !== 'language') {
+    if (!languageFilter.includes('All') && field !== 'language') {
       filteredData = filteredData.filter(
-        item => item.language && item.language === languageFilter
+        item => item.language && languageFilter.includes(item.language)
       );
     }
     
@@ -579,7 +582,7 @@ export default function Navbar () {
               const value = parseInt(numberMatch[1]);
               const unit = unitMatch[1].toLowerCase();
 
-              // Si es 'h', lo multiplicamos por 60 para convertirlo a minutos
+              // Si es 'h', lo multiplicamos por 60 para convertirlo a Minutos
               if (unit === 'h') {
                 totalMinutes += value * 60;
               } else if (unit === 'min') {
@@ -605,6 +608,7 @@ export default function Navbar () {
           case '15': return totalMinutes <= 15;
           case '30': return totalMinutes <= 30;
           case '45': return totalMinutes <= 45;
+          case '60': return totalMinutes >= 60;
           default: return true;
         }
       });
@@ -614,7 +618,7 @@ export default function Navbar () {
       filteredData = filteredData.filter(item => {
         if (!item.total_time) return false;
         
-        // Caso especial para tiempos mayores a 1 hora
+        // Caso especial para tiempos mayores a 1 Hora
         if (finalTimeFilter === '>1h') {
           return /h/i.test(item.total_time);
         }
@@ -634,7 +638,7 @@ export default function Navbar () {
               const value = parseInt(numberMatch[1]);
               const unit = unitMatch[1].toLowerCase();
 
-              // Si es 'h', lo multiplicamos por 60 para convertirlo a minutos
+              // Si es 'h', lo multiplicamos por 60 para convertirlo a Minutos
               if (unit === 'h') {
                 totalMinutes += value * 60;
               } else if (unit === 'min') {
@@ -770,68 +774,262 @@ export default function Navbar () {
                         </div>
 
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4'>
-                            <div className='space-y-1 md:space-y-2'>
-                                <label className='block text-xs md:text-sm font-medium text-gray-300'>País</label>
-                                <select
-                                    value={countryFilter}
-                                    onChange={e => setCountryFilter(e.target.value)}
-                                    className='w-full p-2 md:p-3 border border-neutral-600 bg-neutral-900 text-white rounded-lg focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-all duration-200 text-sm md:text-base'
-                                >
-                                    <option value='All'>Todos los países</option>
-                                    {getAvailableOptions('country').map(({ code, name }) => (
-                                        <option key={code} value={code}>
-                                            {name}
-                                        </option>
-                                    ))}
-                                </select>
+                            <div className='space-y-2'>
+                                <h3 className='text-lg font-semibold text-white'>País</h3>
+                                <div className='space-y-2 max-h-60 overflow-y-auto'>
+                                    <div
+                                        className='flex items-center justify-between p-2 hover:bg-neutral-700 rounded-lg cursor-pointer'
+                                        onClick={() => {
+                                            if (countryFilter.includes('All')) {
+                                                setCountryFilter([]);
+                                            } else {
+                                                setCountryFilter(['All']);
+                                            }
+                                        }}
+                                    >
+                                        <div className='flex items-center'>
+                                            <input
+                                                type="checkbox"
+                                                checked={countryFilter.includes('All')}
+                                                onChange={() => {
+                                                    if (countryFilter.includes('All')) {
+                                                        setCountryFilter([]);
+                                                    } else {
+                                                        setCountryFilter(['All']);
+                                                    }
+                                                }}
+                                                className='w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500'
+                                            />
+                                            <span className='ml-3 text-white'>Todos los países</span>
+                                        </div>
+                                    </div>
+                                    {getAvailableOptions('country').map(({ code, name }) => {
+                                        // Contar cuántas recetas hay para este país
+                                        const countryCount = originalData ? originalData.filter(item => 
+                                            item.country && item.country.includes(code)
+                                        ).length : 0;
+                                        
+                                        return (
+                                            <div
+                                                key={code}
+                                                className='flex items-center justify-between p-2 hover:bg-neutral-700 rounded-lg cursor-pointer'
+                                                onClick={() => {
+                                                    const newFilter = countryFilter.includes(code)
+                                                        ? countryFilter.filter(country => country !== code)
+                                                        : [...countryFilter.filter(country => country !== 'All'), code];
+                                                    setCountryFilter(newFilter.length ? newFilter : ['All']);
+                                                }}
+                                            >
+                                                <div className='flex items-center'>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={countryFilter.includes(code)}
+                                                        onChange={() => {
+                                                            const newFilter = countryFilter.includes(code)
+                                                                ? countryFilter.filter(country => country !== code)
+                                                                : [...countryFilter.filter(country => country !== 'All'), code];
+                                                            setCountryFilter(newFilter.length ? newFilter : ['All']);
+                                                        }}
+                                                        className='w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500'
+                                                    />
+                                                    <span className='ml-3 text-white'>{name}</span>
+                                                </div>
+                                                <span className='text-gray-400'>{countryCount} resultados</span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
                             </div>
 
-                            <div className='space-y-1 md:space-y-2'>
-                                <label className='block text-xs md:text-sm font-medium text-gray-300'>Dificultad</label>
-                                <select
-                                    value={difficultyFilter}
-                                    onChange={e => setDifficultyFilter(e.target.value)}
-                                    className='w-full p-2 md:p-3 border border-neutral-600 bg-neutral-900 text-white rounded-lg focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-all duration-200 text-sm md:text-base'
-                                >
-                                    <option value='All'>Todas las dificultades</option>
-                                    {getAvailableOptions('difficulty').map(({ code, name }) => (
-                                        <option key={code} value={code}>
-                                            {name}
-                                        </option>
-                                    ))}
-                                </select>
+                            <div className='space-y-2'>
+                                <h3 className='text-lg font-semibold text-white'>Dificultad</h3>
+                                <div className='space-y-2 max-h-60 overflow-y-auto'>
+                                    <div
+                                        className='flex items-center justify-between p-2 hover:bg-neutral-700 rounded-lg cursor-pointer'
+                                        onClick={() => setDifficultyFilter('All')}
+                                    >
+                                        <div className='flex items-center'>
+                                            <input
+                                                type="checkbox"
+                                                checked={difficultyFilter === 'All'}
+                                                onChange={() => setDifficultyFilter('All')}
+                                                className='w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500'
+                                            />
+                                            <span className='ml-3 text-white'>Todas las dificultades</span>
+                                        </div>
+                                    </div>
+                                    {getAvailableOptions('difficulty').map(({ code, name }) => {
+                                        // Contar cuántas recetas hay para esta dificultad
+                                        const difficultyCount = originalData ? originalData.filter(item => 
+                                            item.difficulty && item.difficulty === code
+                                        ).length : 0;
+                                        
+                                        return (
+                                            <div
+                                                key={code}
+                                                className='flex items-center justify-between p-2 hover:bg-neutral-700 rounded-lg cursor-pointer'
+                                                onClick={() => setDifficultyFilter(difficultyFilter === code ? 'All' : code)}
+                                            >
+                                                <div className='flex items-center'>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={difficultyFilter === code}
+                                                        onChange={() => setDifficultyFilter(difficultyFilter === code ? 'All' : code)}
+                                                        className='w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500'
+                                                    />
+                                                    <span className='ml-3 text-white'>{name}</span>
+                                                </div>
+                                                <span className='text-gray-400'>{difficultyCount} resultados</span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
                             </div>
 
-                            <div className='space-y-1 md:space-y-2'>
-                                <label className='block text-xs md:text-sm font-medium text-gray-300'>Idioma</label>
-                                <select
-                                    value={languageFilter}
-                                    onChange={e => setLanguageFilter(e.target.value)}
-                                    className='w-full p-2 md:p-3 border border-neutral-600 bg-neutral-900 text-white rounded-lg focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-all duration-200 text-sm md:text-base'
-                                >
-                                    <option value='All'>Todos los idiomas</option>
-                                    {getAvailableOptions('language').map(({ code, name }) => (
-                                        <option key={code} value={code}>
-                                            {name}
-                                        </option>
-                                    ))}
-                                </select>
+                            <div className='space-y-2'>
+                                <h3 className='text-lg font-semibold text-white'>Idioma</h3>
+                                <div className='space-y-2 max-h-60 overflow-y-auto'>
+                                    <div
+                                        className='flex items-center justify-between p-2 hover:bg-neutral-700 rounded-lg cursor-pointer'
+                                        onClick={() => {
+                                            if (languageFilter.includes('All')) {
+                                                setLanguageFilter([]);
+                                            } else {
+                                                setLanguageFilter(['All']);
+                                            }
+                                        }}
+                                    >
+                                        <div className='flex items-center'>
+                                            <input
+                                                type="checkbox"
+                                                checked={languageFilter.includes('All')}
+                                                onChange={() => {
+                                                    if (languageFilter.includes('All')) {
+                                                        setLanguageFilter([]);
+                                                    } else {
+                                                        setLanguageFilter(['All']);
+                                                    }
+                                                }}
+                                                className='w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500'
+                                            />
+                                            <span className='ml-3 text-white'>Todos los idiomas</span>
+                                        </div>
+                                    </div>
+                                    {getAvailableOptions('language').map(({ code, name }) => {
+                                        // Contar cuántas recetas hay para este idioma
+                                        const languageCount = originalData ? originalData.filter(item => 
+                                            item.language && item.language === code
+                                        ).length : 0;
+                                        
+                                        return (
+                                            <div
+                                                key={code}
+                                                className='flex items-center justify-between p-2 hover:bg-neutral-700 rounded-lg cursor-pointer'
+                                                onClick={() => {
+                                                    const newFilter = languageFilter.includes(code)
+                                                        ? languageFilter.filter(lang => lang !== code)
+                                                        : [...languageFilter.filter(lang => lang !== 'All'), code];
+                                                    setLanguageFilter(newFilter.length ? newFilter : ['All']);
+                                                }}
+                                            >
+                                                <div className='flex items-center'>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={languageFilter.includes(code)}
+                                                        onChange={() => {
+                                                            const newFilter = languageFilter.includes(code)
+                                                                ? languageFilter.filter(lang => lang !== code)
+                                                                : [...languageFilter.filter(lang => lang !== 'All'), code];
+                                                            setLanguageFilter(newFilter.length ? newFilter : ['All']);
+                                                        }}
+                                                        className='w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500'
+                                                    />
+                                                    <span className='ml-3 text-white'>{name}</span>
+                                                </div>
+                                                <span className='text-gray-400'>{languageCount} resultados</span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
                             </div>
 
-                            <div className='space-y-1 md:space-y-2'>
-                                <label className='block text-xs md:text-sm font-medium text-gray-300'>Calificación</label>
-                                <select
-                                    value={starsFilter}
-                                    onChange={e => setStarsFilter(e.target.value)}
-                                    className='w-full p-2 md:p-3 border border-neutral-600 bg-neutral-900 text-white rounded-lg focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-all duration-200 text-sm md:text-base'
-                                >
-                                    <option value='All'>Todas las estrellas</option>
-                                    {getAvailableOptions('rating').sort().map(rating => (
-                                        <option key={rating} value={rating}>
-                                            {rating} {rating === 1 ? 'estrella' : 'estrellas'}
-                                        </option>
-                                    ))}
-                                </select>
+                            <div className='space-y-2'>
+                                <h2 className='text-2xl font-semibold mb-4 text-white'>Calificación</h2>
+                                <div className='grid grid-cols-2 gap-2 sm:gap-4 bg-neutral-900 rounded-lg p-3 sm:p-4'>
+                                    <div
+                                        onClick={() => setStarsFilter(starsFilter === '1' ? 'All' : '1')}
+                                        className={`text-center p-2 sm:p-3 rounded-lg cursor-pointer transition-all duration-200 ${
+                                            starsFilter === '1'
+                                                ? 'bg-green-600 text-white'
+                                                : 'hover:bg-neutral-800'
+                                        }`}
+                                    >
+                                        <div className='flex justify-center'>
+                                            <FaStar className='text-yellow-500 text-xl sm:text-2xl' />
+                                        </div>
+                                        
+                                    </div>
+                                    <div
+                                        onClick={() => setStarsFilter(starsFilter === '2' ? 'All' : '2')}
+                                        className={`text-center p-2 sm:p-3 rounded-lg cursor-pointer transition-all duration-200 ${
+                                            starsFilter === '2'
+                                                ? 'bg-green-600 text-white'
+                                                : 'hover:bg-neutral-800'
+                                        }`}
+                                    >
+                                        <div className='flex justify-center'>
+                                            <FaStar className='text-yellow-500 text-xl sm:text-2xl' />
+                                            <FaStar className='text-yellow-500 text-xl sm:text-2xl' />
+                                        </div>
+                                        
+                                    </div>
+                                    <div
+                                        onClick={() => setStarsFilter(starsFilter === '3' ? 'All' : '3')}
+                                        className={`text-center p-2 sm:p-3 rounded-lg cursor-pointer transition-all duration-200 ${
+                                            starsFilter === '3'
+                                                ? 'bg-green-600 text-white'
+                                                : 'hover:bg-neutral-800'
+                                        }`}
+                                    >
+                                        <div className='flex justify-center'>
+                                            <FaStar className='text-yellow-500 text-xl sm:text-2xl' />
+                                            <FaStar className='text-yellow-500 text-xl sm:text-2xl' />
+                                            <FaStar className='text-yellow-500 text-xl sm:text-2xl' />
+                                        </div>
+                                        
+                                    </div>
+                                    <div
+                                        onClick={() => setStarsFilter(starsFilter === '4' ? 'All' : '4')}
+                                        className={`text-center p-2 sm:p-3 rounded-lg cursor-pointer transition-all duration-200 ${
+                                            starsFilter === '4'
+                                                ? 'bg-green-600 text-white'
+                                                : 'hover:bg-neutral-800'
+                                        }`}
+                                    >
+                                        <div className='flex justify-center'>
+                                            <FaStar className='text-yellow-500 text-xl sm:text-2xl' />
+                                            <FaStar className='text-yellow-500 text-xl sm:text-2xl' />
+                                            <FaStar className='text-yellow-500 text-xl sm:text-2xl' />
+                                            <FaStar className='text-yellow-500 text-xl sm:text-2xl' />
+                                        </div>
+                                    </div>
+                                    <div
+                                        onClick={() => setStarsFilter(starsFilter === '5' ? 'All' : '5')}
+                                        className={`text-center p-2 sm:p-3 rounded-lg cursor-pointer transition-all duration-200 ${
+                                            starsFilter === '5'
+                                                ? 'bg-green-600 text-white'
+                                                : 'hover:bg-neutral-800'
+                                        }`}
+                                    >
+                                        <div className='flex justify-center'>
+                                            <FaStar className='text-yellow-500 text-xl sm:text-2xl' />
+                                            <FaStar className='text-yellow-500 text-xl sm:text-2xl' />
+                                            <FaStar className='text-yellow-500 text-xl sm:text-2xl' />
+                                            <FaStar className='text-yellow-500 text-xl sm:text-2xl' />
+                                            <FaStar className='text-yellow-500 text-xl sm:text-2xl' />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -870,7 +1068,7 @@ export default function Navbar () {
                         </div>
                         <div className='space-y-2'>
                             <h2 className='text-2xl font-semibold mb-4 text-white'>Tiempo de preparación</h2>
-                            <div className='grid grid-cols-3 gap-2 sm:gap-4 bg-neutral-900 rounded-lg p-3 sm:p-4'>
+                            <div className='grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 bg-neutral-900 rounded-lg p-3 sm:p-4'>
                                 <div
                                     onClick={() => setCookingTimeFilter(cookingTimeFilter === '15' ? 'All' : '15')}
                                     className={`text-center p-2 sm:p-3 rounded-lg cursor-pointer transition-all duration-200 ${
@@ -880,7 +1078,7 @@ export default function Navbar () {
                                     }`}
                                 >
                                     <div className='text-xl sm:text-2xl font-bold text-white'>≤ 15</div>
-                                    <div className='text-xs sm:text-sm text-white'>minutos</div>
+                                    <div className='text-xs sm:text-sm text-white'>Minutos</div>
                                 </div>
                                 <div
                                     onClick={() => setCookingTimeFilter(cookingTimeFilter === '30' ? 'All' : '30')}
@@ -891,7 +1089,7 @@ export default function Navbar () {
                                     }`}
                                 >
                                     <div className='text-xl sm:text-2xl font-bold text-white'>≤ 30</div>
-                                    <div className='text-xs sm:text-sm text-white'>minutos</div>
+                                    <div className='text-xs sm:text-sm text-white'>Minutos</div>
                                 </div>
                                 <div
                                     onClick={() => setCookingTimeFilter(cookingTimeFilter === '45' ? 'All' : '45')}
@@ -902,7 +1100,18 @@ export default function Navbar () {
                                     }`}
                                 >
                                     <div className='text-xl sm:text-2xl font-bold text-white'>≤ 45</div>
-                                    <div className='text-xs sm:text-sm text-white'>minutos</div>
+                                    <div className='text-xs sm:text-sm text-white'>Minutos</div>
+                                </div>
+                                <div
+                                    onClick={() => setCookingTimeFilter(cookingTimeFilter === '60' ? 'All' : '60')}
+                                    className={`text-center p-2 sm:p-3 rounded-lg cursor-pointer transition-all duration-200 ${
+                                        cookingTimeFilter === '60'
+                                            ? 'bg-green-600 text-white'
+                                            : 'hover:bg-neutral-800'
+                                    }`}
+                                >
+                                    <div className='text-xl sm:text-2xl font-bold text-white'>≥ 1</div>
+                                    <div className='text-xs sm:text-sm text-white'>Hora</div>
                                 </div>
                             </div>
                         </div>
@@ -919,7 +1128,7 @@ export default function Navbar () {
                                     }`}
                                 >
                                     <div className='text-xl sm:text-2xl font-bold text-white'>≤ 15</div>
-                                    <div className='text-xs sm:text-sm text-white'>minutos</div>
+                                    <div className='text-xs sm:text-sm text-white'>Minutos</div>
                                 </div>
                                 <div
                                     onClick={() => setFinalTimeFilter(finalTimeFilter === '30' ? 'All' : '30')}
@@ -930,7 +1139,7 @@ export default function Navbar () {
                                     }`}
                                 >
                                     <div className='text-xl sm:text-2xl font-bold text-white'>≤ 30</div>
-                                    <div className='text-xs sm:text-sm text-white'>minutos</div>
+                                    <div className='text-xs sm:text-sm text-white'>Minutos</div>
                                 </div>
                                 <div
                                     onClick={() => setFinalTimeFilter(finalTimeFilter === '45' ? 'All' : '45')}
@@ -941,7 +1150,7 @@ export default function Navbar () {
                                     }`}
                                 >
                                     <div className='text-xl sm:text-2xl font-bold text-white'>≤ 45</div>
-                                    <div className='text-xs sm:text-sm text-white'>minutos</div>
+                                    <div className='text-xs sm:text-sm text-white'>Minutos</div>
                                 </div>
                                 <div
                                     onClick={() => setFinalTimeFilter(finalTimeFilter === '>1h' ? 'All' : '>1h')}
@@ -952,7 +1161,7 @@ export default function Navbar () {
                                     }`}
                                 >
                                     <div className='text-xl sm:text-2xl font-bold text-white'>≥ 1</div>
-                                    <div className='text-xs sm:text-sm text-white'>hora</div>
+                                    <div className='text-xs sm:text-sm text-white'>Hora</div>
                                 </div>
                             </div>
                         </div>
@@ -973,7 +1182,7 @@ export default function Navbar () {
                             onClick={handleModalSearch}
                             className='px-4 md:px-6 py-2 md:py-3 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 transition-colors duration-200 text-sm md:text-base'
                         >
-                            Aplicar
+                            Show {countRecipies} results
                         </button>
                     </div>
                 </div>

@@ -12,9 +12,9 @@ const MyProvider = ({ children }) => {
   const [userRecipes, setUserRecipes] = useState(null)
 
   const [searchTerm, setSearchTerm] = useState('')
-  const [countryFilter, setCountryFilter] = useState('All')
+  const [countryFilter, setCountryFilter] = useState(['All'])
   const [difficultyFilter, setDifficultyFilter] = useState('All')
-  const [languageFilter, setLanguageFilter] = useState('All')
+  const [languageFilter, setLanguageFilter] = useState(['All'])
   const [starsFilter, setStarsFilter] = useState('All')
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [categoryFilter, setCategoryFilter] = useState([])

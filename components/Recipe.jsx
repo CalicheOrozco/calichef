@@ -192,10 +192,8 @@ export default function Recipe({
                         <button className='core-rating__rating-list'>
                           {stars.map((star, index) => (
                             <span key={index}>
-                              {star === 1 ? (
+                              {star === 1 || star === 2 ? (
                                 <FaStar className='text-yellow-500' />
-                              ) : star === 2 ? (
-                                <FaStarHalf className='text-yellow-500' />
                               ) : (
                                 <FaStar className='text-gray-300' />
                               )}
@@ -311,7 +309,7 @@ export default function Recipe({
               ></span>
               <label
                 id='rc-icon-total-time-text'
-                className='core-feature-icons__text'
+                className='core-feature-icons__text text-center'
               >
                 <span className='core-feature-icons__subtitle'>Porciones</span>{' '}
                 {porciones}
