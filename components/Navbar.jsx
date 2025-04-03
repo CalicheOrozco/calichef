@@ -52,6 +52,7 @@ export default function Navbar () {
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [cookingTimeFilter, setCookingTimeFilter] = useState('All')
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const [finalTimeFilter, setFinalTimeFilter] = useState('All')
 
 
@@ -92,7 +93,115 @@ export default function Navbar () {
       );
     }
     
-        false
+    // Aplicar filtros de tiempo si están activos
+    if (cookingTimeFilter !== 'All') {
+      filteredData = filteredData.filter(item => {
+        if (!item.cooking_time) return false;
+        
+        // Usamos una expresión regular para encontrar los números seguidos de sus unidades
+        const matches = item.cooking_time.match(/(\d+)\s*(h|min)/gi);
+
+        let totalMinutes = 0;
+
+        if (matches) {
+          matches.forEach(match => {
+            // Extraemos los valores numéricos y las unidades de cada coincidencia
+            const numberMatch = match.match(/(\d+)/);
+            const unitMatch = match.match(/(h|min)/i);
+            
+            if (numberMatch && unitMatch) {
+              const value = parseInt(numberMatch[1]);
+              const unit = unitMatch[1].toLowerCase();
+
+              // Si es 'h', lo multiplicamos por 60 para convertirlo a minutos
+              if (unit === 'h') {
+                totalMinutes += value * 60;
+              } else if (unit === 'min') {
+                totalMinutes += value;
+              }
+            }
+          });
+        }
+        
+        // Si no hay coincidencias o el tiempo total es 0, verificamos si hay un formato diferente
+        if ((!matches || matches.length === 0 || totalMinutes === 0) && item.cooking_time) {
+          // Intentar extraer directamente un número si no hay unidades
+          const directNumber = parseInt(item.cooking_time);
+          if (!isNaN(directNumber)) {
+            totalMinutes = directNumber;
+          }
+        }
+        
+        // Si aún no tenemos un valor válido, retornamos false
+        if (totalMinutes === 0) return false;
+        
+        switch(cookingTimeFilter) {
+          case '15': return totalMinutes <= 15;
+          case '30': return totalMinutes <= 30;
+          case '45': return totalMinutes <= 45;
+          default: return true;
+        }
+      });
+    }
+    
+    if (finalTimeFilter !== 'All') {
+      console.log('finalTimeFilter',finalTimeFilter)
+      filteredData = filteredData.filter(item => {
+        if (!item.total_time) return false;
+        
+        // Caso especial para tiempos mayores a 1 hora
+        if (finalTimeFilter === '>1h') {
+          return /h/i.test(item.total_time);
+        }
+        
+        // Usamos una expresión regular para encontrar los números seguidos de sus unidades
+        const matches = item.total_time.match(/(\d+)\s*(h|min)/gi);
+
+        let totalMinutes = 0;
+
+        if (matches) {
+          matches.forEach(match => {
+            // Extraemos los valores numéricos y las unidades de cada coincidencia
+            const numberMatch = match.match(/(\d+)/);
+            const unitMatch = match.match(/(h|min)/i);
+            
+            if (numberMatch && unitMatch) {
+              const value = parseInt(numberMatch[1]);
+              const unit = unitMatch[1].toLowerCase();
+
+              // Si es 'h', lo multiplicamos por 60 para convertirlo a minutos
+              if (unit === 'h') {
+                totalMinutes += value * 60;
+              } else if (unit === 'min') {
+                totalMinutes += value;
+              }
+            }
+          });
+        }
+        
+        // Si no hay coincidencias o el tiempo total es 0, verificamos si hay un formato diferente
+        if ((!matches || matches.length === 0 || totalMinutes === 0) && item.total_time) {
+          // Intentar extraer directamente un número si no hay unidades
+          const directNumber = parseInt(item.total_time);
+          if (!isNaN(directNumber)) {
+            totalMinutes = directNumber;
+          }
+        }
+        
+        // Si aún no tenemos un valor válido, retornamos false
+        if (totalMinutes === 0) return false;
+        
+        switch(finalTimeFilter) {
+          case '15': return totalMinutes <= 15;
+          case '30': return totalMinutes <= 30;
+          case '45': return totalMinutes <= 45;
+          case '60': return totalMinutes <= 60;
+          case '90': return totalMinutes <= 90;
+          case '120': return totalMinutes <= 120;
+          default: return true; // Por defecto incluimos la receta si el filtro no coincide
+        }
+      });
+    }
     
     const categoryCount = {};
     filteredData.forEach(item => {
@@ -182,36 +291,113 @@ export default function Navbar () {
 
     if (cookingTimeFilter !== 'All') {
       filteredData = filteredData.filter(item => {
-        if (!item.cooking_time_value) return false;
-        const timeValue = parseInt(item.cooking_time_value);
+        if (!item.cooking_time) return false;
+        
+        // Usamos una expresión regular para encontrar los números seguidos de sus unidades
+        const matches = item.cooking_time.match(/(\d+)\s*(h|min)/gi);
+
+        let totalMinutes = 0;
+
+        if (matches) {
+          matches.forEach(match => {
+            // Extraemos los valores numéricos y las unidades de cada coincidencia
+            const numberMatch = match.match(/(\d+)/);
+            const unitMatch = match.match(/(h|min)/i);
+            
+            if (numberMatch && unitMatch) {
+              const value = parseInt(numberMatch[1]);
+              const unit = unitMatch[1].toLowerCase();
+
+              // Si es 'h', lo multiplicamos por 60 para convertirlo a minutos
+              if (unit === 'h') {
+                totalMinutes += value * 60;
+              } else if (unit === 'min') {
+                totalMinutes += value;
+              }
+            }
+          });
+        }
+        
+        // Si no hay coincidencias o el tiempo total es 0, verificamos si hay un formato diferente
+        if ((!matches || matches.length === 0 || totalMinutes === 0) && item.cooking_time) {
+          // Intentar extraer directamente un número si no hay unidades
+          const directNumber = parseInt(item.cooking_time);
+          if (!isNaN(directNumber)) {
+            totalMinutes = directNumber;
+          }
+        }
+        
+        // Si aún no tenemos un valor válido, retornamos false
+        if (totalMinutes === 0) return false;
+        
         switch(cookingTimeFilter) {
-          case '15': return timeValue <= 15  && timeValue > 1;
-          case '30': return timeValue <= 30  && timeValue > 1;
-          case '45': return timeValue <= 45  && timeValue > 1;
+          case '15': return totalMinutes <= 15;
+          case '30': return totalMinutes <= 30;
+          case '45': return totalMinutes <= 45;
           default: return true;
         }
       });
     }
 
-    if (finalTimeFilter!== 'All') {
+    if (finalTimeFilter !== 'All') {
       filteredData = filteredData.filter(item => {
-        if (!item.total_time_value) return false;
-        if (finalTimeFilter === '>1h') return /h/i.test(item.total_time);
-        const timeValue = parseInt(item.total_time_value);
-        switch(finalTimeFilter) {
-          case '15': return timeValue <= 15;
-          case '30': return timeValue <= 30;
-          case '45': return timeValue <= 45;
-          case '60': return timeValue <= 60;
-          case '90': return timeValue <= 90;
-          case '120': return timeValue <= 120;
-          case '>1h': return /h/i.test(item.total_time);
-          default: return false;
+        if (!item.total_time) return false;
+        
+        // Caso especial para tiempos mayores a 1 hora
+        if (finalTimeFilter === '>1h') {
+          return /h/i.test(item.total_time);
         }
-      })
+        
+        // Usamos una expresión regular para encontrar los números seguidos de sus unidades
+        const matches = item.total_time.match(/(\d+)\s*(h|min)/gi);
+
+        let totalMinutes = 0;
+
+        if (matches) {
+          matches.forEach(match => {
+            // Extraemos los valores numéricos y las unidades de cada coincidencia
+            const numberMatch = match.match(/(\d+)/);
+            const unitMatch = match.match(/(h|min)/i);
+            
+            if (numberMatch && unitMatch) {
+              const value = parseInt(numberMatch[1]);
+              const unit = unitMatch[1].toLowerCase();
+
+              // Si es 'h', lo multiplicamos por 60 para convertirlo a minutos
+              if (unit === 'h') {
+                totalMinutes += value * 60;
+              } else if (unit === 'min') {
+                totalMinutes += value;
+              }
+            }
+          });
+        }
+        
+        // Si no hay coincidencias o el tiempo total es 0, verificamos si hay un formato diferente
+        if ((!matches || matches.length === 0 || totalMinutes === 0) && item.total_time) {
+          // Intentar extraer directamente un número si no hay unidades
+          const directNumber = parseInt(item.total_time);
+          if (!isNaN(directNumber)) {
+            totalMinutes = directNumber;
+          }
+        }
+        
+        // Si aún no tenemos un valor válido, retornamos false
+        if (totalMinutes === 0) return false;
+        
+        switch(finalTimeFilter) {
+          case '15': return totalMinutes <= 15;
+          case '30': return totalMinutes <= 30;
+          case '45': return totalMinutes <= 45;
+          case '60': return totalMinutes <= 60;
+          case '90': return totalMinutes <= 90;
+          case '120': return totalMinutes <= 120;
+          default: return true; // Por defecto incluimos la receta si el filtro no coincide
+        }
+      });
     }
 
-    if (categoryFilter.length > 0) {
+    if (categoryFilter.length > 1) {
       filteredData = filteredData.filter(item => {
         if (!item.category) return false
         const categories = Array.isArray(item.category) ? item.category : [item.category]
@@ -219,15 +405,13 @@ export default function Navbar () {
       })
     }
 
-
-
     // Ordenar resultados
     filteredData = searchTermValue ? 
       filteredData.sort((a, b) => b.rating_count - a.rating_count) :
       filteredData.sort(() => Math.random() - 0.5)
 
     setAllData(filteredData)
-  }, [originalData, countryFilter, difficultyFilter, languageFilter, starsFilter, categoryFilter, setAllData])
+  }, [originalData, countryFilter, difficultyFilter, languageFilter, starsFilter, categoryFilter, cookingTimeFilter, finalTimeFilter, setAllData])
 
   useEffect(() => {
     const savedSearchTerm = localStorage.getItem('searchTerm');
@@ -296,7 +480,7 @@ export default function Navbar () {
       difficultyFilter !== 'All' ||
       languageFilter !== 'All' ||
       starsFilter !== 'All' ||
-      categoryFilter.length > 0 ||
+      categoryFilter.length > 1 ||
       finalTimeFilter!== 'All' ||
       cookingTimeFilter !== 'All'
     )
@@ -378,32 +562,114 @@ export default function Navbar () {
     
     if (cookingTimeFilter !== 'All' && field !== 'cooking_time') {
       filteredData = filteredData.filter(item => {
-        if (!item.cooking_time_value) return false;
-        const timeValue = parseInt(item.cooking_time_value);
+        if (!item.cooking_time) return false;
+        
+        // Usamos una expresión regular para encontrar los números seguidos de sus unidades
+        const matches = item.cooking_time.match(/(\d+)\s*(h|min)/gi);
+
+        let totalMinutes = 0;
+
+        if (matches) {
+          matches.forEach(match => {
+            // Extraemos los valores numéricos y las unidades de cada coincidencia
+            const numberMatch = match.match(/(\d+)/);
+            const unitMatch = match.match(/(h|min)/i);
+            
+            if (numberMatch && unitMatch) {
+              const value = parseInt(numberMatch[1]);
+              const unit = unitMatch[1].toLowerCase();
+
+              // Si es 'h', lo multiplicamos por 60 para convertirlo a minutos
+              if (unit === 'h') {
+                totalMinutes += value * 60;
+              } else if (unit === 'min') {
+                totalMinutes += value;
+              }
+            }
+          });
+        }
+        
+        // Si no hay coincidencias o el tiempo total es 0, verificamos si hay un formato diferente
+        if ((!matches || matches.length === 0 || totalMinutes === 0) && item.cooking_time) {
+          // Intentar extraer directamente un número si no hay unidades
+          const directNumber = parseInt(item.cooking_time);
+          if (!isNaN(directNumber)) {
+            totalMinutes = directNumber;
+          }
+        }
+        
+        // Si aún no tenemos un valor válido, retornamos false
+        if (totalMinutes === 0) return false;
+        
         switch(cookingTimeFilter) {
-          case '15': return timeValue <= 15  && timeValue > 1;
-          case '30': return timeValue <= 30  && timeValue > 1;
-          case '45': return timeValue <= 45;
+          case '15': return totalMinutes <= 15;
+          case '30': return totalMinutes <= 30;
+          case '45': return totalMinutes <= 45;
           default: return true;
         }
       });
     }
 
-    if (finalTimeFilter!== 'All' && field!== 'final_time') {
+    if (finalTimeFilter !== 'All' && field !== 'final_time') {
       filteredData = filteredData.filter(item => {
-        if (!item.total_time_value) return false;
-        const timeValue = parseInt(item.total_time_value);
+        if (!item.total_time) return false;
+        
+        // Caso especial para tiempos mayores a 1 hora
+        if (finalTimeFilter === '>1h') {
+          return /h/i.test(item.total_time);
+        }
+        
+        // Usamos una expresión regular para encontrar los números seguidos de sus unidades
+        const matches = item.total_time.match(/(\d+)\s*(h|min)/gi);
+
+        let totalMinutes = 0;
+
+        if (matches) {
+          matches.forEach(match => {
+            // Extraemos los valores numéricos y las unidades de cada coincidencia
+            const numberMatch = match.match(/(\d+)/);
+            const unitMatch = match.match(/(h|min)/i);
+            
+            if (numberMatch && unitMatch) {
+              const value = parseInt(numberMatch[1]);
+              const unit = unitMatch[1].toLowerCase();
+
+              // Si es 'h', lo multiplicamos por 60 para convertirlo a minutos
+              if (unit === 'h') {
+                totalMinutes += value * 60;
+              } else if (unit === 'min') {
+                totalMinutes += value;
+              }
+            }
+          });
+        }
+        
+        // Si no hay coincidencias o el tiempo total es 0, verificamos si hay un formato diferente
+        if ((!matches || matches.length === 0 || totalMinutes === 0) && item.total_time) {
+          // Intentar extraer directamente un número si no hay unidades
+          const directNumber = parseInt(item.total_time);
+          if (!isNaN(directNumber)) {
+            totalMinutes = directNumber;
+          }
+        }
+        
+        // Si aún no tenemos un valor válido, retornamos false
+        if (totalMinutes === 0) return false;
+        
         switch(finalTimeFilter) {
-          case '15': return timeValue <= 15  && timeValue > 1;
-          case '30': return timeValue <= 30  && timeValue > 1;
-          case '45': return timeValue <= 45 && timeValue > 1;
+          case '15': return totalMinutes <= 15;
+          case '30': return totalMinutes <= 30;
+          case '45': return totalMinutes <= 45;
+          case '60': return totalMinutes <= 60;
+          case '90': return totalMinutes <= 90;
+          case '120': return totalMinutes <= 120;
           default: return true;
         }
       });
     }
     
     // Aplicar filtro de categoría si existe y no es el campo actual
-    if (categoryFilter.length > 0 && field !== 'category') {
+    if (categoryFilter.length > 1 && field !== 'category') {
       filteredData = filteredData.filter(item => {
         if (!item.category) return false;
         const categories = Array.isArray(item.category) ? item.category : [item.category];
@@ -454,7 +720,7 @@ export default function Navbar () {
           </Link>
 
           <div className='flex text-green-600 flex-row items-center gap-2 md:gap-4'>
-            {userRecipes && userRecipes.length > 0 ? (
+            {userRecipes && userRecipes.length > 1 ? (
               <Link href='/recipes' passHref>
                 <div className='flex justify-center items-center hover:text-green-300'>
                   <span className='text-base md:text-xl'>({userRecipes.length})</span>
@@ -604,89 +870,89 @@ export default function Navbar () {
                         </div>
                         <div className='space-y-2'>
                             <h2 className='text-2xl font-semibold mb-4 text-white'>Tiempo de preparación</h2>
-                            <div className='grid grid-cols-3 gap-4 bg-neutral-900 rounded-lg p-4'>
+                            <div className='grid grid-cols-3 gap-2 sm:gap-4 bg-neutral-900 rounded-lg p-3 sm:p-4'>
                                 <div
                                     onClick={() => setCookingTimeFilter(cookingTimeFilter === '15' ? 'All' : '15')}
-                                    className={`text-center p-3 rounded-lg cursor-pointer transition-all duration-200 ${
+                                    className={`text-center p-2 sm:p-3 rounded-lg cursor-pointer transition-all duration-200 ${
                                         cookingTimeFilter === '15'
                                             ? 'bg-green-600 text-white'
                                             : 'hover:bg-neutral-800'
                                     }`}
                                 >
-                                    <div className='text-2xl font-bold text-white'>≤ 15</div>
-                                    <div className='text-sm text-white'>minutos</div>
+                                    <div className='text-xl sm:text-2xl font-bold text-white'>≤ 15</div>
+                                    <div className='text-xs sm:text-sm text-white'>minutos</div>
                                 </div>
                                 <div
                                     onClick={() => setCookingTimeFilter(cookingTimeFilter === '30' ? 'All' : '30')}
-                                    className={`text-center p-3 rounded-lg cursor-pointer transition-all duration-200 ${
+                                    className={`text-center p-2 sm:p-3 rounded-lg cursor-pointer transition-all duration-200 ${
                                         cookingTimeFilter === '30'
                                             ? 'bg-green-600 text-white'
                                             : 'hover:bg-neutral-800'
                                     }`}
                                 >
-                                    <div className='text-2xl font-bold text-white'>≤ 30</div>
-                                    <div className='text-sm text-white'>minutos</div>
+                                    <div className='text-xl sm:text-2xl font-bold text-white'>≤ 30</div>
+                                    <div className='text-xs sm:text-sm text-white'>minutos</div>
                                 </div>
                                 <div
                                     onClick={() => setCookingTimeFilter(cookingTimeFilter === '45' ? 'All' : '45')}
-                                    className={`text-center p-3 rounded-lg cursor-pointer transition-all duration-200 ${
+                                    className={`text-center p-2 sm:p-3 rounded-lg cursor-pointer transition-all duration-200 ${
                                         cookingTimeFilter === '45'
                                             ? 'bg-green-600 text-white'
                                             : 'hover:bg-neutral-800'
                                     }`}
                                 >
-                                    <div className='text-2xl font-bold text-white'>≤ 45</div>
-                                    <div className='text-sm text-white'>minutos</div>
+                                    <div className='text-xl sm:text-2xl font-bold text-white'>≤ 45</div>
+                                    <div className='text-xs sm:text-sm text-white'>minutos</div>
                                 </div>
                             </div>
                         </div>
 
                         <div className='space-y-2'>
                             <h2 className='text-2xl font-semibold mb-4 text-white'>Tiempo Total</h2>
-                            <div className='grid grid-cols-4 gap-4 bg-neutral-900 rounded-lg p-4'>
+                            <div className='grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 bg-neutral-900 rounded-lg p-3 sm:p-4'>
                                 <div
                                     onClick={() => setFinalTimeFilter(finalTimeFilter === '15' ? 'All' : '15')}
-                                    className={`text-center p-3 rounded-lg cursor-pointer transition-all duration-200 ${
+                                    className={`text-center p-2 sm:p-3 rounded-lg cursor-pointer transition-all duration-200 ${
                                         finalTimeFilter === '15'
                                             ? 'bg-green-600 text-white'
                                             : 'hover:bg-neutral-800'
                                     }`}
                                 >
-                                    <div className='text-2xl font-bold text-white'>≤ 15</div>
-                                    <div className='text-sm text-white'>minutos</div>
+                                    <div className='text-xl sm:text-2xl font-bold text-white'>≤ 15</div>
+                                    <div className='text-xs sm:text-sm text-white'>minutos</div>
                                 </div>
                                 <div
                                     onClick={() => setFinalTimeFilter(finalTimeFilter === '30' ? 'All' : '30')}
-                                    className={`text-center p-3 rounded-lg cursor-pointer transition-all duration-200 ${
+                                    className={`text-center p-2 sm:p-3 rounded-lg cursor-pointer transition-all duration-200 ${
                                         finalTimeFilter === '30'
                                             ? 'bg-green-600 text-white'
                                             : 'hover:bg-neutral-800'
                                     }`}
                                 >
-                                    <div className='text-2xl font-bold text-white'>≤ 30</div>
-                                    <div className='text-sm text-white'>minutos</div>
+                                    <div className='text-xl sm:text-2xl font-bold text-white'>≤ 30</div>
+                                    <div className='text-xs sm:text-sm text-white'>minutos</div>
                                 </div>
                                 <div
                                     onClick={() => setFinalTimeFilter(finalTimeFilter === '45' ? 'All' : '45')}
-                                    className={`text-center p-3 rounded-lg cursor-pointer transition-all duration-200 ${
+                                    className={`text-center p-2 sm:p-3 rounded-lg cursor-pointer transition-all duration-200 ${
                                         finalTimeFilter === '45'
                                             ? 'bg-green-600 text-white'
                                             : 'hover:bg-neutral-800'
                                     }`}
                                 >
-                                    <div className='text-2xl font-bold text-white'>≤ 45</div>
-                                    <div className='text-sm text-white'>minutos</div>
+                                    <div className='text-xl sm:text-2xl font-bold text-white'>≤ 45</div>
+                                    <div className='text-xs sm:text-sm text-white'>minutos</div>
                                 </div>
                                 <div
                                     onClick={() => setFinalTimeFilter(finalTimeFilter === '>1h' ? 'All' : '>1h')}
-                                    className={`text-center p-3 rounded-lg cursor-pointer transition-all duration-200 ${
+                                    className={`text-center p-2 sm:p-3 rounded-lg cursor-pointer transition-all duration-200 ${
                                         finalTimeFilter === '>1h'
                                             ? 'bg-green-600 text-white'
                                             : 'hover:bg-neutral-800'
                                     }`}
                                 >
-                                    <div className='text-2xl font-bold text-white'>≥ 1</div>
-                                    <div className='text-sm text-white'>hora</div>
+                                    <div className='text-xl sm:text-2xl font-bold text-white'>≥ 1</div>
+                                    <div className='text-xs sm:text-sm text-white'>hora</div>
                                 </div>
                             </div>
                         </div>
