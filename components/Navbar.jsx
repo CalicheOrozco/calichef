@@ -18,7 +18,6 @@ const debounce = (func, wait = 1000) => {
 }
 
 export default function Navbar ({countRecipies }) {
-  console.log('countRecipies', countRecipies)
   const [isHomePage, setIsHomePage] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
@@ -28,8 +27,6 @@ export default function Navbar ({countRecipies }) {
     console.error('CalichefContext no está disponible en el componente Navbar')
     return null
   }
-
-  const { AllData } = contextValue
 
 
   const {
