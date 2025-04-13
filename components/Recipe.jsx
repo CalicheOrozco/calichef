@@ -21,6 +21,8 @@ export default function Recipe({
   porciones,
   ingredients,
   nutritions,
+  devices,
+  useful_items,
   steps,
   tags,
   tips,
@@ -38,6 +40,16 @@ export default function Recipe({
     'M': 'Medio',
     'A': 'Avanzado'
   }
+
+  const deviceImages = {
+    TM7: 'https://patternlib-all.prod.external.eu-tm-prod.vorwerk-digital.com/tm7-83b22c91a1a1e7fee3797168f05f9754.png',
+    TM6: 'https://patternlib-all.prod.external.eu-tm-prod.vorwerk-digital.com/tm6-fff867f1cfc7f35118b8b6dfffca8339.png',
+    TM5: 'https://patternlib-all.prod.external.eu-tm-prod.vorwerk-digital.com/tm5-a3a665744eb0093e9108135bf6b1baa4.png',
+    TM31: 'https://patternlib-all.prod.external.eu-tm-prod.vorwerk-digital.com/tm31-d180149ce35a8c8d99d7a3bbff0f1bec.png',
+    horno: 'https://assets.tmecosys.com/image/upload/t_web_rdp_device_56x56_2x/icons/utensil_icons/5406',
+    oven: 'https://assets.tmecosys.com/image/upload/t_web_rdp_device_56x56_2x/icons/utensil_icons/5406',
+    four: 'https://assets.tmecosys.com/image/upload/t_web_rdp_device_56x56_2x/icons/utensil_icons/5406'
+  };
 
   const rating = rating_score?.toString().split('.') || ['0', '0']
   const rating_integer = parseInt(rating[0]) || 0
@@ -374,7 +386,7 @@ export default function Recipe({
             <div id='nutritions-desktop' className='nutritions-wrapper'>
               <div className='nutritions pb-5'>
                 <div className='bg-black bg-opacity-80 p-6 rounded-lg'>
-                  <h3 className='text-2xl font-bold mb-2'>Nutrition</h3>
+                  <h3 className='text-2xl font-bold text-white mb-2'>Nutrition</h3>
                   <p className='text-gray-400 mb-4'>per 1 porción</p>
                   
                   <div className='space-y-4'>
@@ -382,6 +394,46 @@ export default function Recipe({
                       <div key={index} className='flex justify-between items-center border-b border-gray-700 pb-2'>
                         <span className='text-lg capitalize'>{item.name}</span>
                         <span className='text-lg text-gray-300'>{item.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <hr className='separator--silver-60' />
+            </div>
+            
+            <hr className='separator--silver-60' />
+            <div id='nutritions-desktop' className='nutritions-wrapper'>
+              <div className='nutritions pb-5'>
+                <div className='bg-black bg-opacity-80 p-6 rounded-lg'>
+                  <h3 className='text-2xl text-white font-bold mb-2'>Dispositivos y accesorios</h3>
+
+                  <div className='space-y-4'>
+                    {devices?.map((item, index) => (
+                      <div key={index} className='flex items-center'>
+                        <Image
+                          src={deviceImages[item] || ''}
+                          alt={item}
+                          width={60}
+                          height={60}
+                        />
+                        <span className='text-lg capitalize'>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <hr className='separator--silver-60' />
+            </div>
+            <hr className='separator--silver-60' />
+            <div id='nutritions-desktop' className='nutritions-wrapper'>
+              <div className='nutritions pb-5'>
+                <div className='bg-black bg-opacity-80 p-6 rounded-lg'>
+                  <h3 className='text-2xl text-white font-bold mb-2'>Accesorios útiles</h3>
+                  <div className='space-y-4'>
+                    {useful_items?.map((item, index) => (
+                      <div key={index} className='flex items-center'>
+                        <span className='text-lg capitalize'>- {item}</span>
                       </div>
                     ))}
                   </div>

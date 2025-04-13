@@ -29,6 +29,8 @@ const MyProvider = ({ children }) => {
   const [dataUK, setDataUK] = useState(null)
   const [dataOther, setDataOther] = useState(null)
   const [originalData, setOriginalData] = useState(null)
+  const [dataOtherFA, setDataOtherFA] = useState(null)
+  const [dataFrance, setDataFrance] = useState(null)
 
   useEffect(() => {
     async function fetchData() {
@@ -66,7 +68,9 @@ const MyProvider = ({ children }) => {
           ['dataAustralia', '/australia.json', setDataAustralia],
           ['dataCanada', '/canada.json', setDataCanada],
           ['dataUK', '/UK.json', setDataUK],
-          ['dataOthers', '/others.json', setDataOther]
+          ['dataOthers', '/others.json', setDataOther],
+          ['dataOtherFA', '/othersFA.json', setDataOtherFA],
+          ['dataFrance', '/france.json', setDataFrance]
         ].map(([key, url, setter]) => fetchAndCacheData(key, url, setter))
 
         // Handle user recipes separately to avoid blocking other data
@@ -95,7 +99,9 @@ const MyProvider = ({ children }) => {
       dataAustralia,
       dataCanada,
       dataUK,
-      dataOther
+      dataOther,
+      dataOtherFA,
+      dataFrance
     ]
 
     // Only update if we have at least one non-null dataset
@@ -108,7 +114,7 @@ const MyProvider = ({ children }) => {
       setAllData(finalData)
       setOriginalData(finalData)
     }
-  }, [dataMexico, dataSpain, dataLATAM, dataUSA, dataAustralia, dataCanada, dataUK, dataOther])
+  }, [dataMexico, dataSpain, dataLATAM, dataUSA, dataAustralia, dataCanada, dataUK, dataOther, dataOtherFA, dataFrance])
 
   return (
     <CalichefContext.Provider
