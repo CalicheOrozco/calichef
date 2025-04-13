@@ -56,7 +56,10 @@ const Post = () => {
           category: recipe.category,
           collections: recipe.collections,
           country: recipe.country,
-          language: recipe.language
+          language: recipe.language,
+          devices: recipe.devices,
+          useful_items: recipe.useful_items
+          
         }
         setRecipe(recipeDetails)
 
@@ -105,6 +108,11 @@ const Post = () => {
             tags={recipe.tags}
             tips={recipe.tips}
             recommended={recommended}
+            devices={recipe.devices}
+            collections={recipe.collections}
+            country={recipe.country}
+            category={recipe.category}
+            useful_items={recipe.useful_items}
         
 
           />

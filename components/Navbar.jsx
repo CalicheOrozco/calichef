@@ -495,7 +495,8 @@ export default function Navbar ({countRecipies }) {
 
   const languageMap = {
     'ES': 'Español',
-    'EN': 'English'
+    'EN': 'English',
+    'FR': 'Français',
   };
 
   const countryMap = {
@@ -522,6 +523,9 @@ export default function Navbar ({countRecipies }) {
     "PY": "Paraguay",
     "SG": "Singapore",
     "SE": "Sweden",
+    "CHE": "Switzerland",
+    "FR": "France",
+    "BE": "Belgium",
   };
 
   const getAvailableOptions = (field) => {
@@ -747,7 +751,7 @@ export default function Navbar ({countRecipies }) {
       {isModalOpen && (
     <div className='fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-80 overflow-y-auto' onClick={closeModal}>
         <div className='relative w-full h-full md:h-auto flex items-start md:items-center justify-center p-4'>
-            <div className='bg-neutral-900 border border-neutral-800 w-full md:w-2/3 rounded-lg shadow-xl flex flex-col' onClick={e => e.stopPropagation()}>
+            <div className='bg-neutral-900 border border-neutral-800 w-full md:w-5/6 rounded-lg shadow-xl flex flex-col' onClick={e => e.stopPropagation()}>
                 <div className='p-4 md:p-8'>
                     <div className='flex justify-between items-center mb-4 md:mb-6'>
                         <h2 className='text-xl md:text-2xl font-semibold text-white'>Filtrar Recetas</h2>
@@ -950,84 +954,28 @@ export default function Navbar ({countRecipies }) {
                                 </div>
                             </div>
 
-                            <div className='space-y-2'>
-                                <h2 className='text-2xl font-semibold mb-4 text-white'>Calificación</h2>
-                                <div className='grid grid-cols-2 gap-2 sm:gap-4 bg-neutral-900 rounded-lg p-3 sm:p-4'>
-                                    <div
-                                        onClick={() => setStarsFilter(starsFilter === '1' ? 'All' : '1')}
-                                        className={`text-center p-2 sm:p-3 rounded-lg cursor-pointer transition-all duration-200 ${
-                                            starsFilter === '1'
-                                                ? 'bg-green-600 text-white'
-                                                : 'hover:bg-neutral-800'
-                                        }`}
-                                    >
-                                        <div className='flex justify-center'>
-                                            <FaStar className='text-yellow-500 text-xl sm:text-2xl' />
-                                        </div>
-                                        
-                                    </div>
-                                    <div
-                                        onClick={() => setStarsFilter(starsFilter === '2' ? 'All' : '2')}
-                                        className={`text-center p-2 sm:p-3 rounded-lg cursor-pointer transition-all duration-200 ${
-                                            starsFilter === '2'
-                                                ? 'bg-green-600 text-white'
-                                                : 'hover:bg-neutral-800'
-                                        }`}
-                                    >
-                                        <div className='flex justify-center'>
-                                            <FaStar className='text-yellow-500 text-xl sm:text-2xl' />
-                                            <FaStar className='text-yellow-500 text-xl sm:text-2xl' />
-                                        </div>
-                                        
-                                    </div>
-                                    <div
-                                        onClick={() => setStarsFilter(starsFilter === '3' ? 'All' : '3')}
-                                        className={`text-center p-2 sm:p-3 rounded-lg cursor-pointer transition-all duration-200 ${
-                                            starsFilter === '3'
-                                                ? 'bg-green-600 text-white'
-                                                : 'hover:bg-neutral-800'
-                                        }`}
-                                    >
-                                        <div className='flex justify-center'>
-                                            <FaStar className='text-yellow-500 text-xl sm:text-2xl' />
-                                            <FaStar className='text-yellow-500 text-xl sm:text-2xl' />
-                                            <FaStar className='text-yellow-500 text-xl sm:text-2xl' />
-                                        </div>
-                                        
-                                    </div>
-                                    <div
-                                        onClick={() => setStarsFilter(starsFilter === '4' ? 'All' : '4')}
-                                        className={`text-center p-2 sm:p-3 rounded-lg cursor-pointer transition-all duration-200 ${
-                                            starsFilter === '4'
-                                                ? 'bg-green-600 text-white'
-                                                : 'hover:bg-neutral-800'
-                                        }`}
-                                    >
-                                        <div className='flex justify-center'>
-                                            <FaStar className='text-yellow-500 text-xl sm:text-2xl' />
-                                            <FaStar className='text-yellow-500 text-xl sm:text-2xl' />
-                                            <FaStar className='text-yellow-500 text-xl sm:text-2xl' />
-                                            <FaStar className='text-yellow-500 text-xl sm:text-2xl' />
-                                        </div>
-                                    </div>
-                                    <div
-                                        onClick={() => setStarsFilter(starsFilter === '5' ? 'All' : '5')}
-                                        className={`text-center p-2 sm:p-3 rounded-lg cursor-pointer transition-all duration-200 ${
-                                            starsFilter === '5'
-                                                ? 'bg-green-600 text-white'
-                                                : 'hover:bg-neutral-800'
-                                        }`}
-                                    >
-                                        <div className='flex justify-center'>
-                                            <FaStar className='text-yellow-500 text-xl sm:text-2xl' />
-                                            <FaStar className='text-yellow-500 text-xl sm:text-2xl' />
-                                            <FaStar className='text-yellow-500 text-xl sm:text-2xl' />
-                                            <FaStar className='text-yellow-500 text-xl sm:text-2xl' />
-                                            <FaStar className='text-yellow-500 text-xl sm:text-2xl' />
-                                        </div>
-                                    </div>
+                            <div className="flex flex-wrap gap-2 md:gap-1 sm:gap-4 bg-neutral-900 rounded-lg p-3 sm:p-4">
+                            {[1, 2, 3, 4, 5].map((starCount) => (
+                              <div
+                                key={starCount}
+                                onClick={() =>
+                                  setStarsFilter(starsFilter === String(starCount) ? 'All' : String(starCount))
+                                }
+                                className={`
+                                  text-center p-2 sm:p-3 rounded-lg cursor-pointer transition-all duration-200
+                                  w-full sm:w-[48%] md:${starCount === 5 ? 'w-[64%]' : 'w-[31%]'}
+                                  ${starsFilter === String(starCount) ? 'bg-green-600 text-white' : 'hover:bg-neutral-800'}
+                                `}
+                              >
+                                <div className="flex justify-center">
+                                  {Array.from({ length: starCount }).map((_, i) => (
+                                    <FaStar key={i} className="text-yellow-500 text-xl sm:text-2xl" />
+                                  ))}
                                 </div>
-                            </div>
+                              </div>
+                            ))}
+                          </div>
+
                         </div>
 
                         <div className='space-y-2'>
