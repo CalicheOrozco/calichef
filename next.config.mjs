@@ -4,7 +4,8 @@ import withPWA from 'next-pwa'
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['assets.tmecosys.com'],
+    domains: ['assets.tmecosys.com','patternlib-all.prod.external.eu-tm-prod.vorwerk-digital.com'],
+
   }
 }
 
