@@ -501,31 +501,57 @@ export default function Navbar ({countRecipies }) {
 
   const countryMap = {
     'MX': 'México',
+    'MXimg': 'https://cdn.gtranslate.net/flags/svg/countries/mx.svg',
     'US': 'United States',
+    'USimg': 'https://cdn.gtranslate.net/flags/svg/countries/us.svg',
     'CA': 'Canada',
+    'CAimg': 'https://cdn.gtranslate.net/flags/svg/countries/ca.svg',
     'AU': 'Australia',
+    'AUimg': 'https://cdn.gtranslate.net/flags/svg/countries/au.svg',
     'UK': 'United Kingdom',
+    'UKimg': 'https://cdn.gtranslate.net/flags/svg/countries/gb.svg',
     'AR': 'Argentina',
+    'ARimg': 'https://cdn.gtranslate.net/flags/svg/countries/ar.svg',
     'CO': 'Colombia',
+    'COimg': 'https://cdn.gtranslate.net/flags/svg/countries/co.svg',
     'AT': 'Austria',
+    'ATimg': 'https://cdn.gtranslate.net/flags/svg/countries/at.svg',
     "CH": "Chile",
+    "CHimg": 'https://cdn.gtranslate.net/flags/svg/countries/cl.svg',
     "EAU": "United Arab Emirates",
+    "EAUimg": 'https://cdn.gtranslate.net/flags/svg/countries/ae.svg',
     "ES": "España",
+    "ESimg": 'https://cdn.gtranslate.net/flags/svg/countries/es.svg',
     "GT": "Guatemala",
+    "GTimg":'https://cdn.gtranslate.net/flags/svg/countries/gt.svg',
     "ID": "Indonesia",
+    "IDimg":'https://cdn.gtranslate.net/flags/svg/countries/id.svg',
     "IS": "Islandia",
+    "ISimg":'https://cdn.gtranslate.net/flags/svg/countries/is.svg',
     "KSA": "Kingdom of Saudi Arabia",
+    "KSAimg":'https://cdn.gtranslate.net/flags/svg/countries/sa.svg',
     "MY": "Malaysia",
+    "MYimg":'https://cdn.gtranslate.net/flags/svg/countries/my.svg',
     "NO": "Norway",
+    "NOimg":'https://cdn.gtranslate.net/flags/svg/countries/no.svg',
     "PA": "Panamá",
+    "PAimg":'https://cdn.gtranslate.net/flags/svg/countries/pa.svg',
     "PH": "Philippines",
+    "PHimg":'https://cdn.gtranslate.net/flags/svg/countries/ph.svg',
     "PE": "Perú",
+    "PEimg":'https://cdn.gtranslate.net/flags/svg/countries/pe.svg',
     "PY": "Paraguay",
+    "PYimg":'https://cdn.gtranslate.net/flags/svg/countries/py.svg',
     "SG": "Singapore",
+    "SGimg":'https://cdn.gtranslate.net/flags/svg/countries/sg.svg',
     "SE": "Sweden",
+    "SEimg":'https://cdn.gtranslate.net/flags/svg/countries/se.svg',
     "CHE": "Switzerland",
+    "CHEimg":'https://cdn.gtranslate.net/flags/svg/countries/ch.svg',
     "FR": "France",
+    "FRimg":'https://cdn.gtranslate.net/flags/svg/countries/fr.svg',
     "BE": "Belgium",
+    "BEimg":'https://cdn.gtranslate.net/flags/svg/countries/be.svg',
   };
 
   const getAvailableOptions = (field) => {
@@ -810,6 +836,9 @@ export default function Navbar ({countRecipies }) {
                                             item.country && item.country.includes(code)
                                         ).length : 0;
                                         
+                                        // Obtener la URL de la bandera del país
+                                        const flagUrl = countryMap[`${code}img`];
+                                        
                                         return (
                                             <div
                                                 key={code}
@@ -833,7 +862,14 @@ export default function Navbar ({countRecipies }) {
                                                         }}
                                                         className='w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500'
                                                     />
-                                                    <span className='ml-3 text-white'>{name}</span>
+                                                    {flagUrl && (
+                                                        <img 
+                                                            src={flagUrl} 
+                                                            alt={`Bandera de ${name}`} 
+                                                            className='ml-3 w-5 h-5 rounded-sm object-cover'
+                                                        />
+                                                    )}
+                                                    <span className='ml-2 text-white'>{name}</span>
                                                 </div>
                                                 <span className='text-gray-400'>{countryCount} resultados</span>
                                             </div>

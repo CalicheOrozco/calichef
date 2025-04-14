@@ -51,6 +51,61 @@ export default function Recipe({
     four: 'https://assets.tmecosys.com/image/upload/t_web_rdp_device_56x56_2x/icons/utensil_icons/5406'
   };
 
+  const countryMap = {
+    'MX': 'México',
+    'MXimg': 'https://cdn.gtranslate.net/flags/svg/countries/mx.svg',
+    'US': 'United States',
+    'USimg': 'https://cdn.gtranslate.net/flags/svg/countries/us.svg',
+    'CA': 'Canada',
+    'CAimg': 'https://cdn.gtranslate.net/flags/svg/countries/ca.svg',
+    'AU': 'Australia',
+    'AUimg': 'https://cdn.gtranslate.net/flags/svg/countries/au.svg',
+    'UK': 'United Kingdom',
+    'UKimg': 'https://cdn.gtranslate.net/flags/svg/countries/gb.svg',
+    'AR': 'Argentina',
+    'ARimg': 'https://cdn.gtranslate.net/flags/svg/countries/ar.svg',
+    'CO': 'Colombia',
+    'COimg': 'https://cdn.gtranslate.net/flags/svg/countries/co.svg',
+    'AT': 'Austria',
+    'ATimg': 'https://cdn.gtranslate.net/flags/svg/countries/at.svg',
+    "CH": "Chile",
+    "CHimg": 'https://cdn.gtranslate.net/flags/svg/countries/cl.svg',
+    "EAU": "United Arab Emirates",
+    "EAUimg": 'https://cdn.gtranslate.net/flags/svg/countries/ae.svg',
+    "ES": "España",
+    "ESimg": 'https://cdn.gtranslate.net/flags/svg/countries/es.svg',
+    "GT": "Guatemala",
+    "GTimg":'https://cdn.gtranslate.net/flags/svg/countries/gt.svg',
+    "ID": "Indonesia",
+    "IDimg":'https://cdn.gtranslate.net/flags/svg/countries/id.svg',
+    "IS": "Islandia",
+    "ISimg":'https://cdn.gtranslate.net/flags/svg/countries/is.svg',
+    "KSA": "Kingdom of Saudi Arabia",
+    "KSAimg":'https://cdn.gtranslate.net/flags/svg/countries/sa.svg',
+    "MY": "Malaysia",
+    "MYimg":'https://cdn.gtranslate.net/flags/svg/countries/my.svg',
+    "NO": "Norway",
+    "NOimg":'https://cdn.gtranslate.net/flags/svg/countries/no.svg',
+    "PA": "Panamá",
+    "PAimg":'https://cdn.gtranslate.net/flags/svg/countries/pa.svg',
+    "PH": "Philippines",
+    "PHimg":'https://cdn.gtranslate.net/flags/svg/countries/ph.svg',
+    "PE": "Perú",
+    "PEimg":'https://cdn.gtranslate.net/flags/svg/countries/pe.svg',
+    "PY": "Paraguay",
+    "PYimg":'https://cdn.gtranslate.net/flags/svg/countries/py.svg',
+    "SG": "Singapore",
+    "SGimg":'https://cdn.gtranslate.net/flags/svg/countries/sg.svg',
+    "SE": "Sweden",
+    "SEimg":'https://cdn.gtranslate.net/flags/svg/countries/se.svg',
+    "CHE": "Switzerland",
+    "CHEimg":'https://cdn.gtranslate.net/flags/svg/countries/ch.svg',
+    "FR": "France",
+    "FRimg":'https://cdn.gtranslate.net/flags/svg/countries/fr.svg',
+    "BE": "Belgium",
+    "BEimg":'https://cdn.gtranslate.net/flags/svg/countries/be.svg',
+  };
+
   const rating = rating_score?.toString().split('.') || ['0', '0']
   const rating_integer = parseInt(rating[0]) || 0
   const rating_decimal = parseInt(rating[1]) || 0
@@ -218,7 +273,7 @@ export default function Recipe({
                     </core-rating>
                   </div>
 
-                  <div className='flex justify-around items-center py-6'>
+                  <div className='flex flex-row justify-around items-center py-6'>
                     {isSaved ? (
                       // TbNotesOff
                       <div className='flex flex-col justify-center items-center '>
@@ -514,12 +569,34 @@ export default function Recipe({
                   <h3 id='hints-and-tricks-title' className='text-white'>
                     Sugerencias y consejos
                   </h3>
-                  <ul>
+                  <ul className='flex flex-row flex-wrap gap-2 mb-4'>
                     {tips?.map((tip, index) => (
                       <li key={index} id={`hint-and-trick-${index}`}>
                         {tip}
                       </li>
                     ))}
+                  </ul>
+                </div>
+                <hr className='separator--silver-60' />
+              </>
+            )}
+            {country && (
+              <>
+                <div
+                  id='hints-and-tricks'
+                  className='hints-and-tricks recipe-section text-white'
+                >
+                  <h3 id='hints-and-tricks-title' className='text-white'>
+                  País
+                  </h3>
+                  <ul className='flex list-none flex-row justify-center items-center flex-wrap gap-2'>
+                    {/* utilizar el countryMap para nombre de los paises */}
+                    {country?.map((item, index) => (
+                      <li key={index} className='flex flex-col items-center'>
+                        <Image className='pb-2' src={countryMap[`${item}img`]} alt={item} width={30} height={30} />
+                        <span>{countryMap[item]}</span>
+                      </li>
+                  ))}
                   </ul>
                 </div>
                 <hr className='separator--silver-60' />
