@@ -590,7 +590,6 @@ export default function Recipe({
                   País
                   </h3>
                   <ul className='flex list-none flex-row justify-center items-center flex-wrap gap-2'>
-                    {/* utilizar el countryMap para nombre de los paises */}
                     {country?.map((item, index) => (
                       <li key={index} className='flex flex-col items-center'>
                         <Image className='pb-2' src={countryMap[`${item}img`]} alt={item} width={30} height={30} />
@@ -598,6 +597,48 @@ export default function Recipe({
                       </li>
                   ))}
                   </ul>
+                </div>
+                <hr className='separator--silver-60' />
+              </>
+            )}
+            {collections && collections.length > 0 && (
+              <>
+                <div
+                  id='collections-section'
+                  className='collections-section recipe-section text-white'
+                >
+                  <h3 id='collections-title' className='text-white text-2xl font-bold mb-4'>
+                    También incluido en
+                  </h3>
+                  <div className='flex flex-col space-y-4'>
+                    {collections.map((collection, index) => (
+                      <a 
+                        key={index} 
+                        href={`/collection/${collection.name.replace(/\s+/g, '-').toLowerCase()}`}
+                        className='block'
+                      >
+                        <div className='flex items-center bg-neutral-900 p-3 rounded-lg hover:bg-neutral-800 transition-colors duration-200'>
+                          <div className='w-20 h-20 mr-4 flex-shrink-0'>
+                            <Image 
+                              src={collection.image_url} 
+                              alt={collection.name} 
+                              width={80} 
+                              height={80} 
+                              className='rounded-md object-cover'
+                            />
+                          </div>
+                          <div className='flex flex-col'>
+                            <h4 className='text-lg font-semibold text-white'>{collection.name}</h4>
+                            <p className='text-gray-400 text-sm'>
+                              {collection.info ? 
+                                collection.info.replace(/(.*?)(Recipes|Recetas|Recettes).*$/g, '$1$2')
+                                : ''}
+                            </p>
+                          </div>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
                 </div>
                 <hr className='separator--silver-60' />
               </>
