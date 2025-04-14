@@ -55,6 +55,7 @@ export default function Recipe({
     frigorífico:'https://assets.tmecosys.com/image/upload/t_web_rdp_device_56x56_2x/icons/utensil_icons/5460',
     estufa:'https://assets.tmecosys.com/image/upload/t_web_rdp_device_56x56_2x/icons/utensil_icons/5428',
     stove:'https://assets.tmecosys.com/image/upload/t_web_rdp_device_56x56_2x/icons/utensil_icons/5428',
+    'stove top':'https://assets.tmecosys.com/image/upload/t_web_rdp_device_56x56_2x/icons/utensil_icons/5428',
     barbacoa:'https://assets.tmecosys.com/image/upload/t_web_rdp_device_56x56_2x/icons/utensil_icons/6163',
     'Cortador Thermomix':'https://assets.tmecosys.com/image/upload/t_web_rdp_device_56x56_2x/icons/utensil_icons/341878',
     'cubre cuchillas':'https://assets.tmecosys.com/image/upload/t_web_rdp_device_56x56_2x/icons/utensil_icons/218594'
@@ -487,108 +488,120 @@ export default function Recipe({
             </div>
             
             <hr className='separator--silver-60' />
-            <div id='nutritions-desktop' className='nutritions-wrapper'>
-              <div className='nutritions pb-5'>
-                <div className='bg-black bg-opacity-80 p-6 rounded-lg'>
-                  <h3 className='text-2xl text-white font-bold mb-2'>Dispositivos y accesorios</h3>
-
-                  <div className='space-y-4'>
-                    {devices?.map((item, index) => (
-                      <div key={index} className='flex items-center'>
-                        <Image
-                          src={deviceImages[item] || 'https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48_2x/icons/ingredient_icons/546'}
-                          alt={item}
-                          width={60}
-                          height={60}
-                        />
-                        <span className='text-lg capitalize'>{item}</span>
+            {devices && (
+                    <div id='nutritions-desktop' className='nutritions-wrapper'>
+                    <div className='nutritions pb-5'>
+                      <div className='bg-black bg-opacity-80 p-6 rounded-lg'>
+                        <h3 className='text-2xl text-white font-bold mb-2'>Dispositivos y accesorios</h3>
+      
+                        <div className='space-y-4'>
+                          {devices?.map((item, index) => (
+                            <div key={index} className='flex items-center'>
+                              <Image
+                                src={deviceImages[item] || 'https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48_2x/icons/ingredient_icons/546'}
+                                alt={item}
+                                width={60}
+                                height={60}
+                              />
+                              <span className='text-lg capitalize'>{item}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    ))}
+                    </div>
+                    <hr className='separator--silver-60' />
                   </div>
-                </div>
-              </div>
-              <hr className='separator--silver-60' />
-            </div>
+                  )}
+            
             <hr className='separator--silver-60' />
-            <div id='nutritions-desktop' className='nutritions-wrapper'>
-              <div className='nutritions pb-5'>
-                <div className='bg-black bg-opacity-80 p-6 rounded-lg'>
-                  <h3 className='text-2xl text-white font-bold mb-2'>Accesorios útiles</h3>
-                  <div className='space-y-4'>
-                    {useful_items?.map((item, index) => (
-                      <div key={index} className='flex items-center'>
-                        <span className='text-lg capitalize'>- {item}</span>
+            {useful_items && (
+                    <div id='nutritions-desktop' className='nutritions-wrapper'>
+                    <div className='nutritions pb-5'>
+                      <div className='bg-black bg-opacity-80 p-6 rounded-lg'>
+                        <h3 className='text-2xl text-white font-bold mb-2'>Accesorios útiles</h3>
+                        <div className='space-y-4'>
+                          {useful_items?.map((item, index) => (
+                            <div key={index} className='flex items-center'>
+                              <span className='text-lg capitalize'>- {item}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    ))}
+                    </div>
+                    <hr className='separator--silver-60' />
                   </div>
-                </div>
-              </div>
-              <hr className='separator--silver-60' />
-            </div>
+                  )}
+            
           </div>
           <div className='w-full md:w-1/2 p-4'>
-            <div id='preparation-steps' className='preparation-steps'>
-              <core-list-section>
-                <h3 id='preparation-steps-title' className='text-white'>
-                  Preparación
-                </h3>
-                <ol>
-                  {steps?.map((step, index) => (
-                    <li key={index} id={`preparation-step--0-${index}`}>
-                      {step}
-                    </li>
-                  ))}
-                </ol>
-              </core-list-section>
-            </div>
+            
+            {steps && (
+                    <div id='preparation-steps' className='preparation-steps'>
+                    <core-list-section>
+                      <h3 id='preparation-steps-title' className='text-white'>
+                        Preparación
+                      </h3>
+                      <ol>
+                        {steps?.map((step, index) => (
+                          <li key={index} id={`preparation-step--0-${index}`}>
+                            {step}
+                          </li>
+                        ))}
+                      </ol>
+                    </core-list-section>
+                  </div>
+                  )}
             <hr className='separator--silver-60' />
-            <div id='nutritions-mobile' className='nutritions-wrapper'>
-              <div className='nutritions pb-5'>
-                <dl>
-                  <h3 id='ingredients-title' className='text-white pb-5'>
-                    Inf. nutricional
-                  </h3>
-                  <dd>{nutritions?.inf_nutricional}</dd>
-                  {nutritions?.calorias && (
-                    <>
-                      <dt className='text-white font-bold'>Calorías</dt>
-                      <dd>{nutritions?.calorias}</dd>
-                    </>
+            {nutritions && (
+                    <div id='nutritions-mobile' className='nutritions-wrapper'>
+                    <div className='nutritions pb-5'>
+                      <dl>
+                        <h3 id='ingredients-title' className='text-white pb-5'>
+                          Inf. nutricional
+                        </h3>
+                        <dd>{nutritions?.inf_nutricional}</dd>
+                        {nutritions?.calorias && (
+                          <>
+                            <dt className='text-white font-bold'>Calorías</dt>
+                            <dd>{nutritions?.calorias}</dd>
+                          </>
+                        )}
+                        {nutritions?.proteina && (
+                          <>
+                            <dt className='text-white font-bold'>Proteína</dt>
+                            <dd>{nutritions?.proteina}</dd>
+                          </>
+                        )}
+                        {nutritions?.carbohidratos && (
+                          <>
+                            <dt className='text-white font-bold'>Carbohidratos</dt>
+                            <dd>{nutritions?.carbohidratos}</dd>
+                          </>
+                        )}
+                        {nutritions?.grasa && (
+                          <>
+                            <dt className='text-white font-bold'>Grasa</dt>
+                            <dd>{nutritions?.grasa}</dd>
+                          </>
+                        )}
+                        {nutritions?.grasa_saturada && (
+                          <>
+                            <dt className='text-white font-bold'>Grasa Saturada</dt>
+                            <dd>{nutritions?.grasa_saturada}</dd>
+                          </>
+                        )}
+                        {nutritions?.fibra && (
+                          <>
+                            <dt className='text-white font-bold'>Fibra</dt>
+                            <dd>{nutritions?.fibra}</dd>
+                          </>
+                        )}
+                      </dl>
+                    </div>
+                    <hr className='separator--silver-60' />
+                  </div>
                   )}
-                  {nutritions?.proteina && (
-                    <>
-                      <dt className='text-white font-bold'>Proteína</dt>
-                      <dd>{nutritions?.proteina}</dd>
-                    </>
-                  )}
-                  {nutritions?.carbohidratos && (
-                    <>
-                      <dt className='text-white font-bold'>Carbohidratos</dt>
-                      <dd>{nutritions?.carbohidratos}</dd>
-                    </>
-                  )}
-                  {nutritions?.grasa && (
-                    <>
-                      <dt className='text-white font-bold'>Grasa</dt>
-                      <dd>{nutritions?.grasa}</dd>
-                    </>
-                  )}
-                  {nutritions?.grasa_saturada && (
-                    <>
-                      <dt className='text-white font-bold'>Grasa Saturada</dt>
-                      <dd>{nutritions?.grasa_saturada}</dd>
-                    </>
-                  )}
-                  {nutritions?.fibra && (
-                    <>
-                      <dt className='text-white font-bold'>Fibra</dt>
-                      <dd>{nutritions?.fibra}</dd>
-                    </>
-                  )}
-                </dl>
-              </div>
-              <hr className='separator--silver-60' />
-            </div>
+            
             {tips && (
               <>
                 <div
@@ -672,33 +685,36 @@ export default function Recipe({
                 <hr className='separator--silver-60' />
               </>
             )}
-            <div
-              id='additional-categories'
-              className='additional-categories recipe-section'
-            >
-              <h3 id='additional-categories-title' className='text-white'>
-                Etiquetas
-              </h3>
-              <core-tags-wrapper
-                className='core-tags-wrapper--alternative'
-                aria-expanded='false'
-              >
-                <div className='core-tags-wrapper__wrapper transition duration-200 max-h-56'>
-                  <div className='core-tags-wrapper__tags-container'>
-                    {tags?.map((tag, index) => (
-                      <a
-                        key={index}
-                        id={`additional-category-${index}`}
-                        className='core-badge--high'
-                        // href={`/${tag}`}
-                      >
-                        {`#${tag}`}
-                      </a>
-                    ))}
+            {tags && (
+                    <div
+                    id='additional-categories'
+                    className='additional-categories recipe-section'
+                  >
+                    <h3 id='additional-categories-title' className='text-white'>
+                      Etiquetas
+                    </h3>
+                    <core-tags-wrapper
+                      className='core-tags-wrapper--alternative'
+                      aria-expanded='false'
+                    >
+                      <div className='core-tags-wrapper__wrapper transition duration-200 max-h-56'>
+                        <div className='core-tags-wrapper__tags-container'>
+                          {tags?.map((tag, index) => (
+                            <a
+                              key={index}
+                              id={`additional-category-${index}`}
+                              className='core-badge--high'
+                              // href={`/${tag}`}
+                            >
+                              {`#${tag}`}
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    </core-tags-wrapper>
                   </div>
-                </div>
-              </core-tags-wrapper>
-            </div>
+                  )}
+            
             <hr className='separator--silver-60' />
           </div>
         </div>
