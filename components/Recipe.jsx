@@ -34,6 +34,7 @@ export default function Recipe({
   cooking_time,
 }) {
   const [isSaved, setIsSaved] = useState(false)
+  const [checkedIngredients, setCheckedIngredients] = useState({})
 
   const difficultyMap = {
     'E': 'Fácil',
@@ -48,7 +49,15 @@ export default function Recipe({
     TM31: 'https://patternlib-all.prod.external.eu-tm-prod.vorwerk-digital.com/tm31-d180149ce35a8c8d99d7a3bbff0f1bec.png',
     horno: 'https://assets.tmecosys.com/image/upload/t_web_rdp_device_56x56_2x/icons/utensil_icons/5406',
     oven: 'https://assets.tmecosys.com/image/upload/t_web_rdp_device_56x56_2x/icons/utensil_icons/5406',
-    four: 'https://assets.tmecosys.com/image/upload/t_web_rdp_device_56x56_2x/icons/utensil_icons/5406'
+    four: 'https://assets.tmecosys.com/image/upload/t_web_rdp_device_56x56_2x/icons/utensil_icons/5406',
+    refrigerador:'https://assets.tmecosys.com/image/upload/t_web_rdp_device_56x56_2x/icons/utensil_icons/5460',
+    refrigerator:'https://assets.tmecosys.com/image/upload/t_web_rdp_device_56x56_2x/icons/utensil_icons/5460',
+    frigorífico:'https://assets.tmecosys.com/image/upload/t_web_rdp_device_56x56_2x/icons/utensil_icons/5460',
+    estufa:'https://assets.tmecosys.com/image/upload/t_web_rdp_device_56x56_2x/icons/utensil_icons/5428',
+    stove:'https://assets.tmecosys.com/image/upload/t_web_rdp_device_56x56_2x/icons/utensil_icons/5428',
+    barbacoa:'https://assets.tmecosys.com/image/upload/t_web_rdp_device_56x56_2x/icons/utensil_icons/6163',
+    'Cortador Thermomix':'https://assets.tmecosys.com/image/upload/t_web_rdp_device_56x56_2x/icons/utensil_icons/341878',
+    'cubre cuchillas':'https://assets.tmecosys.com/image/upload/t_web_rdp_device_56x56_2x/icons/utensil_icons/218594'
   };
 
   const countryMap = {
@@ -404,8 +413,22 @@ export default function Recipe({
                           }
                           processedName = processedName.charAt(0).toUpperCase() + processedName.slice(1);
                           
+                          const ingredientId = `${group}-${index}`;
+                          const isChecked = checkedIngredients[ingredientId] || false;
+                          
+                          const toggleIngredient = () => {
+                            setCheckedIngredients(prev => ({
+                              ...prev,
+                              [ingredientId]: !isChecked
+                            }));
+                          };
+                          
                           return (
-                            <li key={`${group}-${index}`} className='flex items-center justify-between py-2 px-4 rounded-lg hover:bg-neutral-800 transition-colors duration-200'>
+                            <li 
+                              key={ingredientId} 
+                              className='flex items-center justify-between py-2 px-4 rounded-lg hover:bg-neutral-800 transition-colors duration-200 cursor-pointer'
+                              onClick={toggleIngredient}
+                            >
                               <div className='flex items-center gap-3'>
                                 {ingredient.image && 
                                   <div className='w-14 h-14 flex items-center justify-center'>
@@ -414,19 +437,25 @@ export default function Recipe({
                                       alt={processedName} 
                                       width={40}
                                       height={40}
-                                      className="object-cover"
+                                      className={`object-cover ${isChecked ? 'opacity-50' : ''}`}
                                     />
                                   </div>
                                 }
                                 <div>
-                                  <span className='text-white'>{processedName}</span>
+                                  <span className={`text-white ${isChecked ? 'line-through text-gray-500' : ''}`}>
+                                    {processedName}
+                                  </span>
                                   {ingredient.description && 
-                                    <span className="text-gray-400 text-sm block">{ingredient.description}</span>
+                                    <span className={`text-gray-400 text-sm block ${isChecked ? 'line-through opacity-50' : ''}`}>
+                                      {ingredient.description}
+                                    </span>
                                   }
                                 </div>
                               </div>
                               {ingredient.amount && 
-                                <span className="text-gray-300 text-sm">{ingredient.amount}</span>
+                                <span className={`text-gray-300 text-sm ${isChecked ? 'line-through opacity-50' : ''}`}>
+                                  {ingredient.amount}
+                                </span>
                               }
                             </li>
                           );
@@ -467,7 +496,7 @@ export default function Recipe({
                     {devices?.map((item, index) => (
                       <div key={index} className='flex items-center'>
                         <Image
-                          src={deviceImages[item] || ''}
+                          src={deviceImages[item] || 'https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48_2x/icons/ingredient_icons/546'}
                           alt={item}
                           width={60}
                           height={60}
