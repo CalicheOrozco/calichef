@@ -923,8 +923,8 @@ export default function Navbar ({countRecipies }) {
       </header>
 
       {isModalOpen && (
-    <div className='fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-80 overflow-y-auto' onClick={closeModal}>
-        <div className='relative w-full h-full md:h-auto flex items-start md:items-center justify-center p-4'>
+    <div className='fixed inset-0 flex items-start justify-center z-50 bg-black bg-opacity-80 overflow-y-auto pt-20 md:pt-24' onClick={closeModal}>
+        <div className='relative w-full h-full md:h-auto flex items-start justify-center p-4 mt-4'>
             <div className='bg-neutral-900 border border-neutral-800 w-full md:w-5/6 rounded-lg shadow-xl flex flex-col' onClick={e => e.stopPropagation()}>
                 <div className='p-4 md:p-8'>
                     <div className='flex justify-between items-center mb-4 md:mb-6'>
