@@ -1,11 +1,14 @@
 import React, { useContext, useState, useEffect } from 'react'
-import { FaStar, FaStarHalf } from 'react-icons/fa'
-import { TbNotes, TbNotesOff } from 'react-icons/tb'
+import { FaStar } from 'react-icons/fa'
 import { CalichefContext } from '../context/MyContext'
 import { FaShareFromSquare } from 'react-icons/fa6'
+import { FaHeart, FaRegHeart } from 'react-icons/fa'
 import { openDB } from 'idb'
 import Card from './Card'
 import Image from 'next/image'
+import { useAuth } from '@/context/AuthContext'
+
+import { deviceImages, countryMap } from '../constants';
 
 const DB_NAME = 'calicheDatabase'
 const STORE_NAME = 'dataStore'
@@ -30,11 +33,12 @@ export default function Recipe({
   category,
   collections,
   country,
-  language,
   cooking_time,
 }) {
   const [isSaved, setIsSaved] = useState(false)
+  const [isFavorite, setIsFavorite] = useState(false)
   const [checkedIngredients, setCheckedIngredients] = useState({})
+  const { user, updateFavorites, isAuthenticated } = useAuth()
 
   const difficultyMap = {
     'E': 'Fácil',
@@ -42,79 +46,7 @@ export default function Recipe({
     'A': 'Avanzado'
   }
 
-  const deviceImages = {
-    TM7: 'https://patternlib-all.prod.external.eu-tm-prod.vorwerk-digital.com/tm7-83b22c91a1a1e7fee3797168f05f9754.png',
-    TM6: 'https://patternlib-all.prod.external.eu-tm-prod.vorwerk-digital.com/tm6-fff867f1cfc7f35118b8b6dfffca8339.png',
-    TM5: 'https://patternlib-all.prod.external.eu-tm-prod.vorwerk-digital.com/tm5-a3a665744eb0093e9108135bf6b1baa4.png',
-    TM31: 'https://patternlib-all.prod.external.eu-tm-prod.vorwerk-digital.com/tm31-d180149ce35a8c8d99d7a3bbff0f1bec.png',
-    horno: 'https://assets.tmecosys.com/image/upload/t_web_rdp_device_56x56_2x/icons/utensil_icons/5406',
-    oven: 'https://assets.tmecosys.com/image/upload/t_web_rdp_device_56x56_2x/icons/utensil_icons/5406',
-    four: 'https://assets.tmecosys.com/image/upload/t_web_rdp_device_56x56_2x/icons/utensil_icons/5406',
-    refrigerador:'https://assets.tmecosys.com/image/upload/t_web_rdp_device_56x56_2x/icons/utensil_icons/5460',
-    refrigerator:'https://assets.tmecosys.com/image/upload/t_web_rdp_device_56x56_2x/icons/utensil_icons/5460',
-    frigorífico:'https://assets.tmecosys.com/image/upload/t_web_rdp_device_56x56_2x/icons/utensil_icons/5460',
-    estufa:'https://assets.tmecosys.com/image/upload/t_web_rdp_device_56x56_2x/icons/utensil_icons/5428',
-    stove:'https://assets.tmecosys.com/image/upload/t_web_rdp_device_56x56_2x/icons/utensil_icons/5428',
-    'stove top':'https://assets.tmecosys.com/image/upload/t_web_rdp_device_56x56_2x/icons/utensil_icons/5428',
-    barbacoa:'https://assets.tmecosys.com/image/upload/t_web_rdp_device_56x56_2x/icons/utensil_icons/6163',
-    'Cortador Thermomix':'https://assets.tmecosys.com/image/upload/t_web_rdp_device_56x56_2x/icons/utensil_icons/341878',
-    'cubre cuchillas':'https://assets.tmecosys.com/image/upload/t_web_rdp_device_56x56_2x/icons/utensil_icons/218594'
-  };
 
-  const countryMap = {
-    'MX': 'México',
-    'MXimg': 'https://cdn.gtranslate.net/flags/svg/countries/mx.svg',
-    'US': 'United States',
-    'USimg': 'https://cdn.gtranslate.net/flags/svg/countries/us.svg',
-    'CA': 'Canada',
-    'CAimg': 'https://cdn.gtranslate.net/flags/svg/countries/ca.svg',
-    'AU': 'Australia',
-    'AUimg': 'https://cdn.gtranslate.net/flags/svg/countries/au.svg',
-    'UK': 'United Kingdom',
-    'UKimg': 'https://cdn.gtranslate.net/flags/svg/countries/gb.svg',
-    'AR': 'Argentina',
-    'ARimg': 'https://cdn.gtranslate.net/flags/svg/countries/ar.svg',
-    'CO': 'Colombia',
-    'COimg': 'https://cdn.gtranslate.net/flags/svg/countries/co.svg',
-    'AT': 'Austria',
-    'ATimg': 'https://cdn.gtranslate.net/flags/svg/countries/at.svg',
-    "CH": "Chile",
-    "CHimg": 'https://cdn.gtranslate.net/flags/svg/countries/cl.svg',
-    "EAU": "United Arab Emirates",
-    "EAUimg": 'https://cdn.gtranslate.net/flags/svg/countries/ae.svg',
-    "ES": "España",
-    "ESimg": 'https://cdn.gtranslate.net/flags/svg/countries/es.svg',
-    "GT": "Guatemala",
-    "GTimg":'https://cdn.gtranslate.net/flags/svg/countries/gt.svg',
-    "ID": "Indonesia",
-    "IDimg":'https://cdn.gtranslate.net/flags/svg/countries/id.svg',
-    "IS": "Islandia",
-    "ISimg":'https://cdn.gtranslate.net/flags/svg/countries/is.svg',
-    "KSA": "Kingdom of Saudi Arabia",
-    "KSAimg":'https://cdn.gtranslate.net/flags/svg/countries/sa.svg',
-    "MY": "Malaysia",
-    "MYimg":'https://cdn.gtranslate.net/flags/svg/countries/my.svg',
-    "NO": "Norway",
-    "NOimg":'https://cdn.gtranslate.net/flags/svg/countries/no.svg',
-    "PA": "Panamá",
-    "PAimg":'https://cdn.gtranslate.net/flags/svg/countries/pa.svg',
-    "PH": "Philippines",
-    "PHimg":'https://cdn.gtranslate.net/flags/svg/countries/ph.svg',
-    "PE": "Perú",
-    "PEimg":'https://cdn.gtranslate.net/flags/svg/countries/pe.svg',
-    "PY": "Paraguay",
-    "PYimg":'https://cdn.gtranslate.net/flags/svg/countries/py.svg',
-    "SG": "Singapore",
-    "SGimg":'https://cdn.gtranslate.net/flags/svg/countries/sg.svg',
-    "SE": "Sweden",
-    "SEimg":'https://cdn.gtranslate.net/flags/svg/countries/se.svg',
-    "CHE": "Switzerland",
-    "CHEimg":'https://cdn.gtranslate.net/flags/svg/countries/ch.svg',
-    "FR": "France",
-    "FRimg":'https://cdn.gtranslate.net/flags/svg/countries/fr.svg',
-    "BE": "Belgium",
-    "BEimg":'https://cdn.gtranslate.net/flags/svg/countries/be.svg',
-  };
 
   const rating = rating_score?.toString().split('.') || ['0', '0']
   const rating_integer = parseInt(rating[0]) || 0
@@ -131,7 +63,7 @@ export default function Recipe({
     console.error('CalichefContext no está disponible en el componente Recipe')
   }
 
-  const { userRecipes, setUserRecipes } = contextValue
+  const {  setUserRecipes } = contextValue
 
   useEffect(() => {
     const checkIfSaved = async () => {
@@ -145,7 +77,12 @@ export default function Recipe({
     }
 
     checkIfSaved()
-  }, [id])
+    
+    // Verificar si la receta está en favoritos del usuario
+    if (user && user.favorites) {
+      setIsFavorite(user.favorites.includes(id))
+    }
+  }, [id, user])
 
   const handleSaveRecipe = async () => {
     try {
@@ -284,23 +221,20 @@ export default function Recipe({
                   </div>
 
                   <div className='flex flex-row justify-around items-center py-6'>
-                    {isSaved ? (
-                      // TbNotesOff
-                      <div className='flex flex-col justify-center items-center '>
-                        <TbNotesOff
-                          onClick={handleDeleteRecipe}
-                          className='text-red-500 hover:text-red-700 text-4xl font-semibold'
-                        />
-                        <span className='text-white'>Eliminar</span>
-                      </div>
-                    ) : (
-                      // TbNotes
-                      <div className='flex flex-col justify-center items-center '>
-                        <TbNotes
-                          onClick={handleSaveRecipe}
-                          className='text-white hover:text-gray-500 text-4xl font-semibold'
-                        />
-                        <span className='text-white'>Guardar</span>
+                    {isAuthenticated && (
+                      <div className='flex flex-col justify-center items-center'>
+                        {isFavorite ? (
+                          <FaHeart
+                            onClick={() => updateFavorites(id)}
+                            className='text-red-500 hover:text-red-700 text-4xl font-semibold'
+                          />
+                        ) : (
+                          <FaRegHeart
+                            onClick={() => updateFavorites(id)}
+                            className='text-white hover:text-gray-500 text-4xl font-semibold'
+                          />
+                        )}
+                        <span className='text-white'>Favorito</span>
                       </div>
                     )}
                     <div className='flex flex-col justify-center items-center'>
