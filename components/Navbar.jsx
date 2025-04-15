@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import React, { useContext, useState, useEffect, useCallback } from 'react'
+import React, { useContext, useState, useEffect, useCallback, useRef } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { CalichefContext } from '../context/MyContext'
 import { FaSearch, FaStar } from 'react-icons/fa'
@@ -21,6 +21,11 @@ export default function Navbar ({countRecipies }) {
   const [isHomePage, setIsHomePage] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
+  // Estado para las sugerencias automáticas
+  const [suggestions, setSuggestions] = useState([])
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const searchInputRef = useRef(null)
+  const suggestionsRef = useRef(null)
 
   const contextValue = useContext(CalichefContext)
   if (!contextValue) {
@@ -220,6 +225,53 @@ export default function Navbar ({countRecipies }) {
   }
 
   const categories = getCategories();
+
+  // Función para generar sugerencias basadas en el término de búsqueda
+  const generateSuggestions = useCallback((searchTermValue) => {
+    if (!originalData || !Array.isArray(originalData) || !searchTermValue || searchTermValue.trim() === '') {
+      setSuggestions([])
+      return
+    }
+
+    const searchTermLower = searchTermValue.toLowerCase().trim()
+    const searchTerms = searchTermLower.split(' ')
+    
+    // Buscar coincidencias parciales en los títulos
+    let matchedRecipes = originalData.filter(item => {
+      const titleLower = item.title.toLowerCase()
+      
+      // Verificar si al menos un término de búsqueda está incluido en el título
+      return searchTerms.some(term => titleLower.includes(term))
+    })
+    
+    // Aplicar filtro de idioma si está activo
+    if (!languageFilter.includes('All')) {
+      matchedRecipes = matchedRecipes.filter(item => 
+        item.language && languageFilter.includes(item.language)
+      )
+    }
+    
+    // Ordenar por relevancia (cuántos términos coinciden) y por puntuación
+    matchedRecipes = matchedRecipes.sort((a, b) => {
+      const titleA = a.title.toLowerCase()
+      const titleB = b.title.toLowerCase()
+      
+      // Contar cuántos términos coinciden en cada título
+      const matchesA = searchTerms.filter(term => titleA.includes(term)).length
+      const matchesB = searchTerms.filter(term => titleB.includes(term)).length
+      
+      // Primero ordenar por número de coincidencias
+      if (matchesB !== matchesA) {
+        return matchesB - matchesA
+      }
+      
+      // Si tienen el mismo número de coincidencias, ordenar por puntuación
+      return (b.rating_score || 0) - (a.rating_score || 0)
+    })
+    
+    // Limitar a 5 sugerencias para no sobrecargar la interfaz
+    setSuggestions(matchedRecipes.slice(0, 5))
+  }, [originalData, languageFilter])
 
   const handleFilter = useCallback(searchTermValue => {
     if (!originalData || !Array.isArray(originalData)) {
@@ -426,11 +478,30 @@ export default function Navbar ({countRecipies }) {
       setAllData(filteredData);
       localStorage.removeItem('searchTerm');
     }
+    
+    // Cerrar sugerencias cuando se hace clic fuera del componente
+    const handleClickOutside = (event) => {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(event.target) &&
+          searchInputRef.current && !searchInputRef.current.contains(event.target)) {
+        setShowSuggestions(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, [originalData, setSearchTerm, setAllData]);
 
   const debouncedHandleFilter = useCallback(
     debounce(handleFilter, 500),
     [handleFilter]
+  );
+  
+  // Debounce para las sugerencias (más rápido que el filtro principal)
+  const debouncedGenerateSuggestions = useCallback(
+    debounce(generateSuggestions, 200),
+    [generateSuggestions]
   );
 
   useEffect(() => {
@@ -460,6 +531,59 @@ export default function Navbar ({countRecipies }) {
   const handleKeyPress = event => {
     if (event.key === 'Enter') {
       handleModalSearch()
+      setShowSuggestions(false)
+    } else if (event.key === 'ArrowDown' && suggestions.length > 0) {
+      // Permitir navegar por las sugerencias con las flechas
+      const suggestionElements = document.querySelectorAll('.suggestion-item');
+      if (suggestionElements.length > 0) {
+        suggestionElements[0].focus();
+      }
+    }
+  }
+  
+  const handleSearchInputChange = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    
+    if (value.trim() === '') {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    } else {
+      debouncedGenerateSuggestions(value);
+      setShowSuggestions(true);
+    }
+  }
+  
+  const handleSuggestionClick = (suggestion) => {
+    setSearchTerm(suggestion.title);
+    setShowSuggestions(false);
+    handleFilter(suggestion.title);
+    closeModal();
+    if (!isHomePage) {
+      router.push('/');
+    }
+  }
+  
+  const handleSuggestionKeyDown = (event, index, suggestion) => {
+    if (event.key === 'Enter') {
+      handleSuggestionClick(suggestion);
+    } else if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      const suggestionElements = document.querySelectorAll('.suggestion-item');
+      if (index < suggestionElements.length - 1) {
+        suggestionElements[index + 1].focus();
+      }
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      if (index > 0) {
+        const suggestionElements = document.querySelectorAll('.suggestion-item');
+        suggestionElements[index - 1].focus();
+      } else {
+        // Volver al input de búsqueda
+        if (searchInputRef.current) {
+          searchInputRef.current.focus();
+        }
+      }
     }
   }
 
@@ -796,11 +920,30 @@ export default function Navbar ({countRecipies }) {
                                 type='text'
                                 placeholder='Buscar recetas...'
                                 value={searchTerm}
-                                onChange={handleSearch}
+                                onChange={handleSearchInputChange}
                                 onKeyPress={handleKeyPress}
+                                ref={searchInputRef}
                                 className='w-full px-3 md:px-4 py-2 md:py-3 border-2 border-neutral-700 bg-neutral-700 text-white rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200 text-sm md:text-base'
                                 aria-label='Buscar'
                             />
+                            {showSuggestions && suggestions.length > 0 && (
+                                <div 
+                                    ref={suggestionsRef}
+                                    className='absolute z-50 mt-1 w-full bg-neutral-800 border border-neutral-700 rounded-lg shadow-lg max-h-60 overflow-y-auto'
+                                >
+                                    {suggestions.map((suggestion, index) => (
+                                        <div
+                                            key={suggestion.id}
+                                            className='suggestion-item px-4 py-2 hover:bg-neutral-700 cursor-pointer text-white'
+                                            onClick={() => handleSuggestionClick(suggestion)}
+                                            onKeyDown={(e) => handleSuggestionKeyDown(e, index, suggestion)}
+                                            tabIndex={0}
+                                        >
+                                            {suggestion.title}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
 
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4'>
