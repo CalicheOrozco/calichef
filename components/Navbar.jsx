@@ -250,8 +250,11 @@ export default function Navbar ({countRecipies }) {
     // Aplicar filtros en orden
     if (searchTermValue && searchTermValue.trim() !== '') {
       const searchTermLower = searchTermValue.toLowerCase().trim()
+      const searchTerms = searchTermLower.split(' ')
       filteredData = filteredData.filter(item =>
-        item.title.toLowerCase().includes(searchTermLower)
+        searchTerms.every(term =>
+          item.title.toLowerCase().includes(term)
+        )
       )
     }
 
