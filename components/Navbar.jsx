@@ -2,9 +2,10 @@
 import React, { useContext, useState, useEffect, useCallback, useRef } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { CalichefContext } from '../context/MyContext'
-import { FaSearch, FaStar } from 'react-icons/fa'
-import { IoRestaurant, IoClose, IoHomeSharp } from 'react-icons/io5'
+import { FaSearch, FaStar, FaUserCircle } from 'react-icons/fa'
+import { IoClose, IoHomeSharp } from 'react-icons/io5'
 import Link from 'next/link'
+import { countryMap } from '../constants';
 
 const debounce = (func, wait = 1000) => {
   let timeout
@@ -26,6 +27,13 @@ export default function Navbar ({countRecipies }) {
   const [showSuggestions, setShowSuggestions] = useState(false)
   const searchInputRef = useRef(null)
   const suggestionsRef = useRef(null)
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef(null);
+
+  // Importar contexto de autenticación directamente
+  const { useAuth } = require('@/context/AuthContext')
+  const { user, logout, isAuthenticated } = useAuth()
+
 
   const contextValue = useContext(CalichefContext)
   if (!contextValue) {
@@ -36,7 +44,6 @@ export default function Navbar ({countRecipies }) {
 
   const {
     setAllData,
-    userRecipes,
     originalData,
     searchTerm,
     setSearchTerm,
@@ -493,6 +500,18 @@ export default function Navbar ({countRecipies }) {
     };
   }, [originalData, setSearchTerm, setAllData]);
 
+  // Close menu when clicking outside
+  useEffect(() => {
+    if (!showMenu) return;
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showMenu]);
+
   const debouncedHandleFilter = useCallback(
     debounce(handleFilter, 500),
     [handleFilter]
@@ -626,60 +645,7 @@ export default function Navbar ({countRecipies }) {
     'FR': 'Français',
   };
 
-  const countryMap = {
-    'MX': 'México',
-    'MXimg': 'https://cdn.gtranslate.net/flags/svg/countries/mx.svg',
-    'US': 'United States',
-    'USimg': 'https://cdn.gtranslate.net/flags/svg/countries/us.svg',
-    'CA': 'Canada',
-    'CAimg': 'https://cdn.gtranslate.net/flags/svg/countries/ca.svg',
-    'AU': 'Australia',
-    'AUimg': 'https://cdn.gtranslate.net/flags/svg/countries/au.svg',
-    'UK': 'United Kingdom',
-    'UKimg': 'https://cdn.gtranslate.net/flags/svg/countries/gb.svg',
-    'AR': 'Argentina',
-    'ARimg': 'https://cdn.gtranslate.net/flags/svg/countries/ar.svg',
-    'CO': 'Colombia',
-    'COimg': 'https://cdn.gtranslate.net/flags/svg/countries/co.svg',
-    'AT': 'Austria',
-    'ATimg': 'https://cdn.gtranslate.net/flags/svg/countries/at.svg',
-    "CH": "Chile",
-    "CHimg": 'https://cdn.gtranslate.net/flags/svg/countries/cl.svg',
-    "EAU": "United Arab Emirates",
-    "EAUimg": 'https://cdn.gtranslate.net/flags/svg/countries/ae.svg',
-    "ES": "España",
-    "ESimg": 'https://cdn.gtranslate.net/flags/svg/countries/es.svg',
-    "GT": "Guatemala",
-    "GTimg":'https://cdn.gtranslate.net/flags/svg/countries/gt.svg',
-    "ID": "Indonesia",
-    "IDimg":'https://cdn.gtranslate.net/flags/svg/countries/id.svg',
-    "IS": "Islandia",
-    "ISimg":'https://cdn.gtranslate.net/flags/svg/countries/is.svg',
-    "KSA": "Kingdom of Saudi Arabia",
-    "KSAimg":'https://cdn.gtranslate.net/flags/svg/countries/sa.svg',
-    "MY": "Malaysia",
-    "MYimg":'https://cdn.gtranslate.net/flags/svg/countries/my.svg',
-    "NO": "Norway",
-    "NOimg":'https://cdn.gtranslate.net/flags/svg/countries/no.svg',
-    "PA": "Panamá",
-    "PAimg":'https://cdn.gtranslate.net/flags/svg/countries/pa.svg',
-    "PH": "Philippines",
-    "PHimg":'https://cdn.gtranslate.net/flags/svg/countries/ph.svg',
-    "PE": "Perú",
-    "PEimg":'https://cdn.gtranslate.net/flags/svg/countries/pe.svg',
-    "PY": "Paraguay",
-    "PYimg":'https://cdn.gtranslate.net/flags/svg/countries/py.svg',
-    "SG": "Singapore",
-    "SGimg":'https://cdn.gtranslate.net/flags/svg/countries/sg.svg',
-    "SE": "Sweden",
-    "SEimg":'https://cdn.gtranslate.net/flags/svg/countries/se.svg',
-    "CHE": "Switzerland",
-    "CHEimg":'https://cdn.gtranslate.net/flags/svg/countries/ch.svg',
-    "FR": "France",
-    "FRimg":'https://cdn.gtranslate.net/flags/svg/countries/fr.svg',
-    "BE": "Belgium",
-    "BEimg":'https://cdn.gtranslate.net/flags/svg/countries/be.svg',
-  };
+  
 
   const getAvailableOptions = (field) => {
     if (!originalData) return [];
@@ -878,14 +844,7 @@ export default function Navbar ({countRecipies }) {
           </Link>
 
           <div className='flex text-green-600 flex-row items-center gap-2 md:gap-4'>
-            {userRecipes && userRecipes.length > 1 ? (
-              <Link href='/recipes' passHref>
-                <div className='flex justify-center items-center hover:text-green-300'>
-                  <span className='text-base md:text-xl'>({userRecipes.length})</span>
-                  <IoRestaurant className='mx-1 md:mx-2 cursor-pointer text-2xl md:text-3xl' />
-                </div>
-              </Link>
-            ) : null}
+            
             <div>
               <Link href='/' passHref>
                 <div className='flex items-center cursor-pointer'>
@@ -897,6 +856,67 @@ export default function Navbar ({countRecipies }) {
               className='cursor-pointer hover:text-green-300 text-xl md:text-2xl'
               onClick={openModal}
             />
+            {/* User Authentication Section */}
+            {user ? (
+              <div className="relative" ref={menuRef}>
+                <div
+                  onClick={() => setShowMenu(!showMenu)}
+                  className="flex items-center gap-2 text-green-600"
+                >
+                  <FaUserCircle className="text-2xl  hover:text-green-300 transition-colors" />
+                </div>
+                {showMenu && (
+                  <div className="absolute right-0 mt-2 w-48 bg-black rounded-lg shadow-lg py-2 z-50">
+                    <div className="px-4 py-2 text-white font-semibold border-b">
+                      {user.name.charAt(0).toUpperCase() + user.name.slice(1)}
+                    </div>
+                    <Link href="/profile" passHref>
+                      <span className="block px-4 py-2 text-sm text-white hover:text-black hover:bg-white cursor-pointer">
+                        Ver perfil
+                      </span>
+                    </Link>
+                    <Link href="/favorites" passHref>
+                      <span className="block px-4 py-2 text-sm text-white hover:text-black hover:bg-white cursor-pointer">
+                      Favoritos
+                      </span>
+                    </Link>
+                    <button
+                      onClick={logout}
+                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100"
+                    >
+                      Cerrar sesión
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="relative" ref={menuRef}>
+                <div
+                  onClick={() => setShowMenu(!showMenu)}
+                  className="flex items-center gap-2 text-green-600"
+                >
+                  <FaUserCircle className="text-2xl  hover:text-green-300 transition-colors" />
+                </div>
+                {showMenu && (
+                  <div className="absolute right-0 mt-2 w-48 bg-black rounded-lg shadow-lg py-2 z-50">
+                    <Link href="/login" passHref>
+                      <button
+                        className="block w-full text-left bg-black px-4 py-2 text-sm text-green-600 hover:bg-green-100"
+                      >
+                        Login
+                      </button>
+                    </Link>
+                    <Link href="/register" passHref>
+                      <button
+                        className="block w-full text-left  bg-black px-4 py-2  text-sm text-blue-600 hover:bg-blue-100"
+                      >
+                        Register
+                      </button>
+                    </Link>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </header>
