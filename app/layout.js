@@ -1,5 +1,6 @@
 import React from 'react'
 import { MyProvider } from '../context/MyContext'
+import { AuthProvider } from '../context/AuthContext'
 import './globals.css'
 
 export const metadata = {
@@ -21,7 +22,9 @@ export default function RootLayout ({ children }) {
         />
       </head>
       <body>
-        <MyProvider>{children}</MyProvider>
+        <AuthProvider>
+          <MyProvider>{children}</MyProvider>
+        </AuthProvider>
       </body>
     </html>
   )
