@@ -5,6 +5,10 @@ import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Card from '@/components/Card';
 import { CalichefContext } from '@/context/MyContext';
+import { openDB } from 'idb';
+
+const DB_NAME = 'calicheDatabase';
+const STORE_NAME = 'dataStore';
 
 export default function Profile() {
   const { user, loading, logout } = useAuth();
@@ -118,6 +122,37 @@ export default function Profile() {
                 <p className="text-gray-300">Correo Electrónico:</p>
                 <p className="font-medium">{user.email}</p>
               </div>
+            </div>
+            <div className="mt-4 pt-4 border-t border-gray-700">
+              <button
+                onClick={() => {
+                  if (window.confirm('¿Estás seguro que deseas limpiar los datos almacenados en el navegador? Esto no afectará tus datos guardados en la base de datos.')) {
+                    // Limpiar localStorage
+                    localStorage.clear();
+                    
+                    // Limpiar IndexedDB
+                    const clearIndexedDB = async () => {
+                      try {
+                        const DB_NAME = 'calicheDatabase';
+                        const db = await openDB(DB_NAME, 1);
+                        const tx = db.transaction(STORE_NAME, 'readwrite');
+                        await tx.objectStore(STORE_NAME).clear();
+                        await tx.done;
+                        alert('Datos del navegador limpiados correctamente. La página se recargará para aplicar los cambios.');
+                        window.location.reload();
+                      } catch (error) {
+                        console.error('Error al limpiar IndexedDB:', error);
+                        alert('Ocurrió un error al limpiar los datos. Por favor, intenta de nuevo.');
+                      }
+                    };
+                    
+                    clearIndexedDB();
+                  }
+                }}
+                className="bg-yellow-500 text-white py-2 px-4 rounded-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50 transition duration-200"
+              >
+                Limpiar Datos del Navegador
+              </button>
             </div>
           </div>
 
