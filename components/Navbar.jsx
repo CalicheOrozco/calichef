@@ -529,9 +529,9 @@ export default function Navbar ({countRecipies }) {
 
   useEffect(() => {
     if (originalData) {
-      handleFilter(searchTerm)
+      debouncedHandleFilter(searchTerm)
     }
-  }, [searchTerm, countryFilter, difficultyFilter, languageFilter, starsFilter, categoryFilter, cookingTimeFilter, finalTimeFilter, handleFilter])
+  }, [searchTerm, countryFilter, difficultyFilter, languageFilter, starsFilter, categoryFilter, cookingTimeFilter, finalTimeFilter, debouncedHandleFilter])
 
   const openModal = () => {
     setIsModalOpen(true)
@@ -571,6 +571,7 @@ export default function Navbar ({countRecipies }) {
       debouncedGenerateSuggestions(value);
       setShowSuggestions(true);
     }
+    debouncedHandleFilter(value);
   }
   
   const handleSuggestionClick = (suggestion) => {
