@@ -3,12 +3,14 @@ import Link from 'next/link'
 import { CalichefContext } from '../context/MyContext'
 import { useContext, useEffect, useState } from 'react'
 import { openDB } from 'idb'
+import { useAuth } from '@/context/AuthContext'
 
 const DB_NAME = 'calicheDatabase'
 const STORE_NAME = 'dataStore'
 
 function Card ({ title, rating_score, rating_count, time, img_url, id, category }) {
   const contextValue = useContext(CalichefContext)
+  const { user, updateFavorites, isAuthenticated } = useAuth()
 
   if (!contextValue) {
     console.error('CalichefContext no está disponible en el componente Navbar')
@@ -30,6 +32,7 @@ function Card ({ title, rating_score, rating_count, time, img_url, id, category 
   }
 
   const [isSaved, setIsSaved] = useState(false)
+  const [isFavorite, setIsFavorite] = useState(false)
 
   useEffect(() => {
     const checkIfSaved = async () => {
@@ -43,7 +46,12 @@ function Card ({ title, rating_score, rating_count, time, img_url, id, category 
     }
 
     checkIfSaved()
-  }, [id])
+    
+    // Verificar si la receta está en favoritos del usuario
+    if (user && user.favorites) {
+      setIsFavorite(user.favorites.includes(id))
+    }
+  }, [id, user])
 
   const handleSaveRecipe = async () => {
     try {
@@ -96,34 +104,48 @@ function Card ({ title, rating_score, rating_count, time, img_url, id, category 
           <img src={img_url} alt={title} className='w-full h-60 object-cover' />
         </Link>
         <div className='absolute top-2 right-2 text-4xl'>
-          {isSaved ? (
-            <FaHeart
-              className='text-red-500 cursor-pointer'
-              onClick={e => {
-                e.stopPropagation()
-                handleDeleteRecipe()
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.color = 'gray'
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.color = 'red'
-              }}
-            />
+          {isAuthenticated ? (
+            isFavorite ? (
+              <FaHeart
+                onClick={() => updateFavorites(id)}
+                className='text-red-500 hover:text-red-700'
+              />
+            ) : (
+              <FaRegHeart
+                onClick={() => updateFavorites(id)}
+                className='text-white hover:text-gray-500'
+              />
+            )
           ) : (
-            <FaRegHeart
-              className='text-gray-500 cursor-pointer'
-              onClick={e => {
-                e.stopPropagation()
-                handleSaveRecipe()
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.color = 'red'
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.color = 'gray'
-              }}
-            />
+            isSaved ? (
+              <FaHeart
+                className='text-red-500 cursor-pointer'
+                onClick={e => {
+                  e.stopPropagation()
+                  handleDeleteRecipe()
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.color = 'gray'
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.color = 'red'
+                }}
+              />
+            ) : (
+              <FaRegHeart
+                className='text-gray-500 cursor-pointer'
+                onClick={e => {
+                  e.stopPropagation()
+                  handleSaveRecipe()
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.color = 'red'
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.color = 'gray'
+                }}
+              />
+            )
           )}
         </div>
       </div>
