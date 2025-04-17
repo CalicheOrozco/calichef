@@ -38,6 +38,7 @@ export default function Recipe({
   const [isSaved, setIsSaved] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
   const [checkedIngredients, setCheckedIngredients] = useState({})
+  const [checkedSteps, setCheckedSteps] = useState({})
   const { user, updateFavorites, isAuthenticated } = useAuth()
 
   const difficultyMap = {
@@ -475,12 +476,31 @@ export default function Recipe({
                       <h3 id='preparation-steps-title' className='text-white'>
                         Preparación
                       </h3>
-                      <ol>
-                        {steps?.map((step, index) => (
-                          <li key={index} id={`preparation-step--0-${index}`}>
-                            {step}
-                          </li>
-                        ))}
+                      <ol className='space-y-4'>
+                        {steps?.map((step, index) => {
+                          const stepId = `step-${index}`;
+                          const isChecked = checkedSteps[stepId] || false;
+                          
+                          const toggleStep = () => {
+                            setCheckedSteps(prev => ({
+                              ...prev,
+                              [stepId]: !isChecked
+                            }));
+                          };
+                          
+                          return (
+                            <li 
+                              key={index} 
+                              id={`preparation-step--0-${index}`}
+                              className='py-2 px-4 rounded-lg hover:bg-neutral-800 transition-colors duration-200 cursor-pointer'
+                              onClick={toggleStep}
+                            >
+                              <span className={`${isChecked ? 'line-through text-gray-500' : 'text-white'}`}>
+                                {step}
+                              </span>
+                            </li>
+                          );
+                        })}
                       </ol>
                     </core-list-section>
                   </div>
