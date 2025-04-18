@@ -6,6 +6,9 @@ import Navbar from '@/components/Navbar'
 import Head from 'next/head'
 import { CalichefContext } from '../../context/MyContext'
 import '../globals.css'
+import { useRouter } from 'next/navigation';
+import { FaArrowLeft } from "react-icons/fa6";
+
 
 const Post = () => {
   // Obtener el id de la receta desde la URL
@@ -21,6 +24,7 @@ const Post = () => {
   }
 
   const { originalData } = contextValue
+  const router = useRouter();
 
   useEffect(() => {
     if (id && originalData) {
@@ -89,7 +93,20 @@ const Post = () => {
         {/* Puedes agregar más metadatos aquí según tus necesidades */}
       </Head>
       <Navbar />
-      <div className='container w-full mx-auto py-5 px-4'>
+      
+      <div className='container w-full mx-auto py-5 px-4 mt-14 md:mt-20'>
+      <div className="text-center">
+        <div
+          className="text-white text-2xl md:text-4xl  pb-4 md:pb-0 md:pl-16 hover:text-gray-400 flex items-center cursor-pointer"
+        >
+          <FaArrowLeft onClick={(e) => {
+            e.preventDefault()
+            router.back()
+          }}
+          className="mr-2" />
+          
+        </div>
+      </div>
         {recipe ? (
           <Recipe
             id={recipe.id}
