@@ -209,7 +209,7 @@ export default function Navbar ({countRecipies }) {
           case '60': return totalMinutes <= 60;
           case '90': return totalMinutes <= 90;
           case '120': return totalMinutes <= 120;
-          default: return true; // Por defecto incluimos la receta si el filtro no coincide
+          default: return true;
         }
       });
     }
@@ -293,7 +293,7 @@ export default function Navbar ({countRecipies }) {
     if (!searchTermValue && 
         countryFilter.includes('All') && 
         difficultyFilter === 'All' && 
-        languageFilter.includes('All') && 
+        languageFilter.includes('All') &&
         starsFilter === 'All' && 
         cookingTimeFilter === 'All' && 
         finalTimeFilter === 'All' && 
@@ -454,7 +454,7 @@ export default function Navbar ({countRecipies }) {
           case '60': return totalMinutes <= 60;
           case '90': return totalMinutes <= 90;
           case '120': return totalMinutes <= 120;
-          default: return true; // Por defecto incluimos la receta si el filtro no coincide
+          default: return true;
         }
       });
     }
@@ -467,12 +467,37 @@ export default function Navbar ({countRecipies }) {
       })
     }
 
-    // Ordenar resultados
-    filteredData = searchTermValue ? 
-      filteredData.sort((a, b) => b.rating_count - a.rating_count) :
-      filteredData.sort(() => Math.random() - 0.5)
+    // --- FILTRO PARA COLECCIONES ---
+    // Si existe contextValue.collections, filtrarlas también
+    let filteredCollections = [];
+    if (contextValue?.collections) {
+      filteredCollections = contextValue.collections.filter(collection => {
+        // Filtro por título
+        let matches = true;
+        if (searchTermValue && searchTermValue.trim() !== '') {
+          const searchTermLower = searchTermValue.toLowerCase().trim();
+          const searchTerms = searchTermLower.split(' ');
+          matches = searchTerms.every(term =>
+            collection.title.toLowerCase().includes(term)
+          );
+        }
+        // Filtro por país
+        if (matches && !countryFilter.includes('All')) {
+          matches = collection.country && countryFilter.some(country => Array.isArray(collection.country) ? collection.country.includes(country) : collection.country === country);
+        }
+        // Filtro por idioma SOLO si languageFilter no incluye 'All'
+        if (matches && !languageFilter.includes('All')) {
+          matches = collection.language && languageFilter.includes(collection.language);
+        }
+        return matches;
+      });
+    }
 
-    setAllData(filteredData)
+    // Guardar resultados en el contexto
+    setAllData(filteredData);
+    if (contextValue?.setFilteredCollections) {
+      contextValue.setFilteredCollections(filteredCollections);
+    }
   }, [originalData, countryFilter, difficultyFilter, languageFilter, starsFilter, categoryFilter, cookingTimeFilter, finalTimeFilter, setAllData])
 
   useEffect(() => {
@@ -542,10 +567,19 @@ export default function Navbar ({countRecipies }) {
   const handleModalSearch = () => {
     handleFilter(searchTerm)
     closeModal()
-    if (!isHomePage) {
-      router.push('/')
-    }
+    handleShowResults()
   }
+
+  const handleShowResults = () => {
+    console.log('path', pathname)
+    if (pathname.includes('/r')) {
+      router.push('/');
+    } else if (pathname.includes('/collections')) {
+      router.push('/collections');
+    } else {
+      closeModal()
+    }
+  };
 
   const handleKeyPress = event => {
     if (event.key === 'Enter') {
@@ -607,18 +641,22 @@ export default function Navbar ({countRecipies }) {
     }
   }
 
-  const clearFilters = () => {
-    setSearchTerm('')
-    setCountryFilter(['All'])
-    setDifficultyFilter('All')
-    setLanguageFilter(['All'])
-    setStarsFilter('All')
-    setCategoryFilter([])
-
-    setCookingTimeFilter('All')
-    setFinalTimeFilter('All')
-    handleFilter('')
-  }
+  const handleClearFilters = () => {
+    setSearchTerm('');
+    setCountryFilter(['All']);
+    setDifficultyFilter('All');
+    setLanguageFilter(['All']);
+    setStarsFilter('All');
+    setCategoryFilter([]);
+    setCookingTimeFilter('All');
+    setFinalTimeFilter('All');
+    setAllData(originalData);
+    // Limpiar también las colecciones filtradas
+    if (contextValue?.setFilteredCollections && contextValue?.collections) {
+     
+      contextValue.setFilteredCollections(contextValue?.collections);
+    }
+}
 
   const areFiltersActive = () => {
     return (
@@ -876,9 +914,19 @@ export default function Navbar ({countRecipies }) {
                         Ver perfil
                       </span>
                     </Link>
+                    <Link href="/collections" passHref>
+                      <span className="block px-4 py-2 text-sm text-white hover:text-black hover:bg-white cursor-pointer">
+                        Collecciones
+                      </span>
+                    </Link>
                     <Link href="/favorites" passHref>
                       <span className="block px-4 py-2 text-sm text-white hover:text-black hover:bg-white cursor-pointer">
                       Favoritos
+                      </span>
+                    </Link>
+                    <Link href="/favoriteCollections" passHref>
+                      <span className="block px-4 py-2 text-sm text-white hover:text-black hover:bg-white cursor-pointer">
+                        Mis colecciones
                       </span>
                     </Link>
                     <button
@@ -1320,7 +1368,7 @@ export default function Navbar ({countRecipies }) {
                     <div className='flex justify-end gap-x-2 md:gap-x-4'>
                         {areFiltersActive() && (
                             <button
-                                onClick={clearFilters}
+                                onClick={handleClearFilters}
                                 className='px-4 md:px-6 py-2 md:py-3 rounded-xl bg-red-50 text-red-600 font-medium hover:bg-red-100 transition-colors duration-200 text-sm md:text-base'
                             >
                                 Limpiar
