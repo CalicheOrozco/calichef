@@ -7,6 +7,7 @@ import { openDB } from 'idb'
 import Card from './Card'
 import Image from 'next/image'
 import { useAuth } from '@/context/AuthContext'
+import { useRouter } from 'next/navigation';
 
 import { deviceImages, countryMap } from '../constants';
 
@@ -40,6 +41,8 @@ export default function Recipe({
   const [checkedIngredients, setCheckedIngredients] = useState({})
   const [checkedSteps, setCheckedSteps] = useState({})
   const { user, updateFavorites, isAuthenticated } = useAuth()
+
+  const router = useRouter();
 
   const difficultyMap = {
     'E': 'Fácil',
@@ -85,50 +88,6 @@ export default function Recipe({
     }
   }, [id, user])
 
-  const handleSaveRecipe = async () => {
-    try {
-      const db = await openDB(DB_NAME, 1, {
-        upgrade (db) {
-          if (!db.objectStoreNames.contains(STORE_NAME)) {
-            db.createObjectStore(STORE_NAME)
-          }
-        }
-      })
-
-      let currentRecipes = (await db.get(STORE_NAME, 'userRecipes')) || []
-      if (!currentRecipes.includes(id)) {
-        currentRecipes.push(id)
-        await db.put(STORE_NAME, currentRecipes, 'userRecipes')
-        setUserRecipes(currentRecipes)
-        setIsSaved(true)
-      }
-    } catch (error) {
-      console.error('Error al guardar la receta:', error)
-    }
-  }
-
-  const handleDeleteRecipe = async () => {
-    try {
-      const db = await openDB(DB_NAME, 1, {
-        upgrade (db) {
-          if (!db.objectStoreNames.contains(STORE_NAME)) {
-            db.createObjectStore(STORE_NAME)
-          }
-        }
-      })
-
-      let currentRecipes = (await db.get(STORE_NAME, 'userRecipes')) || []
-      if (currentRecipes.includes(id)) {
-        currentRecipes = currentRecipes.filter(recipeId => recipeId !== id)
-        await db.put(STORE_NAME, currentRecipes, 'userRecipes')
-        setUserRecipes(currentRecipes)
-        setIsSaved(false)
-      }
-    } catch (error) {
-      console.error('Error al eliminar la receta:', error)
-    }
-  }
-
   const handleShareRecipe = () => {
     const shareData = {
       title: `Receta: ${title}`,
@@ -150,7 +109,7 @@ export default function Recipe({
   return (
     <main className='bg-black text-white'>
       <div className='page-content flex flex-col'>
-        <div className='l-header-offset-small'>
+        
           <div className='g-wrapper'>
             <div className='l-tile'>
               <div id='recipe-card' className='recipe-card'>
@@ -251,7 +210,6 @@ export default function Recipe({
               </div>
             </div>
           </div>
-        </div>
         <div className='py-5'>
           
           <div className='flex gap-y-4 flex-wrap justify-around items-center mt-6'>
@@ -610,7 +568,7 @@ export default function Recipe({
                     {collections.map((collection, index) => (
                       <a 
                         key={index} 
-                        href={`/collection/${collection.name.replace(/\s+/g, '-').toLowerCase()}`}
+                        href={`/collections/${collection.id}`}
                         className='block'
                       >
                         <div className='flex items-center bg-neutral-900 p-3 rounded-lg hover:bg-neutral-800 transition-colors duration-200'>
