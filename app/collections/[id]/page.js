@@ -32,33 +32,34 @@ export default function CollectionDetail({ params }) {
   }, [searchRecipes]);
 
   useEffect(() => {
-    if (collections && originalData) {
-
-      
-      // Buscar la colección por ID
-      const currentCollection = collections.find(c => c.id === params.id);
-      
-      if (currentCollection) {
-        setCollection(currentCollection);
-        
-        // Filtrar las recetas que pertenecen a esta colección
-        if (currentCollection.recipes && Array.isArray(currentCollection.recipes)) {
-          const recipesInCollection = originalData.filter(recipe => 
-            currentCollection.recipes.includes(recipe.id)
-          );
-          setCollectionRecipes(recipesInCollection);
-        }
-
-
-
-        // Verificar si la colección está en favoritos del usuario
-        if (user && user.favoriteCollections) {
-          setIsFavorite(user.favoriteCollections.includes(currentCollection.id));
-        }
-      }
-      
+    if (!collections || !originalData) return;
+    // Buscar la colección por ID
+    const currentCollection = collections.find(c => c.id === params.id);
+    if (!currentCollection) {
+      setCollection(null);
+      setCollectionRecipes([]);
       setLoading(false);
+      return;
     }
+    setCollection(currentCollection);
+    // Filtrar las recetas que pertenecen a esta colección
+    if (currentCollection.recipes && Array.isArray(currentCollection.recipes)) {
+      // Optimización: usar un Set para búsquedas más rápidas
+      const recipeIdsSet = new Set(currentCollection.recipes);
+      const recipesInCollection = originalData.filter(recipe => 
+        recipeIdsSet.has(recipe.id)
+      );
+      setCollectionRecipes(recipesInCollection);
+    } else {
+      setCollectionRecipes([]);
+    }
+    // Verificar si la colección está en favoritos del usuario
+    if (user && user.favoriteCollections) {
+      setIsFavorite(user.favoriteCollections.includes(currentCollection.id));
+    } else {
+      setIsFavorite(false);
+    }
+    setLoading(false);
   }, [collections, originalData, params.id, user]);
 
   const handleSearch = (event) => {
@@ -73,7 +74,7 @@ export default function CollectionDetail({ params }) {
     )
   );
 
-
+  
 
   if (loading) {
     return (
