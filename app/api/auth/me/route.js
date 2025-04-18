@@ -52,7 +52,8 @@ export async function GET(request) {
           _id: user._id,
           name: user.name,
           email: user.email,
-          favorites: user.favorites
+          favorites: user.favorites,
+          favoriteCollections: user.favoriteCollections
         }
       },
       { status: 200 }

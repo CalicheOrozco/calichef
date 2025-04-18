@@ -10,6 +10,7 @@ const CalichefContext = createContext()
 const MyProvider = ({ children }) => {
   const [AllData, setAllData] = useState(null)
   const [userRecipes, setUserRecipes] = useState(null)
+  const [collections, setCollections] = useState(null)
 
   const [searchTerm, setSearchTerm] = useState('')
   const [countryFilter, setCountryFilter] = useState(['All'])
@@ -31,6 +32,7 @@ const MyProvider = ({ children }) => {
   const [originalData, setOriginalData] = useState(null)
   const [dataOtherFA, setDataOtherFA] = useState(null)
   const [dataFrance, setDataFrance] = useState(null)
+  const [filteredCollections, setFilteredCollections] = useState([])
 
   useEffect(() => {
     async function fetchData() {
@@ -70,7 +72,8 @@ const MyProvider = ({ children }) => {
           ['dataUK', '/UK.json', setDataUK],
           ['dataOthers', '/others.json', setDataOther],
           ['dataOtherFA', '/othersFA.json', setDataOtherFA],
-          ['dataFrance', '/france.json', setDataFrance]
+          ['dataFrance', '/france.json', setDataFrance],
+          ['collections', '/Collection.json', setCollections]
         ].map(([key, url, setter]) => fetchAndCacheData(key, url, setter))
 
         // Handle user recipes separately to avoid blocking other data
@@ -123,6 +126,8 @@ const MyProvider = ({ children }) => {
         setAllData,
         userRecipes,
         setUserRecipes,
+        collections,
+        setCollections,
         originalData,
         searchTerm,
         setSearchTerm,
@@ -139,7 +144,9 @@ const MyProvider = ({ children }) => {
         categoryFilter,
         setCategoryFilter,
         ingredientFilter,
-        setIngredientFilter
+        setIngredientFilter,
+        filteredCollections,
+        setFilteredCollections
       }}
     >
       {children}

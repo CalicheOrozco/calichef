@@ -121,6 +121,33 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const updateFavoriteCollections = async (collectionId) => {
+    if (!user) return;
+
+    try {
+      const res = await fetch('/api/auth/favoriteCollections', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ collectionId }),
+      });
+
+
+      const data = await res.json();
+      console.log('data', data)
+
+      if (res.ok && data.success) {
+        setUser({
+          ...user,
+          favoriteCollections: data.favoriteCollections
+        });
+      }
+    } catch (error) {
+      console.error('Error al actualizar colecciones favoritas:', error);
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -130,6 +157,7 @@ export const AuthProvider = ({ children }) => {
         register,
         logout,
         updateFavorites,
+        updateFavoriteCollections,
         isAuthenticated: !!user,
         refreshUser, // ✅ ahora esta función está correctamente definida
       }}
