@@ -10,8 +10,13 @@ const CalichefContext = createContext()
 const MyProvider = ({ children }) => {
   const [AllData, setAllData] = useState(null)
   const [userRecipes, setUserRecipes] = useState(null)
-  const [collections, setCollections] = useState(null)
-
+  const [collections, setCollections] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const stored = sessionStorage.getItem('collections');
+      return stored ? JSON.parse(stored) : null;
+    }
+    return null;
+  });
   const [searchTerm, setSearchTerm] = useState('')
   const [countryFilter, setCountryFilter] = useState(['All'])
   const [difficultyFilter, setDifficultyFilter] = useState('All')
@@ -20,7 +25,6 @@ const MyProvider = ({ children }) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [categoryFilter, setCategoryFilter] = useState([])
   const [ingredientFilter, setIngredientFilter] = useState([])
-
   const [dataMexico, setDataMexico] = useState(null)
   const [dataSpain, setDataSpain] = useState(null)
   const [dataLATAM, setDataLATAM] = useState(null)
@@ -29,7 +33,13 @@ const MyProvider = ({ children }) => {
   const [dataCanada, setDataCanada] = useState(null)
   const [dataUK, setDataUK] = useState(null)
   const [dataOther, setDataOther] = useState(null)
-  const [originalData, setOriginalData] = useState(null)
+  const [originalData, setOriginalData] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const stored = sessionStorage.getItem('originalData');
+      return stored ? JSON.parse(stored) : null;
+    }
+    return null;
+  });
   const [dataOtherFA, setDataOtherFA] = useState(null)
   const [dataFrance, setDataFrance] = useState(null)
   const [filteredCollections, setFilteredCollections] = useState([])
@@ -57,11 +67,10 @@ const MyProvider = ({ children }) => {
             await db.put(STORE_NAME, data, key)
           } catch (error) {
             console.error(`Error fetching ${key}:`, error)
-            setDataFunc([]) // Set empty array instead of null on error
+            setDataFunc([])
           }
         }
 
-        // Fetch all data in parallel
         const dataFetches = [
           ['dataMexico', '/mexico.json', setDataMexico],
           ['dataSpain', '/spain.json', setDataSpain],
@@ -76,14 +85,12 @@ const MyProvider = ({ children }) => {
           ['collections', '/Collection.json', setCollections]
         ].map(([key, url, setter]) => fetchAndCacheData(key, url, setter))
 
-        // Handle user recipes separately to avoid blocking other data
         const cachedUserRecipes = await db.get(STORE_NAME, 'userRecipes')
         setUserRecipes(cachedUserRecipes || [])
         if (!cachedUserRecipes) {
           await db.put(STORE_NAME, [], 'userRecipes')
         }
 
-        // Wait for all fetches to complete
         await Promise.all(dataFetches)
       } catch (error) {
         console.error('Database error:', error)
@@ -106,18 +113,51 @@ const MyProvider = ({ children }) => {
       dataOtherFA,
       dataFrance
     ]
-
-    // Only update if we have at least one non-null dataset
     if (allDataSets.some(data => Array.isArray(data))) {
       const finalData = allDataSets
         .filter(Array.isArray)
         .flat()
         .sort(() => Math.random() - 0.5)
-      
       setAllData(finalData)
       setOriginalData(finalData)
     }
   }, [dataMexico, dataSpain, dataLATAM, dataUSA, dataAustralia, dataCanada, dataUK, dataOther, dataOtherFA, dataFrance])
+
+  useEffect(() => {
+    if (collections) {
+      try {
+        // Guardar solo los campos esenciales de cada colección para reducir el tamaño
+        const minimalCollections = Array.isArray(collections)
+          ? collections.map(({id, title, image_url}) => ({id, title, image_url}))
+          : collections;
+        sessionStorage.setItem('collections', JSON.stringify(minimalCollections));
+      } catch (e) {
+        if (e.name === 'QuotaExceededError') {
+          console.warn('No se pudo guardar collections en sessionStorage: límite alcanzado.');
+        } else {
+          console.error('Error guardando collections en sessionStorage:', e);
+        }
+      }
+    }
+  }, [collections]);
+
+  useEffect(() => {
+    if (originalData) {
+      try {
+        // Guardar solo los campos esenciales de cada receta para reducir el tamaño
+        const minimalOriginalData = Array.isArray(originalData)
+          ? originalData.map(({id, title, image_url, category}) => ({id, title, image_url, category}))
+          : originalData;
+        sessionStorage.setItem('originalData', JSON.stringify(minimalOriginalData));
+      } catch (e) {
+        if (e.name === 'QuotaExceededError') {
+          console.warn('No se pudo guardar originalData en sessionStorage: límite alcanzado.');
+        } else {
+          console.error('Error guardando originalData en sessionStorage:', e);
+        }
+      }
+    }
+  }, [originalData]);
 
   return (
     <CalichefContext.Provider
