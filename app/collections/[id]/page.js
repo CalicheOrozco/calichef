@@ -140,7 +140,7 @@ export default function CollectionDetail({ params }) {
       <div className="container mx-auto py-20 px-4 min-h-screen">
         <div className="mb-6">
         <div
-          className="text-white text-4xl  md:py-4  md:pl-16 hover:text-gray-400 flex items-center cursor-pointer"
+          className="text-white text-4xl  md:py-4 lg:pl-4 hover:text-gray-400 flex items-center cursor-pointer"
         >
           <FaArrowLeft onClick={(e) => {
             e.preventDefault()
