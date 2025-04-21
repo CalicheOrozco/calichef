@@ -9,7 +9,6 @@ const CalichefContext = createContext()
 
 const MyProvider = ({ children }) => {
   const [AllData, setAllData] = useState(null)
-  const [userRecipes, setUserRecipes] = useState(null)
   const [collections, setCollections] = useState(() => {
     if (typeof window !== 'undefined') {
       const stored = sessionStorage.getItem('collections');
@@ -43,6 +42,26 @@ const MyProvider = ({ children }) => {
   const [dataOtherFA, setDataOtherFA] = useState(null)
   const [dataFrance, setDataFrance] = useState(null)
   const [filteredCollections, setFilteredCollections] = useState([])
+  const [shoppingList, setShoppingList] = useState([]);
+  const [shoppingChecked, setShoppingChecked] = useState({});
+
+  const fetchShoppingList = async () => {
+    try {
+      const response = await fetch('/api/shopping-list');
+      
+      if (response.ok) {
+        const data = await response.json();
+        setShoppingList(data.items || []);
+      }
+    } catch (error) {
+      console.error('Error al obtener la lista de compras:', error);
+    }
+  };
+
+  useEffect(() => {
+
+    fetchShoppingList();
+  }, []);
 
   useEffect(() => {
     async function fetchData() {
@@ -85,11 +104,7 @@ const MyProvider = ({ children }) => {
           ['collections', '/Collection.json', setCollections]
         ].map(([key, url, setter]) => fetchAndCacheData(key, url, setter))
 
-        const cachedUserRecipes = await db.get(STORE_NAME, 'userRecipes')
-        setUserRecipes(cachedUserRecipes || [])
-        if (!cachedUserRecipes) {
-          await db.put(STORE_NAME, [], 'userRecipes')
-        }
+        
 
         await Promise.all(dataFetches)
       } catch (error) {
@@ -164,8 +179,6 @@ const MyProvider = ({ children }) => {
       value={{
         AllData,
         setAllData,
-        userRecipes,
-        setUserRecipes,
         collections,
         setCollections,
         originalData,
@@ -186,7 +199,12 @@ const MyProvider = ({ children }) => {
         ingredientFilter,
         setIngredientFilter,
         filteredCollections,
-        setFilteredCollections
+        setFilteredCollections,
+        shoppingList,
+        setShoppingList,
+        shoppingChecked,
+        setShoppingChecked,
+        fetchShoppingList
       }}
     >
       {children}

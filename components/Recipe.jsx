@@ -3,7 +3,7 @@ import { FaStar } from 'react-icons/fa'
 import { CalichefContext } from '../context/MyContext'
 import { FaShareFromSquare } from 'react-icons/fa6'
 import { FaHeart, FaRegHeart } from 'react-icons/fa'
-import { openDB } from 'idb'
+import { MdShoppingCart, MdRemoveShoppingCart } from "react-icons/md";
 import Card from './Card'
 import Image from 'next/image'
 import { useAuth } from '@/context/AuthContext'
@@ -11,8 +11,6 @@ import { useRouter } from 'next/navigation';
 
 import { deviceImages, countryMap } from '../constants';
 
-const DB_NAME = 'calicheDatabase'
-const STORE_NAME = 'dataStore'
 
 export default function Recipe({
   id,
@@ -36,11 +34,11 @@ export default function Recipe({
   country,
   cooking_time,
 }) {
-  const [isSaved, setIsSaved] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
   const [checkedIngredients, setCheckedIngredients] = useState({})
   const [checkedSteps, setCheckedSteps] = useState({})
-  const { user, updateFavorites, isAuthenticated } = useAuth()
+  const { user, updateFavorites, updateShoppingList , isAuthenticated} = useAuth()
+  const { fetchShoppingList } = useContext(CalichefContext);
 
   const router = useRouter();
 
@@ -67,26 +65,28 @@ export default function Recipe({
     console.error('CalichefContext no está disponible en el componente Recipe')
   }
 
-  const {  setUserRecipes } = contextValue
+  const { shoppingList } = contextValue
+
+  const [isInShoppingList, setIsInShoppingList] = useState(() => {
+    return shoppingList ? shoppingList.some(item => item.idRecipe === id) : false;
+  });
 
   useEffect(() => {
-    const checkIfSaved = async () => {
-      try {
-        const db = await openDB(DB_NAME, 1)
-        let currentRecipes = (await db.get(STORE_NAME, 'userRecipes')) || []
-        setIsSaved(currentRecipes.includes(id))
-      } catch (error) {
-        console.error('Error al comprobar si la receta está guardada:', error)
-      }
-    }
-
-    checkIfSaved()
-    
     // Verificar si la receta está en favoritos del usuario
     if (user && user.favorites) {
-      setIsFavorite(user.favorites.includes(id))
+      setIsFavorite(user.favorites.includes(id));
+    } else {
+      setIsFavorite(false);
     }
-  }, [id, user])
+
+    // Verificar si la receta está en la lista de compras
+    if (shoppingList) {
+      // verificar si la receta está en la lista de compras
+      const isInList = shoppingList.some(item => item.idRecipe === id);
+      setIsInShoppingList(isInList);
+    } 
+  }, [id, user, shoppingList]);
+
 
   const handleShareRecipe = () => {
     const shareData = {
@@ -105,6 +105,15 @@ export default function Recipe({
       })
     }
   }
+
+  const handleShoppingList = async () => {
+    if (isInShoppingList) {
+      await updateShoppingList(id, 'delete');
+    } else {
+      await updateShoppingList(id, 'add');
+    }
+    await fetchShoppingList();
+  };
 
   return (
     <main className='bg-black text-white'>
@@ -180,18 +189,18 @@ export default function Recipe({
                     </core-rating>
                   </div>
 
-                  <div className='flex flex-row justify-around items-center py-6'>
+                  <div className='flex flex-row justify-around items-center py-6 cursor-pointer'>
                     {isAuthenticated && (
-                      <div className='flex flex-col justify-center items-center'>
+                      <div className='flex flex-col justify-center items-center cursor-pointer'>
                         {isFavorite ? (
                           <FaHeart
                             onClick={() => updateFavorites(id)}
-                            className='text-red-500 hover:text-red-700 text-4xl font-semibold'
+                            className='text-red-500 hover:text-red-700 text-4xl font-semibold cursor-pointer'
                           />
                         ) : (
                           <FaRegHeart
                             onClick={() => updateFavorites(id)}
-                            className='text-white hover:text-gray-500 text-4xl font-semibold'
+                            className='text-white hover:text-gray-500 text-4xl font-semibold cursor-pointer'
                           />
                         )}
                         <span className='text-white'>Favorito</span>
@@ -200,10 +209,27 @@ export default function Recipe({
                     <div className='flex flex-col justify-center items-center'>
                       <FaShareFromSquare
                         onClick={handleShareRecipe}
-                        className='text-white hover:text-gray-500 text-4xl font-semibold'
+                        className='text-white hover:text-gray-500 text-4xl font-semibold cursor-pointer'
                       />
                       <span className='text-white'>Compartir</span>
                     </div>
+                    <div className='flex flex-col justify-center items-center'>
+                    {
+                      isInShoppingList ? (
+                        <MdRemoveShoppingCart
+                          onClick={handleShoppingList}
+                          className='text-red-500 hover:text-red-700 text-4xl font-semibold cursor-pointer'
+                        />
+                      ) : (
+                        <MdShoppingCart
+                          onClick={handleShoppingList}
+                          className='text-white hover:text-gray-500 text-4xl font-semibold cursor-pointer'
+                        />
+                      )
+                    }
+                      <span className='text-white'>Add Shopping</span>
+                    </div>
+
                   </div>
                 </div>
                 <hr className='separator--silver-60' />
@@ -658,3 +684,4 @@ export default function Recipe({
     </main>
   )
 }
+

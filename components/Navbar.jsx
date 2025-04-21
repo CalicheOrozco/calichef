@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
+'use client'
 import React, { useContext, useState, useEffect, useCallback, useRef } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { CalichefContext } from '../context/MyContext'
@@ -922,6 +923,11 @@ export default function Navbar ({countRecipies }) {
                     <Link href="/favorites" passHref>
                       <span className="block px-4 py-2 text-sm text-white hover:text-black hover:bg-white cursor-pointer">
                       Favoritos
+                      </span>
+                    </Link>
+                    <Link href="/shopping-list" passHref>
+                      <span className="block px-4 py-2 text-sm text-white hover:text-black hover:bg-white cursor-pointer">
+                      Shopping List
                       </span>
                     </Link>
                     <Link href="/favoriteCollections" passHref>

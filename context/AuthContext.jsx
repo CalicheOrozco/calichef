@@ -15,7 +15,10 @@ export const AuthProvider = ({ children }) => {
       const data = await res.json();
 
       if (res.ok && data.success) {
-        setUser(data.user);
+        setUser({
+          ...data.user,
+          shoppingList: data.shoppingList || []
+        });
       } else {
         setUser(null);
       }
@@ -135,7 +138,6 @@ export const AuthProvider = ({ children }) => {
 
 
       const data = await res.json();
-      console.log('data', data)
 
       if (res.ok && data.success) {
         setUser({
@@ -148,6 +150,47 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+ 
+
+  const updateShoppingList = async (recipeId, action, count = 1) => {
+    if (!user) return;
+  
+    try {
+      const method = action === 'add' ? 'PATCH' : 'DELETE';
+  
+      let body;
+      if (action === 'add') {
+        body = { idRecipe: recipeId, count };
+      } else {
+        body = { idRecipe: recipeId };
+      }
+  
+      const res = await fetch('/api/auth/shoppingList', {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user.token}`
+        },
+        body: JSON.stringify(body),
+      });
+  
+      const data = await res.json();
+  
+      if (res.ok && data.items) {
+        setUser({
+          ...user,
+          shoppingList: data.items
+        });
+      } else {
+        console.error('Respuesta del servidor no válida:', data);
+      }
+    } catch (error) {
+      console.error('Error al actualizar la lista de compras:', error);
+    }
+  };
+  
+  
+
   return (
     <AuthContext.Provider
       value={{
@@ -158,8 +201,9 @@ export const AuthProvider = ({ children }) => {
         logout,
         updateFavorites,
         updateFavoriteCollections,
+        updateShoppingList,
         isAuthenticated: !!user,
-        refreshUser, // ✅ ahora esta función está correctamente definida
+        refreshUser,
       }}
     >
       {children}

@@ -31,6 +31,15 @@ const UserSchema = new mongoose.Schema({
     type: [String],
     default: []
   },
+  shoppingList:{
+    type: [
+      {
+        idRecipe: { type: String, required: true },
+        count: { type: Number, default: 1 }
+      }
+    ],
+    default: []
+  },
   createdAt: {
     type: Date,
     default: Date.now

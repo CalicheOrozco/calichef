@@ -25,7 +25,9 @@ if (!JWT_SECRET) {
 // Rutas que requieren autenticación
 const protectedRoutes = [
   '/profile',
-  '/favorites'
+  '/favorites',
+  '/collections',
+  '/shopping-list'
 ];
 
 // Rutas de autenticación (no redirigir si ya está autenticado)
