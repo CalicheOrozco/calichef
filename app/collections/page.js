@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useRef } from 'react';
 import Navbar from '@/components/Navbar';
 import Card from '@/components/Card';
 import { CalichefContext } from '@/context/MyContext';
@@ -11,6 +11,9 @@ export default function Collections() {
   const contextValue = useContext(CalichefContext);
   const { filteredCollections } = contextValue || {};
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  // Estado para scroll infinito
+  const [visibleCount, setVisibleCount] = useState(50);
+  const containerRef = useRef(null);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -25,8 +28,34 @@ export default function Collections() {
     }
   }, [filteredCollections]);
 
+  // Scroll infinito
+  useEffect(() => {
+    function handleScroll() {
+      if (!containerRef.current) return;
+      const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
+      if (scrollTop + clientHeight >= scrollHeight - 100) {
+        setVisibleCount((prev) => {
+          if (prev < filteredBySearch.length) {
+            return prev + 50;
+          }
+          return prev;
+        });
+      }
+    }
+    const ref = containerRef.current;
+    if (ref) {
+      ref.addEventListener('scroll', handleScroll);
+    }
+    return () => {
+      if (ref) {
+        ref.removeEventListener('scroll', handleScroll);
+      }
+    };
+  }, [filteredCollections, debouncedSearch]);
+
   const handleSearch = (event) => {
     setSearchCollections(event.target.value);
+    setVisibleCount(50); // Reinicia el scroll infinito al buscar
   };
 
   const searchTermsArray = debouncedSearch.toLowerCase().split(' ').filter(Boolean);
@@ -35,6 +64,7 @@ export default function Collections() {
       collection.title.toLowerCase().includes(term)
     )
   ) : [];
+  const visibleCollections = filteredBySearch.slice(0, visibleCount);
 
   if (loadingCollections) {
     return (
@@ -72,7 +102,7 @@ export default function Collections() {
   return (
     <>
       <Navbar />
-      <div className="container mx-auto py-20 px-4 min-h-screen">
+      <div ref={containerRef} className="container mx-auto py-20 px-4 min-h-screen overflow-y-auto scrollbar-hidden" style={{ maxHeight: 'calc(100vh - 80px)' }}>
         <h1 className="text-2xl font-bold text-white mb-6 pt-4">Colecciones</h1>
         {filteredCollections && filteredCollections.length > 0 && (
           <form onSubmit={(e) => e.preventDefault()} className="relative mb-8">
@@ -97,7 +127,7 @@ export default function Collections() {
               {filteredBySearch.length} colección(es) encontrada(s)
             </p>
             <div className="flex flex-wrap justify-center md:justify-between items-center gap-y-5">
-              {filteredBySearch.map((collection) => (
+              {visibleCollections.map((collection) => (
                 <Card
                   key={collection.id}
                   id={`${collection.id}`}
@@ -107,6 +137,11 @@ export default function Collections() {
                 />
               ))}
             </div>
+            {visibleCollections.length < filteredBySearch.length && (
+              <div className="flex justify-center py-6">
+                <span className="text-gray-400">Cargando más colecciones...</span>
+              </div>
+            )}
           </>
         ) : (
           <div className="text-center py-10">

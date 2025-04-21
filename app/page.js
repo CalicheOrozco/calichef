@@ -1,11 +1,13 @@
 'use client'
 import Card from '../components/Card'
-import { useContext } from 'react'
+import { useContext, useState, useEffect, useRef } from 'react'
 import Navbar from '@/components/Navbar'
 import { CalichefContext } from '../context/MyContext.jsx'
 
 export default function Home () {
   const contextValue = useContext(CalichefContext)
+  const [visibleCount, setVisibleCount] = useState(50)
+  const containerRef = useRef(null)
 
   if (!contextValue) {
     console.error('CalichefContext no está disponible en el componente Navbar')
@@ -13,17 +15,42 @@ export default function Home () {
 
   const { AllData } = contextValue
 
+  // Scroll infinito
+  useEffect(() => {
+    function handleScroll() {
+      if (!containerRef.current) return;
+      const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
+      if (scrollTop + clientHeight >= scrollHeight - 100) {
+        setVisibleCount((prev) => {
+          if (AllData && prev < AllData.length) {
+            return prev + 50;
+          }
+          return prev;
+        });
+      }
+    }
+    const ref = containerRef.current;
+    if (ref) {
+      ref.addEventListener('scroll', handleScroll);
+    }
+    return () => {
+      if (ref) {
+        ref.removeEventListener('scroll', handleScroll);
+      }
+    };
+  }, [AllData]);
+
   return (
     <>
       <Navbar countRecipies={AllData?.length} className='pb-10' />
-      <div className='container mx-auto py-20 px-4 min-h-screen'>
+      <div ref={containerRef} className='container mx-auto py-20 px-4 min-h-screen overflow-y-auto scrollbar-hidden' style={{ maxHeight: 'calc(100vh - 80px)' }}>
         {AllData ? (
           <>
             <p className='text-white flex justify-end items-center py-2'>
               {AllData.length} recetas encontradas
             </p>
             <div className='flex flex-wrap justify-center md:justify-between items-center gap-y-5'>
-              {AllData.slice(0, 250).map((item, index) => (
+              {AllData.slice(0, visibleCount).map((item, index) => (
                 <Card
                   key={item.id}
                   id={item.id}
@@ -36,6 +63,11 @@ export default function Home () {
                 />
               ))}
             </div>
+            {visibleCount < AllData.length && (
+              <div className='flex justify-center py-6'>
+                <span className='text-gray-400'>Cargando más recetas...</span>
+              </div>
+            )}
           </>
         ) : (
           <div className='flex justify-center items-center h-screen'>
