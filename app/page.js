@@ -43,7 +43,7 @@ export default function Home () {
   return (
     <>
       <Navbar countRecipies={AllData?.length} className='pb-10' />
-      <div ref={containerRef} className='container mx-auto py-20 px-4 min-h-screen overflow-y-auto scrollbar-hidden' style={{ maxHeight: 'calc(100vh - 80px)' }}>
+      <div ref={containerRef} className='container mx-auto py-2 px-4 min-h-screen overflow-y-auto scrollbar-hidden' style={{ maxHeight: 'calc(100vh - 80px)' }}>
         {AllData ? (
           <>
             <p className='text-white flex justify-end items-center py-2'>

@@ -23,8 +23,8 @@ export default function ShoppingListPage() {
   return (
     <>
       <Navbar />
-      <div className="container mx-auto py-10 px-4 min-h-screen">
-        <h1 className="text-2xl font-bold text-white mb-6">Lista de Compras</h1>
+      <div className="container mx-auto py-2 px-4 min-h-screen">
+        <h1 className="text-2xl font-bold text-white my-6">Lista de Compras</h1>
         {isLoading ? (
           <div className="text-center py-20">
             <svg

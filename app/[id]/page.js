@@ -94,7 +94,7 @@ const Post = () => {
       </Head>
       <Navbar />
       
-      <div className='container w-full mx-auto py-5 px-4 mt-14 md:mt-20'>
+      <div className='container w-full mx-auto py-5 px-4 md:px-12 xl:px-4'>
       <div className="text-center">
         <div
           className="text-white text-4xl lg:text-5xl  md:py-2 lg:pl-4 hover:text-gray-400 flex items-center cursor-pointer"
@@ -103,7 +103,7 @@ const Post = () => {
             e.preventDefault()
             router.back()
           }}
-          className="mr-2" />
+          className="mr-2 mb-4" />
           
         </div>
       </div>

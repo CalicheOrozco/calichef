@@ -67,7 +67,7 @@ export default function Profile() {
     return (
       <>
         <Navbar />
-        <div className="container mx-auto py-20 px-4 min-h-screen flex justify-center items-center">
+        <div className="container mx-auto py-2 px-4 min-h-screen flex justify-center items-center">
           <div className="text-center">
             <svg
               className="animate-spin h-8 w-8 text-gray-600 mx-auto"
@@ -99,7 +99,7 @@ export default function Profile() {
   return (
     <>
       <Navbar />
-      <div className="container mx-auto py-20 px-4 min-h-screen">
+      <div className="container mx-auto py-2 px-4 min-h-screen">
         <div className="max-w-4xl mx-auto bg-black text-white p-8 rounded-lg shadow-md">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl text-white font-bold">Mi Perfil</h1>

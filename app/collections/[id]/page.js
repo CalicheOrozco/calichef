@@ -80,7 +80,7 @@ export default function CollectionDetail({ params }) {
     return (
       <>
         <Navbar />
-        <div className="container mx-auto py-20 px-4 min-h-screen flex justify-center items-center">
+        <div className="container mx-auto py-2 px-4 min-h-screen flex justify-center items-center">
           <div className="text-center">
             <svg
               className="animate-spin h-8 w-8 text-gray-600 mx-auto"
@@ -113,7 +113,7 @@ export default function CollectionDetail({ params }) {
     return (
       <>
         <Navbar />
-        <div className="container mx-auto py-20 px-4 min-h-screen">
+        <div className="container mx-auto py-2 px-4 min-h-screen">
           <div className="text-center py-10">
             <p className="text-white text-lg mb-4">Colección no encontrada</p>
             {/* volver a la pagina */}
@@ -137,7 +137,7 @@ export default function CollectionDetail({ params }) {
   return (
     <>
       <Navbar />
-      <div className="container mx-auto py-20 px-4 min-h-screen">
+      <div className="container mx-auto py-2 px-4 min-h-screen">
         <div className="mb-6">
         <div
           className="text-white text-4xl  md:py-4 lg:pl-4 hover:text-gray-400 flex items-center cursor-pointer"

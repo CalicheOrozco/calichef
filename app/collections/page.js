@@ -70,7 +70,7 @@ export default function Collections() {
     return (
       <>
         <Navbar />
-        <div className="container mx-auto py-20 px-4 min-h-screen flex justify-center items-center">
+        <div className="container mx-auto py-2 px-4 min-h-screen flex justify-center items-center">
           <div className="text-center">
             <svg
               className="animate-spin h-8 w-8 text-gray-600 mx-auto"
@@ -102,7 +102,7 @@ export default function Collections() {
   return (
     <>
       <Navbar />
-      <div ref={containerRef} className="container mx-auto py-20 px-4 min-h-screen overflow-y-auto scrollbar-hidden" style={{ maxHeight: 'calc(100vh - 80px)' }}>
+      <div ref={containerRef} className="container mx-auto py-2 px-4 min-h-screen overflow-y-auto scrollbar-hidden" style={{ maxHeight: 'calc(100vh - 80px)' }}>
         <h1 className="text-2xl font-bold text-white mb-6 pt-4">Colecciones</h1>
         {filteredCollections && filteredCollections.length > 0 && (
           <form onSubmit={(e) => e.preventDefault()} className="relative mb-8">

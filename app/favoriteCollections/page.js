@@ -61,7 +61,7 @@ export default function FavoriteCollections() {
     return (
       <>
         <Navbar />
-        <div className="container mx-auto py-20 px-4 min-h-screen flex justify-center items-center">
+        <div className="container mx-auto py-2 px-4 min-h-screen flex justify-center items-center">
           <div className="text-center">
             <svg
               className="animate-spin h-8 w-8 text-gray-600 mx-auto"
@@ -93,7 +93,7 @@ export default function FavoriteCollections() {
   return (
     <>
       <Navbar />
-      <div className="container mx-auto py-20 px-4 min-h-screen">
+      <div className="container mx-auto py-2 px-4 min-h-screen">
         <h1 className="text-2xl font-bold text-white mb-6 pt-4">Mis Colecciones Favoritas</h1>
 
         {favoriteCollections.length > 0 && (
