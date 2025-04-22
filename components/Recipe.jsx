@@ -221,8 +221,8 @@ export default function Recipe({
           </div>
         <div className='py-5'>
           
-          <div className='flex gap-y-4 flex-wrap justify-around items-center my-8'>
-            <div id='rc-icon-difficulty' className='flex flex-col justify-center items-center gap-y-1'>
+          <div className='flex gap-y-8 gap-x-32 text-center flex-wrap justify-center lg:justify-around items-center my-8'>
+            <div id='rc-icon-difficulty' className='flex flex-col justify-center items-center '>
               <span
                 id='rc-icon-difficulty-icon'
                 className='core-feature-icons__icon icon icon--chef-hat'
@@ -231,7 +231,7 @@ export default function Recipe({
                 role='button'
                 tabIndex='0'
               ></span>
-              <span className='font-bold'>Dificultad</span>
+              <span className='font-bold text-lg'>Difficulty</span>
               <span className='text-white'>{difficultyMap[difficulty] || difficulty}</span>
             </div>
             <div id='rc-icon-active-time' className='flex flex-col justify-center items-center gap-y-1'>
@@ -243,8 +243,8 @@ export default function Recipe({
                 role='button'
                 tabIndex='0'
               ></span>
-              <span className='font-bold transition-colors duration-200'>
-                  Tiempo de preparación
+              <span className='font-bold text-lg'>
+              Prep. time
                 </span>
                 <span className='text-white'>{cooking_time}</span>
             </div>
@@ -257,8 +257,8 @@ export default function Recipe({
                 role='button'
                 tabIndex='0'
               ></span>
-              <span className='font-bold font-bold'>
-                  Tiempo total
+              <span className='font-bold text-lg'>
+                Total time
                 </span>
                 <span className=''>
                 {total_time}
@@ -273,7 +273,7 @@ export default function Recipe({
                 role='button'
                 tabIndex='0'
               ></span>
-              <span className='font-bold'>Porciones</span>{' '}
+              <span className='font-bold text-lg'>Portions</span>{' '}
               <span>{porciones}</span>{' '}
                 
 
@@ -313,7 +313,7 @@ export default function Recipe({
                           return (
                             <li 
                               key={ingredientId} 
-                              className='flex items-center justify-between py-2 px-4 rounded-lg hover:bg-neutral-800 transition-colors duration-200 cursor-pointer'
+                              className='flex items-center justify-between py-2 px-4 rounded-lg hover:bg-neutral-800  cursor-pointer'
                               onClick={toggleIngredient}
                             >
                               <div className='flex items-center gap-3'>
@@ -442,7 +442,7 @@ export default function Recipe({
                             <li 
                               key={index} 
                               id={`preparation-step--0-${index}`}
-                              className='py-2 px-4 rounded-lg hover:bg-neutral-800 transition-colors duration-200 cursor-pointer'
+                              className='py-2 px-4 rounded-lg hover:bg-neutral-800  cursor-pointer'
                               onClick={toggleStep}
                             >
                               <div className='preparation-step-number'>
