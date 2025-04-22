@@ -119,25 +119,20 @@ export default function Recipe({
     <main className='bg-black text-white'>
       <div className='page-content flex flex-col'>
         
-          <div className='g-wrapper'>
-            <div className='l-tile'>
-              <div id='recipe-card' className='recipe-card'>
-                <div className='recipe-card__picture'>
-                  <core-image-loader
-                    id='recipe-card__image-loader'
-                    loaded='true'
-                  >
-                    <Image
-                      sizes='(min-width: 1333px) 600px, (min-width: 992px) 667px, (min-width: 768px) 496px, (min-width: 576px) 767px, (min-width: 0px) 575px'
+          <div>
+            <div>
+              <div className='recipe-card'>
+                <div>
+                <Image
+                      sizes="(min-width: 320px) 100vw, (min-width: 768px) 50vw, (min-width: 1024px) 33vw"
                       src={img_url}
                       alt={title}
                       title={title}
                       width={600}
-                      height={400}
+                      height={300}
                       priority
+                      className="block rounded-sm"
                     />
-
-                  </core-image-loader>
                 </div>
 
                 <div className='recipe-card__info bg-black'>
@@ -151,7 +146,6 @@ export default function Recipe({
                     </div>
                   )}
                   <div
-                    className='recipe-card__tm-version'
                     id='tm-versions-modal'
                   >
                     {tm_versions?.map(version => (
@@ -160,20 +154,13 @@ export default function Recipe({
                       </core-badge>
                     ))}
                   </div>
-                  <core-ellipsis
-                    lines-count='4'
-                    className='recipe-card__title_ellipsis'
-                  >
-                    <h1 className='recipe-card__title overflow-hidden text-ellipsis line-clamp-4 text-white'>
+                  
+                    <h1 className='text-4xl my-10 font-bold text-white'>
                       {title}
                     </h1>
-                  </core-ellipsis>
 
-                  <div className='recipe-card__community'>
-                    <core-rating>
-                      <core-fetch-modal error-message='Esta función no está disponible actualmente.'>
-                        <button className='core-rating__rating-list'>
-                          {stars.map((star, index) => (
+                  <div className='flex flex-row mb-6 text-xl'>
+                  {stars.map((star, index) => (
                             <span key={index}>
                               {star === 1 || star === 2 ? (
                                 <FaStar className='text-yellow-500' />
@@ -182,11 +169,7 @@ export default function Recipe({
                               )}
                             </span>
                           ))}
-                        </button>
-                      </core-fetch-modal>
-                      <span className='ml-2 text-white'>{rating_score}</span>
-                      {/* Remove or modify the rating count display */}
-                    </core-rating>
+                          <span className='ml-2 text-white'>{rating_score}</span>
                   </div>
 
                   <div className='flex flex-row justify-around items-center py-6 cursor-pointer'>
@@ -238,8 +221,8 @@ export default function Recipe({
           </div>
         <div className='py-5'>
           
-          <div className='flex gap-y-4 flex-wrap justify-around items-center mt-6'>
-            <div id='rc-icon-difficulty' className='core-feature-icons__item'>
+          <div className='flex gap-y-4 flex-wrap justify-around items-center my-8'>
+            <div id='rc-icon-difficulty' className='flex flex-col justify-center items-center gap-y-1'>
               <span
                 id='rc-icon-difficulty-icon'
                 className='core-feature-icons__icon icon icon--chef-hat'
@@ -248,15 +231,10 @@ export default function Recipe({
                 role='button'
                 tabIndex='0'
               ></span>
-              <label
-                id='rc-icon-difficulty-text'
-                className='core-feature-icons__text text-center'
-              >
-                <span className='core-feature-icons__subtitle'>Dificultad</span>
-                <span className='text-white'>{difficultyMap[difficulty] || difficulty}</span>
-              </label>
+              <span className='font-bold'>Dificultad</span>
+              <span className='text-white'>{difficultyMap[difficulty] || difficulty}</span>
             </div>
-            <div id='rc-icon-active-time' className='core-feature-icons__item'>
+            <div id='rc-icon-active-time' className='flex flex-col justify-center items-center gap-y-1'>
               <span
                 id='rc-icon-active-time-icon'
                 className='core-feature-icons__icon icon icon--time-preparation'
@@ -265,17 +243,12 @@ export default function Recipe({
                 role='button'
                 tabIndex='0'
               ></span>
-              <label
-                id='rc-icon-active-time-text'
-                className='core-feature-icons__text text-center group'
-              >
-                <span className='core-feature-icons__subtitle transition-colors duration-200'>
+              <span className='font-bold transition-colors duration-200'>
                   Tiempo de preparación
                 </span>
                 <span className='text-white'>{cooking_time}</span>
-              </label>
             </div>
-            <div id='rc-icon-total-time' className='core-feature-icons__item'>
+            <div className='flex flex-col justify-center items-center gap-y-1'>
               <span
                 id='rc-icon-total-time-icon'
                 className='core-feature-icons__icon icon icon--time-total'
@@ -284,17 +257,14 @@ export default function Recipe({
                 role='button'
                 tabIndex='0'
               ></span>
-              <label
-                id='rc-icon-total-time-text'
-                className='core-feature-icons__text text-center'
-              >
-                <span className='core-feature-icons__subtitle'>
+              <span className='font-bold font-bold'>
                   Tiempo total
                 </span>
+                <span className=''>
                 {total_time}
-              </label>
+                </span>
             </div>
-            <div id='rc-icon-total-time' className='core-feature-icons__item'>
+            <div className='flex flex-col justify-center items-center gap-y-1'>
               <span
                 id='rc-icon-total-time-icon'
                 className='core-feature-icons__icon icon icon--servings'
@@ -303,20 +273,17 @@ export default function Recipe({
                 role='button'
                 tabIndex='0'
               ></span>
-              <label
-                id='rc-icon-total-time-text'
-                className='core-feature-icons__text text-center'
-              >
-                <span className='core-feature-icons__subtitle'>Porciones</span>{' '}
-                {porciones}
-              </label>
+              <span className='font-bold'>Porciones</span>{' '}
+              <span>{porciones}</span>{' '}
+                
+
             </div>
           </div>
         </div>
         <div className='flex flex-col md:flex-row bg-black'>
           <div className='w-full md:w-1/2 p-4 text-white'>
-            <div id='ingredients' className='pb-5'>
-              <h3 id='ingredients-title' className='text-white pb-5'>
+            <div className='pb-5'>
+              <h3 className='text-white text-2xl pb-5'>
                 Ingredientes
               </h3>
               <core-list-section>
@@ -387,7 +354,7 @@ export default function Recipe({
               </core-list-section>
             </div>
             <hr className='separator--silver-60' />
-            <div id='nutritions-desktop' className='nutritions-wrapper'>
+            <div>
               <div className='nutritions pb-5'>
                 <div className='bg-black bg-opacity-80 p-6 rounded-lg'>
                   <h3 className='text-2xl font-bold text-white mb-2'>Nutrition</h3>
@@ -403,12 +370,11 @@ export default function Recipe({
                   </div>
                 </div>
               </div>
-              <hr className='separator--silver-60' />
             </div>
             
             <hr className='separator--silver-60' />
             {devices && (
-                    <div id='nutritions-desktop' className='nutritions-wrapper'>
+                    <div>
                     <div className='nutritions pb-5'>
                       <div className='bg-black bg-opacity-80 p-6 rounded-lg'>
                         <h3 className='text-2xl text-white font-bold mb-2'>Dispositivos y accesorios</h3>
@@ -428,13 +394,13 @@ export default function Recipe({
                         </div>
                       </div>
                     </div>
-                    <hr className='separator--silver-60' />
+                    
                   </div>
                   )}
             
             <hr className='separator--silver-60' />
             {useful_items && (
-                    <div id='nutritions-desktop' className='nutritions-wrapper'>
+                    <div>
                     <div className='nutritions pb-5'>
                       <div className='bg-black bg-opacity-80 p-6 rounded-lg'>
                         <h3 className='text-2xl text-white font-bold mb-2'>Accesorios útiles</h3>
@@ -455,9 +421,9 @@ export default function Recipe({
           <div className='w-full md:w-1/2 p-4'>
             
             {steps && (
-                    <div id='preparation-steps' className='preparation-steps'>
+                    <div>
                     <core-list-section>
-                      <h3 id='preparation-steps-title' className='text-white'>
+                      <h3 className='text-white text-2xl pb-8'>
                         Preparación
                       </h3>
                       <ol className='space-y-4'>
@@ -479,9 +445,10 @@ export default function Recipe({
                               className='py-2 px-4 rounded-lg hover:bg-neutral-800 transition-colors duration-200 cursor-pointer'
                               onClick={toggleStep}
                             >
-                              <span className={`${isChecked ? 'line-through text-gray-500' : 'text-white'}`}>
-                                {step}
-                              </span>
+                              <div className='preparation-step-number'>
+                                <span className={`${isChecked ? 'line-through text-gray-500' : 'text-green-500'}`}>{index + 1}</span>
+                              </div>
+                              <span className={`${isChecked ? 'line-through text-gray-500' : 'text-white'}`}>{step}</span>
                             </li>
                           );
                         })}
@@ -489,14 +456,10 @@ export default function Recipe({
                     </core-list-section>
                   </div>
                   )}
-            <hr className='separator--silver-60' />
             {nutritions && (
                     <div id='nutritions-mobile' className='nutritions-wrapper'>
                     <div className='nutritions pb-5'>
                       <dl>
-                        <h3 id='ingredients-title' className='text-white pb-5'>
-                          Inf. nutricional
-                        </h3>
                         <dd>{nutritions?.inf_nutricional}</dd>
                         {nutritions?.calorias && (
                           <>
@@ -543,10 +506,9 @@ export default function Recipe({
             {tips && (
               <>
                 <div
-                  id='hints-and-tricks'
-                  className='hints-and-tricks recipe-section text-white'
+                  className='py-8 text-white'
                 >
-                  <h3 id='hints-and-tricks-title' className='text-white'>
+                  <h3 id='hints-and-tricks-title' className='text-white text-2xl pb-8'>
                     Sugerencias y consejos
                   </h3>
                   <ul className='flex flex-row flex-wrap gap-2 mb-4'>
@@ -564,12 +526,12 @@ export default function Recipe({
               <>
                 <div
                   id='hints-and-tricks'
-                  className='hints-and-tricks recipe-section text-white'
+                  className='py-8 text-white'
                 >
-                  <h3 id='hints-and-tricks-title' className='text-white'>
+                  <h3 id='hints-and-tricks-title' className='text-white text-2xl pb-8'>
                   País
                   </h3>
-                  <ul className='flex list-none flex-row justify-center items-center flex-wrap gap-2'>
+                  <ul className='flex list-none flex-row justify-start items-center flex-wrap gap-2'>
                     {country?.map((item, index) => (
                       <li key={index} className='flex flex-col items-center'>
                         <Image className='pb-2' src={countryMap[`${item}img`]} alt={item} width={30} height={30} />
@@ -584,10 +546,9 @@ export default function Recipe({
             {collections && collections.length > 0 && (
               <>
                 <div
-                  id='collections-section'
-                  className='collections-section recipe-section text-white'
+                  className='py-8 text-white'
                 >
-                  <h3 id='collections-title' className='text-white text-2xl font-bold mb-4'>
+                  <h3 className='text-white text-2xl font-bold pb-8'>
                     También incluido en
                   </h3>
                   <div className='flex flex-col space-y-4'>
@@ -597,7 +558,7 @@ export default function Recipe({
                         href={`/collections/${collection.id}`}
                         className='block'
                       >
-                        <div className='flex items-center bg-neutral-900 p-3 rounded-lg hover:bg-neutral-800 transition-colors duration-200'>
+                        <div className='flex items-center bg-neutral-900 p-3 rounded-lg hover:bg-neutral-800'>
                           <div className='w-20 h-20 mr-4 flex-shrink-0'>
                             <Image 
                               src={collection.image_url} 
@@ -625,31 +586,23 @@ export default function Recipe({
             )}
             {tags && (
                     <div
-                    id='additional-categories'
-                    className='additional-categories recipe-section'
+                    className='py-8'
                   >
-                    <h3 id='additional-categories-title' className='text-white'>
+                    <h3 className='text-white text-2xl font-bold pb-8'>
                       Etiquetas
                     </h3>
-                    <core-tags-wrapper
-                      className='core-tags-wrapper--alternative'
-                      aria-expanded='false'
-                    >
-                      <div className='core-tags-wrapper__wrapper transition duration-200 max-h-56'>
-                        <div className='core-tags-wrapper__tags-container'>
+                    <div className='py-6 flex flex-wrap gap-4'>
                           {tags?.map((tag, index) => (
                             <a
                               key={index}
                               id={`additional-category-${index}`}
-                              className='core-badge--high'
+                              className='py-3 px-4 bg-white text-green-600'
                               // href={`/${tag}`}
                             >
                               {`#${tag}`}
                             </a>
                           ))}
                         </div>
-                      </div>
-                    </core-tags-wrapper>
                   </div>
                   )}
             
@@ -658,8 +611,8 @@ export default function Recipe({
         </div>
       </div>
       {recommended && (
-        <div className='recommended-recipes'>
-          <h2 className='text-white pb-4'>Recetas alternativas</h2>
+        <div className='recommended-recipes pl-5'>
+          <h2 className='text-white text-3xl pb-4'>Recetas alternativas</h2>
           <div className='flex flex-wrap justify-center md:justify-between items-center gap-y-5'>
             {recommended
               .filter(item => item.id !== id) // Filter out the current recipe
