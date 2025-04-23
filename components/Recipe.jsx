@@ -42,6 +42,7 @@ const RecipeMetaInfo = memo(({ difficulty, cooking_time, total_time, porciones }
     </div>
   );
 });
+RecipeMetaInfo.displayName = "RecipeMetaInfo";
 
 // Extract repeating UI patterns into components
 const MetaItem = memo(({ icon, label, value }) => (
@@ -54,6 +55,7 @@ const MetaItem = memo(({ icon, label, value }) => (
     <span className='text-white text-sm sm:text-base'>{value}</span>
   </div>
 ));
+MetaItem.displayName = "MetaItem";
 
 const RatingStars = memo(({ rating_score }) => {
   const rating = rating_score?.toString().split('.') || ['0', '0']
@@ -77,6 +79,7 @@ const RatingStars = memo(({ rating_score }) => {
     </div>
   );
 });
+RatingStars.displayName = "RatingStars";
 
 const ActionButton = memo(({ icon: Icon, activeIcon: ActiveIcon, isActive, onClick, label }) => (
   <div className='flex flex-col justify-center items-center cursor-pointer'>
@@ -96,6 +99,7 @@ const ActionButton = memo(({ icon: Icon, activeIcon: ActiveIcon, isActive, onCli
     <span className='text-white text-sm sm:text-base'>{label}</span>
   </div>
 ));
+ActionButton.displayName = "ActionButton";
 
 // Loading fallbacks
 const LoadingFallback = () => <div className="p-4 text-white">Loading...</div>;
