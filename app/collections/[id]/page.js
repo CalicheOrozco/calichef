@@ -148,7 +148,7 @@ export default function CollectionDetail({ params }) {
       <Navbar />
       <div className="container mx-auto py-2 px-4 min-h-screen">
         <div className="mb-6">
-          <div className="text-white text-4xl md:py-4 lg:pl-4 hover:text-gray-400 flex items-center cursor-pointer">
+          <div className="text-white text-4xl md:py-4 lg:pl-4 hover:text-green-500 flex items-center cursor-pointer">
             <FaArrowLeft onClick={handleBack} className="mr-2" />
           </div>
 

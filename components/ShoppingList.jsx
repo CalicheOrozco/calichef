@@ -463,17 +463,17 @@ export default function ShoppingList({ list }) {
                     {menuOpen[recipe.id] && (
                       <div className="absolute bg-neutral-800 rounded-lg shadow-lg mt-2 right-0 w-64 z-10">
                         <div className="flex flex-col gap-4">
-                          <div className="flex items-center gap-2 p-3 hover:bg-gray-500 text-white cursor-pointer" onClick={() => handlePlusOne(recipe.id, 'add', 1)}>
+                          <div className="flex items-center gap-2 p-3 hover:bg-green-900 text-white cursor-pointer" onClick={() => handlePlusOne(recipe.id, 'add', 1)}>
                             <span className="text-xl">+1</span> Aumentar elemento
                           </div>
                           {
                             countMap[recipe.id] > 1 && (
-                              <div className="flex items-center gap-2 p-3 hover:bg-gray-500 text-white cursor-pointer" onClick={() => handleMinusOne(recipe.id, 'add', -1)}>
+                              <div className="flex items-center gap-2 p-3 hover:bg-green-900 text-white cursor-pointer" onClick={() => handleMinusOne(recipe.id, 'add', -1)}>
                                 <span className="text-xl">-1</span> Reducir elemento
                               </div>
                             )
                           }
-                          <div className="flex items-center gap-2 p-3 hover:bg-gray-500 text-red-500 cursor-pointer" onClick={() => removeFromShoppingList(recipe.id)}>
+                          <div className="flex items-center gap-2 p-3 hover:bg-red-500 hover:text-white text-red-500 cursor-pointer" onClick={() => removeFromShoppingList(recipe.id)}>
                             <span className="text-xl">⊖</span> Eliminar de la lista de compras
                           </div>
                         </div>

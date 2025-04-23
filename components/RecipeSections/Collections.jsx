@@ -15,7 +15,7 @@ const Collections = ({ collections }) => {
               href={`/collections/${collection.id}`}
               className='block'
             >
-              <div className='flex items-center bg-neutral-900 p-2 sm:p-3 rounded-lg hover:bg-neutral-800'>
+              <div className='flex items-center bg-neutral-900 p-2 sm:p-3 rounded-lg hover:bg-green-900'>
                 <div className='w-16 h-16 sm:w-20 sm:h-20 mr-3 sm:mr-4 flex-shrink-0'>
                   <Image 
                     src={collection.image_url} 

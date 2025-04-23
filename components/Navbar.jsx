@@ -4,6 +4,9 @@ import React, { useContext, useState, useEffect, useCallback, useRef, useMemo } 
 import { usePathname, useRouter } from 'next/navigation'
 import { CalichefContext } from '../context/MyContext'
 import { FaSearch, FaStar, FaUserCircle } from 'react-icons/fa'
+import { FaUser , FaHeart, FaRightFromBracket, FaLayerGroup} from "react-icons/fa6";
+import { MdShoppingCart } from "react-icons/md"
+
 import { IoClose, IoHomeSharp } from 'react-icons/io5'
 import Link from 'next/link'
 import { countryMap } from '../constants';
@@ -734,39 +737,45 @@ export default function Navbar({countRecipies}) {
                   <FaUserCircle className="text-2xl hover:text-green-300 transition-colors" />
                 </div>
                 {showMenu && (
-                  <div className="absolute right-0 mt-2 w-48 bg-black rounded-lg shadow-lg py-2 z-50">
-                    <div className="px-4 py-2 text-white font-semibold border-b">
+                  <div className="absolute right-0 mt-2 w-56 bg-black rounded-lg shadow-lg py-2 z-50">
+                    <div className="px-4 py-4 text-xl text-white font-semibold border-b">
                       {user.name.charAt(0).toUpperCase() + user.name.slice(1)}
                     </div>
                     <Link href="/profile" passHref>
-                      <span className="block px-4 py-2 text-sm text-white hover:text-black hover:bg-white cursor-pointer">
+                      <span className="flex gap-x-2 items-center px-4 py-4 text-lg text-white hover:bg-green-900 cursor-pointer">
+                        <FaUser />
                         Ver perfil
                       </span>
                     </Link>
                     <Link href="/collections" passHref>
-                      <span className="block px-4 py-2 text-sm text-white hover:text-black hover:bg-white cursor-pointer">
+                      <span className="flex gap-x-2 items-center px-4 py-4 text-lg text-white hover:bg-green-900 cursor-pointer">
+                        <FaLayerGroup />
                         Collecciones
                       </span>
                     </Link>
                     <Link href="/favorites" passHref>
-                      <span className="block px-4 py-2 text-sm text-white hover:text-black hover:bg-white cursor-pointer">
+                      <span className="flex gap-x-2 items-center px-4 py-4 text-lg text-white hover:bg-green-900 cursor-pointer">
+                      <FaHeart />
                       Favoritos
                       </span>
                     </Link>
                     <Link href="/shopping-list" passHref>
-                      <span className="block px-4 py-2 text-sm text-white hover:text-black hover:bg-white cursor-pointer">
+                      <span className="flex gap-x-2 items-center px-4 py-4 text-lg text-white hover:bg-green-900 cursor-pointer">
+                      <MdShoppingCart />
                       Shopping List
                       </span>
                     </Link>
                     <Link href="/favoriteCollections" passHref>
-                      <span className="block px-4 py-2 text-sm text-white hover:text-black hover:bg-white cursor-pointer">
+                      <span className="flex gap-x-2 items-center px-4 py-4 text-lg text-white hover:bg-green-900 cursor-pointer">
+                        <FaLayerGroup />
                         Mis colecciones
                       </span>
                     </Link>
                     <button
                       onClick={logout}
-                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100"
+                      className="flex gap-x-2 items-center w-full text-left px-4 py-4 text-sm text-red-600 hover:bg-red-600 hover:text-white"
                     >
+                      <FaRightFromBracket />
                       Cerrar sesión
                     </button>
                   </div>

@@ -35,7 +35,7 @@ export default function Ingredients({ ingredients, checkedIngredients, setChecke
                   return (
                     <li 
                       key={ingredientId} 
-                      className='flex items-center justify-between py-2 px-2 sm:px-4 rounded-lg hover:bg-neutral-800 cursor-pointer'
+                      className='flex items-center justify-between py-2 px-2 sm:px-4 rounded-lg hover:bg-green-900 cursor-pointer'
                       onClick={toggleIngredient}
                     >
                       <div className='flex items-center gap-2 sm:gap-3'>

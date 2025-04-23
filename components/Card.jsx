@@ -1,6 +1,6 @@
 'use client'
 import { memo } from 'react'
-import { FaStar, FaHeart, FaRegHeart } from 'react-icons/fa'
+import { FaStar, FaHeart, FaRegHeart } from 'react-icons/fa6'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useEffect, useState, useCallback } from 'react'
@@ -145,7 +145,7 @@ const Card = memo(function Card({
             ) : (
               <FaRegHeart
                 onClick={handleFavoriteClick}
-                className='text-white hover:text-gray-500 cursor-pointer'
+                className='text-red-500 hover:text-red-700 cursor-pointer'
               />
             )
           ) : (

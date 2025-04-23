@@ -120,7 +120,7 @@ const Post = () => {
       
       <div className='container w-full mx-auto py-5 px-4'>
         <div className="text-center">
-          <div className="text-white text-4xl lg:text-5xl md:py-2 lg:pl-4 hover:text-gray-400 flex items-center cursor-pointer">
+          <div className="text-white text-4xl lg:text-5xl md:py-2 lg:pl-4 hover:text-green-500 flex items-center cursor-pointer">
             <FaArrowLeft 
               onClick={() => router.back()}
               className="mr-2 mb-4" 
