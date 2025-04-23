@@ -1217,7 +1217,7 @@ export default function Navbar({countRecipies}) {
                 </div>
                 <div className='sticky bottom-0 bg-neutral-900 py-4 border-t border-neutral-700 p-4 md:p-8'>
                     <div className='flex justify-end gap-x-2 md:gap-x-4'>
-                        {areFiltersActive() && (
+                        {areFiltersActive && (
                             <button
                                 onClick={handleClearFilters}
                                 className='px-4 md:px-6 py-2 md:py-3 rounded-xl bg-red-50 text-red-600 font-medium hover:bg-red-100 transition-colors duration-200 text-sm md:text-base'
