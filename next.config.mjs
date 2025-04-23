@@ -4,8 +4,11 @@ import withPWA from 'next-pwa'
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['assets.tmecosys.com','patternlib-all.prod.external.eu-tm-prod.vorwerk-digital.com','cdn.gtranslate.net'],
-
+    remotePatterns: [
+      { protocol: 'https', hostname: 'assets.tmecosys.com' },
+      { protocol: 'https', hostname: 'patternlib-all.prod.external.eu-tm-prod.vorwerk-digital.com' },
+      { protocol: 'https', hostname: 'cdn.gtranslate.net' }
+    ]
   }
 }
 
