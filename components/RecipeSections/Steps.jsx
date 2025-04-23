@@ -25,7 +25,7 @@ export default function Steps({ steps, checkedSteps, setCheckedSteps }) {
             return (
               <li 
                 key={`preparation-step-${index}`}
-                className='py-2 px-3 sm:px-4 rounded-lg hover:bg-neutral-800 cursor-pointer'
+                className='flex gap-4 py-2 px-3 sm:px-4 rounded-lg hover:bg-neutral-800 cursor-pointer'
                 onClick={toggleStep}
               >
                 <div className='preparation-step-number'>
