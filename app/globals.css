@@ -37,46 +37,7 @@ body {
 }
 
 
-font-face {
-  font-family: Roboto;
-  font-style: normal;
-  font-weight: 400;
-  src: local('Roboto'), local('Roboto-Regular'),
-    url(https://patternlib-all.prod.external.eu-tm-prod.vorwerk-digital.com/roboto-400-73f0a88bbca1bec19fb1303c689d04c6.woff2)
-      format('woff2'),
-    url(https://patternlib-all.prod.external.eu-tm-prod.vorwerk-digital.com/roboto-400-35b07eb2f8711ae08d1f58c043880930.woff)
-      format('woff');
-}
-@font-face {
-  font-family: Roboto;
-  font-style: italic;
-  font-weight: 400;
-  src: local('Roboto Italic'), local('Roboto-Italic'),
-    url(https://patternlib-all.prod.external.eu-tm-prod.vorwerk-digital.com/roboto-italic-400-4357beb823a5f8d65c260f045d9e019a.woff2)
-      format('woff2'),
-    url(https://patternlib-all.prod.external.eu-tm-prod.vorwerk-digital.com/roboto-italic-400-f5902d5ef961717ed263902fc429e6ae.woff)
-      format('woff');
-}
-@font-face {
-  font-family: Roboto;
-  font-style: normal;
-  font-weight: 500;
-  src: local('Roboto Medium'), local('Roboto-Medium'),
-    url(https://patternlib-all.prod.external.eu-tm-prod.vorwerk-digital.com/roboto-medium-500-90d1676003d9c28c04994c18bfd8b558.woff2)
-      format('woff2'),
-    url(https://patternlib-all.prod.external.eu-tm-prod.vorwerk-digital.com/roboto-medium-500-1d6594826615607f6dc860bb49258acb.woff)
-      format('woff');
-}
-@font-face {
-  font-family: Roboto;
-  font-style: normal;
-  font-weight: 700;
-  src: local('Roboto Bold'), local('Roboto-Bold'),
-    url(https://patternlib-all.prod.external.eu-tm-prod.vorwerk-digital.com/roboto-bold-700-b52fac2bb93c5858f3f2675e4b52e1de.woff2)
-      format('woff2'),
-    url(https://patternlib-all.prod.external.eu-tm-prod.vorwerk-digital.com/roboto-bold-700-50d75e48e0a3ddab1dd15d6bfb9d3700.woff)
-      format('woff');
-}
+
 @font-face {
   font-family: Roboto;
   font-style: normal;
@@ -128,46 +89,6 @@ font-face {
     url(https://patternlib-all.prod.external.eu-tm-prod.vorwerk-digital.com/VorwerkIcons-Regular-400-6fcd599dc5a3720bca4072cd8b8874b0.ttf)
       format('truetype');
   unicode-range: U+e001-e04c, U+00ae;
-}
-@font-face {
-  font-family: 'Noto Serif';
-  font-style: normal;
-  font-weight: 400;
-  src: local('Noto Serif'), local('NotoSerif'),
-    url(https://patternlib-all.prod.external.eu-tm-prod.vorwerk-digital.com/noto-serif-regular-400-b2316e6e44b7774608054568959aaec5.woff2)
-      format('woff2'),
-    url(https://patternlib-all.prod.external.eu-tm-prod.vorwerk-digital.com/noto-serif-regular-400-e231e01600930a4e3b9f63c4e5945b7f.woff)
-      format('woff');
-}
-@font-face {
-  font-family: 'Noto Serif';
-  font-style: italic;
-  font-weight: 400;
-  src: local('Noto Serif Italic'), local('NotoSerif-Italic'),
-    url(https://patternlib-all.prod.external.eu-tm-prod.vorwerk-digital.com/noto-serif-italic-400-95765c29d001f8bec6b21c42cac2d5a5.woff2)
-      format('woff2'),
-    url(https://patternlib-all.prod.external.eu-tm-prod.vorwerk-digital.com/noto-serif-italic-400-e6cd16d25911e4b8ae50b32220865e6a.woff)
-      format('woff');
-}
-@font-face {
-  font-family: 'Noto Serif';
-  font-style: normal;
-  font-weight: 700;
-  src: local('Noto Serif Bold'), local('NotoSerif-Bold'),
-    url(https://patternlib-all.prod.external.eu-tm-prod.vorwerk-digital.com/noto-serif-bold-700-3f966be0548460b31d89db3b4777d35c.woff2)
-      format('woff2'),
-    url(https://patternlib-all.prod.external.eu-tm-prod.vorwerk-digital.com/noto-serif-bold-700-010ba4c542460ae519776541e4a59876.woff)
-      format('woff');
-}
-@font-face {
-  font-family: 'Noto Serif';
-  font-style: italic;
-  font-weight: 700;
-  src: local('Noto Serif Bold Italic'), local('NotoSerif-BoldItalic'),
-    url(https://patternlib-all.prod.external.eu-tm-prod.vorwerk-digital.com/noto-serif-bold-italic-700-8e063fea3c75bedd0717d8373f3d296a.woff2)
-      format('woff2'),
-    url(https://patternlib-all.prod.external.eu-tm-prod.vorwerk-digital.com/noto-serif-bold-italic-700-432448a2a75032cfe7caa40463128d2d.woff)
-      format('woff');
 }
 @font-face {
   font-family: 'Noto Serif';
@@ -232,16 +153,6 @@ font-face {
       format('woff'),
     url(https://patternlib-all.prod.external.eu-tm-prod.vorwerk-digital.com/VorwerkIcons-Regular-400-6fcd599dc5a3720bca4072cd8b8874b0.ttf)
       format('truetype');
-}
-@font-face {
-  font-family: Material Icons;
-  font-style: normal;
-  font-weight: 400;
-  src: local('Material Icons'), local('MaterialIcons-Regular'),
-    url(https://patternlib-all.prod.external.eu-tm-prod.vorwerk-digital.com/material-icons-400-3322b7933fd846343aba3228e46dfee2.woff2)
-      format('woff2'),
-    url(https://patternlib-all.prod.external.eu-tm-prod.vorwerk-digital.com/material-icons-400-7b85d3fc5af0afe6fcf6fb3fa7a941d5.woff)
-      format('woff');
 }
 
 body {
