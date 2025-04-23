@@ -1,4 +1,4 @@
-'use client';
+"use client"
 import { useState, useEffect, useContext, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
@@ -18,7 +18,7 @@ export default function CollectionDetail({ params }) {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [isFavorite, setIsFavorite] = useState(false);
 
-  const { collections, originalData } = useContext(CalichefContext) || {};
+  const { collections, originalData } = useContext(CalichefContext);
   const { user, updateFavoriteCollections, isAuthenticated } = useAuth();
 
   // Debounce search input

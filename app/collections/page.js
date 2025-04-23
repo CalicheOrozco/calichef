@@ -11,7 +11,7 @@ export default function Collections() {
   const [visibleCount, setVisibleCount] = useState(50);
   const containerRef = useRef(null);
   
-  const { filteredCollections = [] } = useContext(CalichefContext) || {};
+  const { filteredCollections = [] } = useContext(CalichefContext);
   const isLoading = !filteredCollections.length;
 
   // Filter collections based on search terms

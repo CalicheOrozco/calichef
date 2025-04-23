@@ -19,12 +19,8 @@ const nextConfig = {
   swcMinify: true,
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
+    styledComponents: true,
   },
-  // Optimize performance with HTTP/2 server push
-  experimental: {
-    optimizeCss: true,
-    scrollRestoration: true,
-  }
 }
 
 // Configure PWA settings for better performance
@@ -74,7 +70,7 @@ const pwaConfig = {
           maxAgeSeconds: 60 * 60 * 24, // 24 hours
         },
         cacheableResponse: {
-          statuses: [0, 200],
+          statuses: [200],
         },
       },
     },

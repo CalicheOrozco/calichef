@@ -13,7 +13,7 @@ export default function FavoriteCollections() {
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   
-  const { collections } = useContext(CalichefContext) || {};
+  const { collections } = useContext(CalichefContext);
 
   // Redirigir si no hay usuario autenticado
   useEffect(() => {

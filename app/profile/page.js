@@ -80,7 +80,7 @@ export default function Profile() {
   const [searchRecipes, setSearchRecipes] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
 
-  const { originalData } = useContext(CalichefContext) || {};
+  const { originalData } = useContext(CalichefContext);
 
   // Debounce effect
   useEffect(() => {

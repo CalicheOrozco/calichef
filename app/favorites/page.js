@@ -78,7 +78,7 @@ export default function Favorites() {
   const [loadingRecipes, setLoadingRecipes] = useState(true);
   const [searchRecipes, setSearchRecipes] = useState('');
   
-  const { originalData } = useContext(CalichefContext) || {};
+  const { originalData } = useContext(CalichefContext);
 
   // Cargar favoritos cuando el usuario esté disponible
   useEffect(() => {
