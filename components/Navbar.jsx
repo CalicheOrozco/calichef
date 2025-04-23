@@ -991,16 +991,33 @@ export default function Navbar ({countRecipies }) {
 
                     <div className='space-y-4 md:space-y-6 max-h-[70vh] md:max-h-[60vh] overflow-y-auto'>
                         <div className='relative'>
-                            <input
-                                type='text'
-                                placeholder='Buscar recetas...'
-                                value={searchTerm}
-                                onChange={handleSearchInputChange}
-                                onKeyPress={handleKeyPress}
-                                ref={searchInputRef}
-                                className='w-full px-3 md:px-4 py-2 md:py-3 border-2 border-neutral-700 bg-neutral-700 text-white rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200 text-sm md:text-base'
-                                aria-label='Buscar'
-                            />
+                            <div className='relative'>
+                                <input
+                                    type='text'
+                                    placeholder='Buscar recetas...'
+                                    value={searchTerm}
+                                    onChange={handleSearchInputChange}
+                                    onKeyPress={handleKeyPress}
+                                    ref={searchInputRef}
+                                    className='w-full px-3 md:px-4 py-2 md:py-3 border-2 border-neutral-700 bg-neutral-700 text-white rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200 text-sm md:text-base'
+                                    aria-label='Buscar'
+                                />
+                                {searchTerm && (
+                                    <button
+                                        onClick={() => {
+                                            setSearchTerm('');
+                                            debouncedHandleFilter('');
+                                            if (searchInputRef.current) {
+                                                searchInputRef.current.focus();
+                                            }
+                                        }}
+                                        className='absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white'
+                                        aria-label='Borrar búsqueda'
+                                    >
+                                        <IoClose className='text-xl' />
+                                    </button>
+                                )}
+                            </div>
                             {showSuggestions && suggestions.length > 0 && (
                                 <div 
                                     ref={suggestionsRef}

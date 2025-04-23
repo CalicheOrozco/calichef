@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect, useContext, useRef } from 'react';
+import { IoClose } from 'react-icons/io5';
 import Navbar from '@/components/Navbar';
 import Card from '@/components/Card';
 import { CalichefContext } from '@/context/MyContext';
@@ -106,19 +107,35 @@ export default function Collections() {
         <h1 className="text-2xl font-bold text-white mb-6 pt-4">Colecciones</h1>
         {filteredCollections && filteredCollections.length > 0 && (
           <form onSubmit={(e) => e.preventDefault()} className="relative mb-8">
-            <input
-              id="Buscar"
-              className="block rounded-md px-6 pt-6 pb-1 w-full text-md text-white bg-neutral-700 appearance-none focus:outline-none focus:ring-0 peer"
-              placeholder=" "
-              value={searchCollections}
-              onChange={handleSearch}
-            />
-            <label
-              htmlFor="Buscar"
-              className="absolute text-md text-zinc-400 duration-150 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-5 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3"
-            >
-              Buscar
-            </label>
+            <div className="relative">
+              <input
+                id="Buscar"
+                className="block rounded-md px-6 pt-6 pb-1 w-full text-md text-white bg-neutral-700 appearance-none focus:outline-none focus:ring-0 peer"
+                placeholder=" "
+                value={searchCollections}
+                onChange={handleSearch}
+              />
+              <label
+                htmlFor="Buscar"
+                className="absolute text-md text-zinc-400 duration-150 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-5 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3"
+              >
+                Buscar
+              </label>
+              {searchCollections && (
+                <button
+                  onClick={() => {
+                    setSearchCollections('');
+                    setDebouncedSearch('');
+                    setVisibleCount(50);
+                  }}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+                  aria-label="Borrar búsqueda"
+                  type="button"
+                >
+                  <IoClose className="text-xl" />
+                </button>
+              )}
+            </div>
           </form>
         )}
         {filteredBySearch && filteredBySearch.length > 0 ? (
