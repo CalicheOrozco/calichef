@@ -374,3 +374,8 @@ function Recipe({
 }
 
 export default memo(Recipe);
+
+RecipeMetaInfo.displayName = "RecipeMetaInfo"
+MetaItem.displayName = "MetaItem"
+RatingStars.displayName = "RatingStars"
+ActionButton.displayName = "ActionButton"
