@@ -8,40 +8,33 @@ export default function Home() {
   const contextValue = useContext(CalichefContext)
   const [visibleCount, setVisibleCount] = useState(50)
   const containerRef = useRef(null)
-  
-  if (!contextValue) {
-    console.error('CalichefContext no está disponible en el componente Home')
-    return null // Mejor retornar temprano si el contexto no está disponible
-  }
-  
-  const { AllData = [] } = contextValue
+  const { AllData = [] } = contextValue || {}
   const recipesCount = AllData?.length || 0
-  
   const visibleData = useMemo(() => {
     return AllData?.slice(0, visibleCount) || []
   }, [AllData, visibleCount])
-  
+
   // Scroll infinito
   useEffect(() => {
     const handleScroll = () => {
       if (!containerRef.current) return
-      
       const { scrollTop, scrollHeight, clientHeight } = containerRef.current
       if (scrollTop + clientHeight >= scrollHeight - 100) {
-        setVisibleCount(prev => 
-          prev < recipesCount ? prev + 50 : prev
-        )
+        setVisibleCount(prev => prev < recipesCount ? prev + 50 : prev);
       }
-    }
-    
-    const ref = containerRef.current
-    ref?.addEventListener('scroll', handleScroll)
-    
+    };
+    const ref = containerRef.current;
+    ref?.addEventListener('scroll', handleScroll);
     return () => {
-      ref?.removeEventListener('scroll', handleScroll)
-    }
-  }, [recipesCount])
-  
+      ref?.removeEventListener('scroll', handleScroll);
+    };
+  }, [recipesCount]);
+
+  if (!contextValue) {
+    console.error('CalichefContext no está disponible en el componente Home')
+    return null // Mejor retornar temprano si el contexto no está disponible
+  }
+
   return (
     <>
       <Navbar countRecipies={recipesCount} className='pb-10' />
