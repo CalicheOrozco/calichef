@@ -3,6 +3,7 @@ import { CalichefContext } from '../context/MyContext';
 import { useAuth } from '@/context/AuthContext'
 import Image from 'next/image';
 import { FaEllipsisV } from 'react-icons/fa';
+import Link from 'next/link';
 
 export default function ShoppingList({ list }) {
   const contextValue = useContext(CalichefContext);
@@ -86,8 +87,12 @@ export default function ShoppingList({ list }) {
             {recipes.map(recipe => (
               <div key={recipe.id} className="bg-neutral-800 rounded-xl p-5 shadow-md">
                 <div className="flex items-center gap-4 mb-4">
+                <Link href={`/${recipe.id}`} passHref>
                   <Image src={recipe.image_url} alt={recipe.title} width={70} height={70} className="rounded-lg object-cover border border-neutral-700" />
-                  <span className="text-white text-xl font-bold tracking-tight">{recipe.title}</span>
+                </Link>
+                  <Link href={`/${recipe.id}`} passHref>
+                    <span className="text-white text-xl font-bold tracking-tight">{recipe.title}</span>
+                  </Link>
 
                   <div className="relative text-white ml-auto cursor-pointer" onClick={() => toggleMenu(recipe.id)} ref={el => (menuRefs.current[recipe.id] = el)}>
                     <FaEllipsisV />
