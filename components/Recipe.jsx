@@ -254,14 +254,16 @@ function Recipe({
                 onClick={handleShareRecipe}
                 label="Compartir"
               />
-              
-              <ActionButton 
-                icon={MdShoppingCart}
-                activeIcon={MdRemoveShoppingCart}
-                isActive={isInShoppingList}
-                onClick={handleShoppingList}
-                label="Add Shopping"
+
+              {isAuthenticated && (
+                <ActionButton 
+                  icon={MdShoppingCart}
+                  activeIcon={MdRemoveShoppingCart}
+                  isActive={isInShoppingList}
+                  onClick={handleShoppingList}
+                  label="Add Shopping"
               />
+              )}
             </div>
           </div>
         </div>

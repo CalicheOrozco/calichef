@@ -773,7 +773,7 @@ export default function Navbar({countRecipies}) {
                     </Link>
                     <button
                       onClick={logout}
-                      className="flex gap-x-2 items-center w-full text-left px-4 py-4 text-sm text-red-600 hover:bg-red-600 hover:text-white"
+                      className="flex gap-x-2 items-center w-full text-left px-4 py-4 text-lg text-red-600 hover:bg-red-600 hover:text-white"
                     >
                       <FaRightFromBracket />
                       Cerrar sesión

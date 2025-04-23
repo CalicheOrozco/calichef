@@ -136,7 +136,7 @@ const Card = memo(function Card({
           )}
         </Link>
         <div className='absolute top-2 right-2 text-4xl'>
-          {isAuthenticated ? (
+          {isAuthenticated && (
             isFavorite ? (
               <FaHeart
                 onClick={handleFavoriteClick}
@@ -146,22 +146,6 @@ const Card = memo(function Card({
               <FaRegHeart
                 onClick={handleFavoriteClick}
                 className='text-red-500 hover:text-red-700 cursor-pointer'
-              />
-            )
-          ) : (
-            isSaved ? (
-              <FaHeart
-                className='text-red-500 cursor-pointer'
-                onClick={handleHeartClick}
-                onMouseEnter={e => e.currentTarget.style.color = 'gray'}
-                onMouseLeave={e => e.currentTarget.style.color = 'red'}
-              />
-            ) : (
-              <FaRegHeart
-                className='text-gray-500 cursor-pointer'
-                onClick={handleHeartClick}
-                onMouseEnter={e => e.currentTarget.style.color = 'red'}
-                onMouseLeave={e => e.currentTarget.style.color = 'gray'}
               />
             )
           )}
