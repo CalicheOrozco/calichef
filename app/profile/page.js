@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useMemo } from 'react';
 import { IoClose } from 'react-icons/io5';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
@@ -11,33 +11,94 @@ import { openDB } from 'idb';
 const DB_NAME = 'calicheDatabase';
 const STORE_NAME = 'dataStore';
 
+const Loader = () => (
+  <>
+    <Navbar />
+    <div className="container mx-auto py-2 px-4 min-h-screen flex justify-center items-center">
+      <div className="text-center">
+        <svg
+          className="animate-spin h-8 w-8 text-gray-600 mx-auto"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          ></circle>
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
+        </svg>
+        <p className="mt-4 text-lg text-gray-600">Cargando...</p>
+      </div>
+    </div>
+  </>
+);
+
+const SearchField = ({ searchValue, onSearchChange, onClear }) => (
+  <form onSubmit={e => e.preventDefault()} className="relative mt-4">
+    <div className="relative">
+      <input
+        id="Buscar"
+        className="block rounded-md px-6 pt-6 pb-1 w-full text-md text-white bg-neutral-700 appearance-none focus:outline-none focus:ring-0 peer"
+        placeholder=" "
+        value={searchValue}
+        onChange={onSearchChange}
+      />
+      <label
+        htmlFor="Buscar"
+        className="absolute text-md text-zinc-400 duration-150 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-5 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3"
+      >
+        Buscar
+      </label>
+      {searchValue && (
+        <button
+          onClick={onClear}
+          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+          aria-label="Borrar búsqueda"
+          type="button"
+        >
+          <IoClose className="text-xl" />
+        </button>
+      )}
+    </div>
+  </form>
+);
+
 export default function Profile() {
   const { user, loading, logout } = useAuth();
   const router = useRouter();
   const [favoriteRecipes, setFavoriteRecipes] = useState([]);
   const [loadingFavorites, setLoadingFavorites] = useState(true);
-  const [searchRecipies, setSearchRecipies] = useState('');
+  const [searchRecipes, setSearchRecipes] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
 
-  const contextValue = useContext(CalichefContext);
-  const { originalData } = contextValue || {};
+  const { originalData } = useContext(CalichefContext) || {};
 
-  // Debounce effect (espera 400ms después de que el usuario deja de escribir)
+  // Debounce effect
   useEffect(() => {
     const handler = setTimeout(() => {
-      setDebouncedSearch(searchRecipies);
-    }, 400); // Puedes ajustar este tiempo
+      setDebouncedSearch(searchRecipes);
+    }, 400);
 
     return () => clearTimeout(handler);
-  }, [searchRecipies]);
+  }, [searchRecipes]);
 
+  // Authentication and favorites loading
   useEffect(() => {
     if (!loading && !user) {
       router.push('/login');
       return;
     }
 
-    if (user && user.favorites && originalData) {
+    if (user?.favorites && originalData) {
       const favorites = originalData.filter(recipe =>
         user.favorites.includes(recipe.id)
       );
@@ -48,53 +109,55 @@ export default function Profile() {
     }
   }, [user, loading, originalData, router]);
 
+  // Filtered favorites with memoization
+  const filteredFavorites = useMemo(() => {
+    const searchTermsArray = debouncedSearch.toLowerCase().split(' ').filter(Boolean);
+    if (searchTermsArray.length === 0) return favoriteRecipes;
+    
+    return favoriteRecipes.filter(recipe =>
+      searchTermsArray.every(term =>
+        recipe.title.toLowerCase().includes(term)
+      )
+    );
+  }, [favoriteRecipes, debouncedSearch]);
+
   const handleLogout = async () => {
     await logout();
   };
 
   const handleSearch = event => {
-    setSearchRecipies(event.target.value);
+    setSearchRecipes(event.target.value);
   };
 
-  // Búsqueda con debounce aplicado
-  const searchTermsArray = debouncedSearch.toLowerCase().split(' ').filter(Boolean);
-  const filteredFavorites = favoriteRecipes.filter(recipe =>
-    searchTermsArray.every(term =>
-      recipe.title.toLowerCase().includes(term)
-    )
-  );
+  const clearSearch = () => {
+    setSearchRecipes('');
+    setDebouncedSearch('');
+  };
+
+  const clearBrowserData = async () => {
+    if (!window.confirm('¿Estás seguro que deseas limpiar los datos almacenados en el navegador? Esto no afectará tus datos guardados en la base de datos.')) {
+      return;
+    }
+    
+    // Clear localStorage
+    localStorage.clear();
+    
+    try {
+      // Clear IndexedDB
+      const db = await openDB(DB_NAME, 1);
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      await tx.objectStore(STORE_NAME).clear();
+      await tx.done;
+      alert('Datos del navegador limpiados correctamente. La página se recargará para aplicar los cambios.');
+      window.location.reload();
+    } catch (error) {
+      console.error('Error al limpiar IndexedDB:', error);
+      alert('Ocurrió un error al limpiar los datos. Por favor, intenta de nuevo.');
+    }
+  };
 
   if (loading || !user) {
-    return (
-      <>
-        <Navbar />
-        <div className="container mx-auto py-2 px-4 min-h-screen flex justify-center items-center">
-          <div className="text-center">
-            <svg
-              className="animate-spin h-8 w-8 text-gray-600 mx-auto"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
-            <p className="mt-4 text-lg text-gray-600">Cargando...</p>
-          </div>
-        </div>
-      </>
-    );
+    return <Loader />;
   }
 
   return (
@@ -126,30 +189,7 @@ export default function Profile() {
             </div>
             <div className="mt-4 pt-4 border-t border-gray-700">
               <button
-                onClick={() => {
-                  if (window.confirm('¿Estás seguro que deseas limpiar los datos almacenados en el navegador? Esto no afectará tus datos guardados en la base de datos.')) {
-                    // Limpiar localStorage
-                    localStorage.clear();
-                    
-                    // Limpiar IndexedDB
-                    const clearIndexedDB = async () => {
-                      try {
-                        const DB_NAME = 'calicheDatabase';
-                        const db = await openDB(DB_NAME, 1);
-                        const tx = db.transaction(STORE_NAME, 'readwrite');
-                        await tx.objectStore(STORE_NAME).clear();
-                        await tx.done;
-                        alert('Datos del navegador limpiados correctamente. La página se recargará para aplicar los cambios.');
-                        window.location.reload();
-                      } catch (error) {
-                        console.error('Error al limpiar IndexedDB:', error);
-                        alert('Ocurrió un error al limpiar los datos. Por favor, intenta de nuevo.');
-                      }
-                    };
-                    
-                    clearIndexedDB();
-                  }
-                }}
+                onClick={clearBrowserData}
                 className="bg-yellow-500 text-white py-2 px-4 rounded-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50 transition duration-200"
               >
                 Limpiar Datos del Navegador
@@ -158,36 +198,11 @@ export default function Profile() {
           </div>
 
           <div className="mb-6">
-            <form onSubmit={e => e.preventDefault()} className="relative mt-4">
-              <div className="relative">
-                <input
-                  id="Buscar"
-                  className="block rounded-md px-6 pt-6 pb-1 w-full text-md text-white bg-neutral-700 appearance-none focus:outline-none focus:ring-0 peer"
-                  placeholder=" "
-                  value={searchRecipies}
-                  onChange={handleSearch}
-                />
-                <label
-                  htmlFor="Buscar"
-                  className="absolute text-md text-zinc-400 duration-150 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-5 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3"
-                >
-                  Buscar
-                </label>
-                {searchRecipies && (
-                  <button
-                    onClick={() => {
-                      setSearchRecipies('');
-                      setDebouncedSearch('');
-                    }}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
-                    aria-label="Borrar búsqueda"
-                    type="button"
-                  >
-                    <IoClose className="text-xl" />
-                  </button>
-                )}
-              </div>
-            </form>
+            <SearchField 
+              searchValue={searchRecipes}
+              onSearchChange={handleSearch}
+              onClear={clearSearch}
+            />
 
             <h2 className="text-xl text-white font-semibold mb-4 pt-4">
               Mis Recetas Favoritas
@@ -195,7 +210,7 @@ export default function Profile() {
 
             {loadingFavorites ? (
               <p className="text-gray-300">Cargando favoritos...</p>
-            ) : filteredFavorites && filteredFavorites.length > 0 ? (
+            ) : filteredFavorites.length > 0 ? (
               <>
                 <p className="text-white flex justify-end items-center py-2">
                   {filteredFavorites.length} receta(s) encontrada(s)

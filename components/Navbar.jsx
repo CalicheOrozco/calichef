@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 'use client'
-import React, { useContext, useState, useEffect, useCallback, useRef } from 'react'
+import React, { useContext, useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { CalichefContext } from '../context/MyContext'
 import { FaSearch, FaStar, FaUserCircle } from 'react-icons/fa'
@@ -8,6 +8,7 @@ import { IoClose, IoHomeSharp } from 'react-icons/io5'
 import Link from 'next/link'
 import { countryMap } from '../constants';
 
+// Move debounce outside component to prevent recreation on each render
 const debounce = (func, wait = 1000) => {
   let timeout
   return (...args) => {
@@ -19,29 +20,75 @@ const debounce = (func, wait = 1000) => {
   }
 }
 
-export default function Navbar ({countRecipies }) {
-  const [isHomePage, setIsHomePage] = useState(false)
+// Maps for lookups instead of repetitive conditionals
+const difficultyMap = {
+  'E': 'Fácil',
+  'M': 'Medio',
+  'A': 'Avanzado'
+};
+
+const languageMap = {
+  'ES': 'Español',
+  'EN': 'English',
+  'FR': 'Français',
+};
+
+// Helper for time processing to avoid repetitive code
+const calculateTimeInMinutes = (timeString) => {
+  if (!timeString) return 0;
+  
+  const matches = timeString.match(/(\d+)\s*(h|min)/gi);
+  let totalMinutes = 0;
+
+  if (matches) {
+    matches.forEach(match => {
+      const numberMatch = match.match(/(\d+)/);
+      const unitMatch = match.match(/(h|min)/i);
+      
+      if (numberMatch && unitMatch) {
+        const value = parseInt(numberMatch[1]);
+        const unit = unitMatch[1].toLowerCase();
+        totalMinutes += unit === 'h' ? value * 60 : value;
+      }
+    });
+  }
+  
+  if ((!matches || totalMinutes === 0) && timeString) {
+    const directNumber = parseInt(timeString);
+    if (!isNaN(directNumber)) {
+      totalMinutes = directNumber;
+    }
+  }
+  
+  return totalMinutes;
+};
+
+export default function Navbar({countRecipies}) {
+  // Router and pathname
   const router = useRouter()
   const pathname = usePathname()
-  // Estado para las sugerencias automáticas
-  const [suggestions, setSuggestions] = useState([])
-  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [isHomePage, setIsHomePage] = useState(false)
+  
+  // Refs
   const searchInputRef = useRef(null)
   const suggestionsRef = useRef(null)
-  const [showMenu, setShowMenu] = useState(false);
-  const menuRef = useRef(null);
-
-  // Importar contexto de autenticación directamente
-  const { useAuth } = require('@/context/AuthContext')
+  const menuRef = useRef(null)
+  
+  // UI states
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [showMenu, setShowMenu] = useState(false)
+  const [suggestions, setSuggestions] = useState([])
+  
+  // Auth context (using memoization to prevent re-creation)
+  const { useAuth } = useMemo(() => require('@/context/AuthContext'), [])
   const { user, logout, isAuthenticated } = useAuth()
 
-
+  // Getting main context
   const contextValue = useContext(CalichefContext)
   if (!contextValue) {
     console.error('CalichefContext no está disponible en el componente Navbar')
     return null
   }
-
 
   const {
     setAllData,
@@ -62,22 +109,35 @@ export default function Navbar ({countRecipies }) {
     setCategoryFilter
   } = contextValue
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
+  // Local state for time filters
   const [cookingTimeFilter, setCookingTimeFilter] = useState('All')
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const [finalTimeFilter, setFinalTimeFilter] = useState('All')
 
+  // Memoized computed values
+  const areFiltersActive = useMemo(() => {
+    return (
+      searchTerm !== '' ||
+      !countryFilter.includes('All') ||
+      difficultyFilter !== 'All' ||
+      !languageFilter.includes('All') ||
+      starsFilter !== 'All' ||
+      categoryFilter.length > 1 ||
+      finalTimeFilter !== 'All' ||
+      cookingTimeFilter !== 'All'
+    )
+  }, [searchTerm, countryFilter, difficultyFilter, languageFilter, starsFilter, categoryFilter, cookingTimeFilter, finalTimeFilter])
 
-
-  const getCategories = () => {
+  // Memoize filtered data for categories to prevent recalculation on every render
+  const categories = useMemo(() => {
     if (!originalData) return [];
     
-    // Aplicar todos los filtros excepto el de categorías
+    // Apply all filters except category filter
     let filteredData = [...originalData];
     
     if (searchTerm) {
+      const searchTermLower = searchTerm.toLowerCase();
       filteredData = filteredData.filter(item =>
-        item.title.toLowerCase().includes(searchTerm.toLowerCase())
+        item.title.toLowerCase().includes(searchTermLower)
       );
     }
     
@@ -100,51 +160,16 @@ export default function Navbar ({countRecipies }) {
     }
     
     if (starsFilter !== 'All') {
+      const starsValue = parseInt(starsFilter);
       filteredData = filteredData.filter(
-        item => item.rating_score && Math.floor(parseFloat(item.rating_score)) === parseInt(starsFilter)
+        item => item.rating_score && Math.floor(parseFloat(item.rating_score)) === starsValue
       );
     }
     
-    // Aplicar filtros de tiempo si están activos
+    // Apply time filters
     if (cookingTimeFilter !== 'All') {
       filteredData = filteredData.filter(item => {
-        if (!item.cooking_time) return false;
-        
-        // Usamos una expresión regular para encontrar los números seguidos de sus unidades
-        const matches = item.cooking_time.match(/(\d+)\s*(h|min)/gi);
-
-        let totalMinutes = 0;
-
-        if (matches) {
-          matches.forEach(match => {
-            // Extraemos los valores numéricos y las unidades de cada coincidencia
-            const numberMatch = match.match(/(\d+)/);
-            const unitMatch = match.match(/(h|min)/i);
-            
-            if (numberMatch && unitMatch) {
-              const value = parseInt(numberMatch[1]);
-              const unit = unitMatch[1].toLowerCase();
-
-              // Si es 'h', lo multiplicamos por 60 para convertirlo a Minutos
-              if (unit === 'h') {
-                totalMinutes += value * 60;
-              } else if (unit === 'min') {
-                totalMinutes += value;
-              }
-            }
-          });
-        }
-        
-        // Si no hay coincidencias o el tiempo total es 0, verificamos si hay un formato diferente
-        if ((!matches || matches.length === 0 || totalMinutes === 0) && item.cooking_time) {
-          // Intentar extraer directamente un número si no hay unidades
-          const directNumber = parseInt(item.cooking_time);
-          if (!isNaN(directNumber)) {
-            totalMinutes = directNumber;
-          }
-        }
-        
-        // Si aún no tenemos un valor válido, retornamos false
+        const totalMinutes = calculateTimeInMinutes(item.cooking_time);
         if (totalMinutes === 0) return false;
         
         switch(cookingTimeFilter) {
@@ -161,46 +186,12 @@ export default function Navbar ({countRecipies }) {
       filteredData = filteredData.filter(item => {
         if (!item.total_time) return false;
         
-        // Caso especial para tiempos mayores a 1 Hora
+        // Special case for times greater than 1 hour
         if (finalTimeFilter === '>1h') {
           return /h/i.test(item.total_time);
         }
         
-        // Usamos una expresión regular para encontrar los números seguidos de sus unidades
-        const matches = item.total_time.match(/(\d+)\s*(h|min)/gi);
-
-        let totalMinutes = 0;
-
-        if (matches) {
-          matches.forEach(match => {
-            // Extraemos los valores numéricos y las unidades de cada coincidencia
-            const numberMatch = match.match(/(\d+)/);
-            const unitMatch = match.match(/(h|min)/i);
-            
-            if (numberMatch && unitMatch) {
-              const value = parseInt(numberMatch[1]);
-              const unit = unitMatch[1].toLowerCase();
-
-              // Si es 'h', lo multiplicamos por 60 para convertirlo a Minutos
-              if (unit === 'h') {
-                totalMinutes += value * 60;
-              } else if (unit === 'min') {
-                totalMinutes += value;
-              }
-            }
-          });
-        }
-        
-        // Si no hay coincidencias o el tiempo total es 0, verificamos si hay un formato diferente
-        if ((!matches || matches.length === 0 || totalMinutes === 0) && item.total_time) {
-          // Intentar extraer directamente un número si no hay unidades
-          const directNumber = parseInt(item.total_time);
-          if (!isNaN(directNumber)) {
-            totalMinutes = directNumber;
-          }
-        }
-        
-        // Si aún no tenemos un valor válido, retornamos false
+        const totalMinutes = calculateTimeInMinutes(item.total_time);
         if (totalMinutes === 0) return false;
         
         switch(finalTimeFilter) {
@@ -215,6 +206,7 @@ export default function Navbar ({countRecipies }) {
       });
     }
     
+    // Count categories
     const categoryCount = {};
     filteredData.forEach(item => {
       if (item.category) {
@@ -230,472 +222,19 @@ export default function Navbar ({countRecipies }) {
     return Object.entries(categoryCount)
       .map(([name, count]) => ({ name, count }))
       .sort((a, b) => b.count - a.count);
-  }
+  }, [originalData, searchTerm, countryFilter, difficultyFilter, languageFilter, starsFilter, cookingTimeFilter, finalTimeFilter]);
 
-  const categories = getCategories();
-
-  // Función para generar sugerencias basadas en el término de búsqueda
-  const generateSuggestions = useCallback((searchTermValue) => {
-    if (!originalData || !Array.isArray(originalData) || !searchTermValue || searchTermValue.trim() === '') {
-      setSuggestions([])
-      return
-    }
-
-    const searchTermLower = searchTermValue.toLowerCase().trim()
-    const searchTerms = searchTermLower.split(' ')
-    
-    // Buscar coincidencias parciales en los títulos
-    let matchedRecipes = originalData.filter(item => {
-      const titleLower = item.title.toLowerCase()
-      
-      // Verificar si al menos un término de búsqueda está incluido en el título
-      return searchTerms.some(term => titleLower.includes(term))
-    })
-    
-    // Aplicar filtro de idioma si está activo
-    if (!languageFilter.includes('All')) {
-      matchedRecipes = matchedRecipes.filter(item => 
-        item.language && languageFilter.includes(item.language)
-      )
-    }
-    
-    // Ordenar por relevancia (cuántos términos coinciden) y por puntuación
-    matchedRecipes = matchedRecipes.sort((a, b) => {
-      const titleA = a.title.toLowerCase()
-      const titleB = b.title.toLowerCase()
-      
-      // Contar cuántos términos coinciden en cada título
-      const matchesA = searchTerms.filter(term => titleA.includes(term)).length
-      const matchesB = searchTerms.filter(term => titleB.includes(term)).length
-      
-      // Primero ordenar por número de coincidencias
-      if (matchesB !== matchesA) {
-        return matchesB - matchesA
-      }
-      
-      // Si tienen el mismo número de coincidencias, ordenar por puntuación
-      return (b.rating_score || 0) - (a.rating_score || 0)
-    })
-    
-    // Limitar a 5 sugerencias para no sobrecargar la interfaz
-    setSuggestions(matchedRecipes.slice(0, 5))
-  }, [originalData, languageFilter])
-
-  const handleFilter = useCallback(searchTermValue => {
-    if (!originalData || !Array.isArray(originalData)) {
-      setAllData([])
-      return
-    }
-    if (typeof searchTermValue !== 'string') {
-      searchTermValue = ''
-    }
-
-    // Optimización: Salir temprano si no hay término de búsqueda ni filtros activos
-    if (!searchTermValue && 
-        countryFilter.includes('All') && 
-        difficultyFilter === 'All' && 
-        languageFilter.includes('All') &&
-        starsFilter === 'All' && 
-        cookingTimeFilter === 'All' && 
-        finalTimeFilter === 'All' && 
-        categoryFilter.length === 0) {
-      setAllData(originalData)
-      return
-    }
-
-    // Crear un Map para rastrear recetas únicas por ID
-    const uniqueRecipes = new Map()
-    let filteredData = [...originalData]
-
-    // Aplicar filtros en orden
-    if (searchTermValue && searchTermValue.trim() !== '') {
-      const searchTermLower = searchTermValue.toLowerCase().trim()
-      const searchTerms = searchTermLower.split(' ')
-      filteredData = filteredData.filter(item =>
-        searchTerms.every(term =>
-          item.title.toLowerCase().includes(term)
-        )
-      )
-    }
-
-    // Eliminar duplicados basándose en el ID
-    filteredData = filteredData.filter(item => {
-      if (!uniqueRecipes.has(item.id)) {
-        uniqueRecipes.set(item.id, true)
-        return true
-      }
-      return false
-    })
-
-    if (!countryFilter.includes('All')) {
-      filteredData = filteredData.filter(item =>
-        item.country && countryFilter.some(country => item.country.includes(country))
-      )
-    }
-
-    if (difficultyFilter !== 'All') {
-      filteredData = filteredData.filter(item =>
-        item.difficulty === difficultyFilter
-      )
-    }
-
-    if (!languageFilter.includes('All')) {
-      filteredData = filteredData.filter(item =>
-        item.language && languageFilter.includes(item.language)
-      )
-    }
-
-    if (starsFilter !== 'All') {
-      filteredData = filteredData.filter(item =>
-        item.rating_score && Math.floor(parseFloat(item.rating_score)) === parseInt(starsFilter)
-      )
-    }
-
-    if (cookingTimeFilter !== 'All') {
-      filteredData = filteredData.filter(item => {
-        if (!item.cooking_time) return false;
-        
-        // Usamos una expresión regular para encontrar los números seguidos de sus unidades
-        const matches = item.cooking_time.match(/(\d+)\s*(h|min)/gi);
-
-        let totalMinutes = 0;
-
-        if (matches) {
-          matches.forEach(match => {
-            // Extraemos los valores numéricos y las unidades de cada coincidencia
-            const numberMatch = match.match(/(\d+)/);
-            const unitMatch = match.match(/(h|min)/i);
-            
-            if (numberMatch && unitMatch) {
-              const value = parseInt(numberMatch[1]);
-              const unit = unitMatch[1].toLowerCase();
-
-              // Si es 'h', lo multiplicamos por 60 para convertirlo a Minutos
-              if (unit === 'h') {
-                totalMinutes += value * 60;
-              } else if (unit === 'min') {
-                totalMinutes += value;
-              }
-            }
-          });
-        }
-        
-        // Si no hay coincidencias o el tiempo total es 0, verificamos si hay un formato diferente
-        if ((!matches || matches.length === 0 || totalMinutes === 0) && item.cooking_time) {
-          // Intentar extraer directamente un número si no hay unidades
-          const directNumber = parseInt(item.cooking_time);
-          if (!isNaN(directNumber)) {
-            totalMinutes = directNumber;
-          }
-        }
-        
-        // Si aún no tenemos un valor válido, retornamos false
-        if (totalMinutes === 0) return false;
-        
-        switch(cookingTimeFilter) {
-          case '15': return totalMinutes <= 15;
-          case '30': return totalMinutes <= 30;
-          case '45': return totalMinutes <= 45;
-          case '60': return totalMinutes >= 60;
-          default: return true;
-        }
-      });
-    }
-
-    if (finalTimeFilter !== 'All') {
-      filteredData = filteredData.filter(item => {
-        if (!item.total_time) return false;
-        
-        // Caso especial para tiempos mayores a 1 Hora
-        if (finalTimeFilter === '>1h') {
-          return /h/i.test(item.total_time);
-        }
-        
-        // Usamos una expresión regular para encontrar los números seguidos de sus unidades
-        const matches = item.total_time.match(/(\d+)\s*(h|min)/gi);
-
-        let totalMinutes = 0;
-
-        if (matches) {
-          matches.forEach(match => {
-            // Extraemos los valores numéricos y las unidades de cada coincidencia
-            const numberMatch = match.match(/(\d+)/);
-            const unitMatch = match.match(/(h|min)/i);
-            
-            if (numberMatch && unitMatch) {
-              const value = parseInt(numberMatch[1]);
-              const unit = unitMatch[1].toLowerCase();
-
-              // Si es 'h', lo multiplicamos por 60 para convertirlo a Minutos
-              if (unit === 'h') {
-                totalMinutes += value * 60;
-              } else if (unit === 'min') {
-                totalMinutes += value;
-              }
-            }
-          });
-        }
-        
-        // Si no hay coincidencias o el tiempo total es 0, verificamos si hay un formato diferente
-        if ((!matches || matches.length === 0 || totalMinutes === 0) && item.total_time) {
-          // Intentar extraer directamente un número si no hay unidades
-          const directNumber = parseInt(item.total_time);
-          if (!isNaN(directNumber)) {
-            totalMinutes = directNumber;
-          }
-        }
-        
-        // Si aún no tenemos un valor válido, retornamos false
-        if (totalMinutes === 0) return false;
-        
-        switch(finalTimeFilter) {
-          case '15': return totalMinutes <= 15;
-          case '30': return totalMinutes <= 30;
-          case '45': return totalMinutes <= 45;
-          case '60': return totalMinutes <= 60;
-          case '90': return totalMinutes <= 90;
-          case '120': return totalMinutes <= 120;
-          default: return true;
-        }
-      });
-    }
-
-    if (categoryFilter.length > 1) {
-      filteredData = filteredData.filter(item => {
-        if (!item.category) return false
-        const categories = Array.isArray(item.category) ? item.category : [item.category]
-        return categoryFilter.some(cat => categories.includes(cat))
-      })
-    }
-
-    // --- FILTRO PARA COLECCIONES ---
-    // Si existe contextValue.collections, filtrarlas también
-    let filteredCollections = [];
-    if (contextValue?.collections) {
-      filteredCollections = contextValue.collections.filter(collection => {
-        // Filtro por título
-        let matches = true;
-        if (searchTermValue && searchTermValue.trim() !== '') {
-          const searchTermLower = searchTermValue.toLowerCase().trim();
-          const searchTerms = searchTermLower.split(' ');
-          matches = searchTerms.every(term =>
-            collection.title.toLowerCase().includes(term)
-          );
-        }
-        // Filtro por país
-        if (matches && !countryFilter.includes('All')) {
-          matches = collection.country && countryFilter.some(country => Array.isArray(collection.country) ? collection.country.includes(country) : collection.country === country);
-        }
-        // Filtro por idioma SOLO si languageFilter no incluye 'All'
-        if (matches && !languageFilter.includes('All')) {
-          matches = collection.language && languageFilter.includes(collection.language);
-        }
-        return matches;
-      });
-    }
-
-    // Guardar resultados en el contexto
-    setAllData(filteredData);
-    if (contextValue?.setFilteredCollections) {
-      contextValue.setFilteredCollections(filteredCollections);
-    }
-  }, [originalData, countryFilter, difficultyFilter, languageFilter, starsFilter, categoryFilter, cookingTimeFilter, finalTimeFilter, setAllData])
-
-  useEffect(() => {
-    const savedSearchTerm = localStorage.getItem('searchTerm');
-    if (savedSearchTerm && originalData) {
-      const filteredData = originalData.filter(item =>
-        item.title.toLowerCase().includes(savedSearchTerm.toLowerCase())
-      );
-      setSearchTerm(savedSearchTerm);
-      setAllData(filteredData);
-      localStorage.removeItem('searchTerm');
-    }
-    
-    // Cerrar sugerencias cuando se hace clic fuera del componente
-    const handleClickOutside = (event) => {
-      if (suggestionsRef.current && !suggestionsRef.current.contains(event.target) &&
-          searchInputRef.current && !searchInputRef.current.contains(event.target)) {
-        setShowSuggestions(false);
-      }
-    };
-    
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [originalData, setSearchTerm, setAllData]);
-
-  // Close menu when clicking outside
-  useEffect(() => {
-    if (!showMenu) return;
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setShowMenu(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showMenu]);
-
-  const debouncedHandleFilter = useCallback(
-    debounce(handleFilter, 500),
-    [handleFilter]
-  );
-  
-  // Debounce para las sugerencias (más rápido que el filtro principal)
-  const debouncedGenerateSuggestions = useCallback(
-    debounce(generateSuggestions, 200),
-    [generateSuggestions]
-  );
-
-  useEffect(() => {
-    setIsHomePage(pathname === '/')
-  }, [pathname])
-
-  useEffect(() => {
-    if (originalData) {
-      debouncedHandleFilter(searchTerm)
-    }
-  }, [searchTerm, countryFilter, difficultyFilter, languageFilter, starsFilter, categoryFilter, cookingTimeFilter, finalTimeFilter, debouncedHandleFilter])
-
-  const openModal = () => {
-    setIsModalOpen(true)
-  }
-  const closeModal = () => {
-    setIsModalOpen(false)
-  }
-  const handleModalSearch = () => {
-    handleFilter(searchTerm)
-    closeModal()
-    handleShowResults()
-  }
-
-  const handleShowResults = () => {
-    console.log('path', pathname)
-    if (pathname.includes('/r')) {
-      router.push('/');
-    } else if (pathname.includes('/collections')) {
-      router.push('/collections');
-    } else {
-      closeModal()
-    }
-  };
-
-  const handleKeyPress = event => {
-    if (event.key === 'Enter') {
-      handleModalSearch()
-      setShowSuggestions(false)
-    } else if (event.key === 'ArrowDown' && suggestions.length > 0) {
-      // Permitir navegar por las sugerencias con las flechas
-      const suggestionElements = document.querySelectorAll('.suggestion-item');
-      if (suggestionElements.length > 0) {
-        suggestionElements[0].focus();
-      }
-    }
-  }
-  
-  const handleSearchInputChange = (e) => {
-    const value = e.target.value;
-    setSearchTerm(value);
-    
-    if (value.trim() === '') {
-      setSuggestions([]);
-      setShowSuggestions(false);
-    } else {
-      debouncedGenerateSuggestions(value);
-      setShowSuggestions(true);
-    }
-    debouncedHandleFilter(value);
-  }
-  
-  const handleSuggestionClick = (suggestion) => {
-    setSearchTerm(suggestion.title);
-    setShowSuggestions(false);
-    handleFilter(suggestion.title);
-    closeModal();
-    if (!isHomePage) {
-      router.push('/');
-    }
-  }
-  
-  const handleSuggestionKeyDown = (event, index, suggestion) => {
-    if (event.key === 'Enter') {
-      handleSuggestionClick(suggestion);
-    } else if (event.key === 'ArrowDown') {
-      event.preventDefault();
-      const suggestionElements = document.querySelectorAll('.suggestion-item');
-      if (index < suggestionElements.length - 1) {
-        suggestionElements[index + 1].focus();
-      }
-    } else if (event.key === 'ArrowUp') {
-      event.preventDefault();
-      if (index > 0) {
-        const suggestionElements = document.querySelectorAll('.suggestion-item');
-        suggestionElements[index - 1].focus();
-      } else {
-        // Volver al input de búsqueda
-        if (searchInputRef.current) {
-          searchInputRef.current.focus();
-        }
-      }
-    }
-  }
-
-  const handleClearFilters = () => {
-    setSearchTerm('');
-    setCountryFilter(['All']);
-    setDifficultyFilter('All');
-    setLanguageFilter(['All']);
-    setStarsFilter('All');
-    setCategoryFilter([]);
-    setCookingTimeFilter('All');
-    setFinalTimeFilter('All');
-    setAllData(originalData);
-    // Limpiar también las colecciones filtradas
-    if (contextValue?.setFilteredCollections && contextValue?.collections) {
-     
-      contextValue.setFilteredCollections(contextValue?.collections);
-    }
-}
-
-  const areFiltersActive = () => {
-    return (
-      searchTerm !== '' ||
-      !countryFilter.includes('All') ||
-      difficultyFilter !== 'All' ||
-      !languageFilter.includes('All') ||
-      starsFilter !== 'All' ||
-      categoryFilter.length > 1 ||
-      finalTimeFilter!== 'All' ||
-      cookingTimeFilter !== 'All'
-    )
-  }
-
-  // Add these new functions after the areFiltersActive function
-  const difficultyMap = {
-    'E': 'Fácil',
-    'M': 'Medio',
-    'A': 'Avanzado'
-  };
-
-  const languageMap = {
-    'ES': 'Español',
-    'EN': 'English',
-    'FR': 'Français',
-  };
-
-  
-
-  const getAvailableOptions = (field) => {
+  // Memoize available options for filters to prevent recalculation
+  const getAvailableOptions = useCallback((field) => {
     if (!originalData) return [];
 
     let filteredData = [...originalData];
 
-    // Aplicar todos los filtros excepto el campo que estamos obteniendo
+    // Apply all filters except the one we're getting options for
     if (searchTerm && field !== 'search') {
+      const searchTermLower = searchTerm.toLowerCase();
       filteredData = filteredData.filter(item =>
-        item.title.toLowerCase().includes(searchTerm.toLowerCase())
+        item.title.toLowerCase().includes(searchTermLower)
       );
     }
     
@@ -718,50 +257,15 @@ export default function Navbar ({countRecipies }) {
     }
     
     if (starsFilter !== 'All' && field !== 'rating') {
+      const starsValue = parseInt(starsFilter);
       filteredData = filteredData.filter(
-        item => item.rating_score && Math.floor(parseFloat(item.rating_score)) === parseInt(starsFilter)
+        item => item.rating_score && Math.floor(parseFloat(item.rating_score)) === starsValue
       );
     }
     
     if (cookingTimeFilter !== 'All' && field !== 'cooking_time') {
       filteredData = filteredData.filter(item => {
-        if (!item.cooking_time) return false;
-        
-        // Usamos una expresión regular para encontrar los números seguidos de sus unidades
-        const matches = item.cooking_time.match(/(\d+)\s*(h|min)/gi);
-
-        let totalMinutes = 0;
-
-        if (matches) {
-          matches.forEach(match => {
-            // Extraemos los valores numéricos y las unidades de cada coincidencia
-            const numberMatch = match.match(/(\d+)/);
-            const unitMatch = match.match(/(h|min)/i);
-            
-            if (numberMatch && unitMatch) {
-              const value = parseInt(numberMatch[1]);
-              const unit = unitMatch[1].toLowerCase();
-
-              // Si es 'h', lo multiplicamos por 60 para convertirlo a Minutos
-              if (unit === 'h') {
-                totalMinutes += value * 60;
-              } else if (unit === 'min') {
-                totalMinutes += value;
-              }
-            }
-          });
-        }
-        
-        // Si no hay coincidencias o el tiempo total es 0, verificamos si hay un formato diferente
-        if ((!matches || matches.length === 0 || totalMinutes === 0) && item.cooking_time) {
-          // Intentar extraer directamente un número si no hay unidades
-          const directNumber = parseInt(item.cooking_time);
-          if (!isNaN(directNumber)) {
-            totalMinutes = directNumber;
-          }
-        }
-        
-        // Si aún no tenemos un valor válido, retornamos false
+        const totalMinutes = calculateTimeInMinutes(item.cooking_time);
         if (totalMinutes === 0) return false;
         
         switch(cookingTimeFilter) {
@@ -778,46 +282,12 @@ export default function Navbar ({countRecipies }) {
       filteredData = filteredData.filter(item => {
         if (!item.total_time) return false;
         
-        // Caso especial para tiempos mayores a 1 Hora
+        // Special case for times greater than 1 hour
         if (finalTimeFilter === '>1h') {
           return /h/i.test(item.total_time);
         }
         
-        // Usamos una expresión regular para encontrar los números seguidos de sus unidades
-        const matches = item.total_time.match(/(\d+)\s*(h|min)/gi);
-
-        let totalMinutes = 0;
-
-        if (matches) {
-          matches.forEach(match => {
-            // Extraemos los valores numéricos y las unidades de cada coincidencia
-            const numberMatch = match.match(/(\d+)/);
-            const unitMatch = match.match(/(h|min)/i);
-            
-            if (numberMatch && unitMatch) {
-              const value = parseInt(numberMatch[1]);
-              const unit = unitMatch[1].toLowerCase();
-
-              // Si es 'h', lo multiplicamos por 60 para convertirlo a Minutos
-              if (unit === 'h') {
-                totalMinutes += value * 60;
-              } else if (unit === 'min') {
-                totalMinutes += value;
-              }
-            }
-          });
-        }
-        
-        // Si no hay coincidencias o el tiempo total es 0, verificamos si hay un formato diferente
-        if ((!matches || matches.length === 0 || totalMinutes === 0) && item.total_time) {
-          // Intentar extraer directamente un número si no hay unidades
-          const directNumber = parseInt(item.total_time);
-          if (!isNaN(directNumber)) {
-            totalMinutes = directNumber;
-          }
-        }
-        
-        // Si aún no tenemos un valor válido, retornamos false
+        const totalMinutes = calculateTimeInMinutes(item.total_time);
         if (totalMinutes === 0) return false;
         
         switch(finalTimeFilter) {
@@ -832,7 +302,7 @@ export default function Navbar ({countRecipies }) {
       });
     }
     
-    // Aplicar filtro de categoría si existe y no es el campo actual
+    // Apply category filter if it exists and is not the current field
     if (categoryFilter.length > 1 && field !== 'category') {
       filteredData = filteredData.filter(item => {
         if (!item.category) return false;
@@ -867,13 +337,371 @@ export default function Navbar ({countRecipies }) {
     }
     
     return values.sort();
+  }, [originalData, searchTerm, countryFilter, difficultyFilter, languageFilter, starsFilter, categoryFilter, cookingTimeFilter, finalTimeFilter]);
+
+  // Optimize filter function using memoization and optimized algorithms
+  const handleFilter = useCallback(searchTermValue => {
+    if (!originalData || !Array.isArray(originalData)) {
+      setAllData([]);
+      return;
+    }
+    
+    if (typeof searchTermValue !== 'string') {
+      searchTermValue = '';
+    }
+
+    // Early exit if no filters are active
+    if (!searchTermValue && 
+        countryFilter.includes('All') && 
+        difficultyFilter === 'All' && 
+        languageFilter.includes('All') &&
+        starsFilter === 'All' && 
+        cookingTimeFilter === 'All' && 
+        finalTimeFilter === 'All' && 
+        categoryFilter.length === 0) {
+      setAllData(originalData);
+      return;
+    }
+
+    // Create a Map for tracking unique recipes by ID
+    const uniqueRecipes = new Map();
+    let filteredData = originalData;
+
+    // Apply filters in order of likely restrictiveness (most restrictive first)
+    if (searchTermValue && searchTermValue.trim() !== '') {
+      const searchTermLower = searchTermValue.toLowerCase().trim();
+      const searchTerms = searchTermLower.split(' ');
+      filteredData = filteredData.filter(item =>
+        searchTerms.every(term =>
+          item.title.toLowerCase().includes(term)
+        )
+      );
+    }
+
+    // Remove duplicates based on ID
+    filteredData = filteredData.filter(item => {
+      if (!uniqueRecipes.has(item.id)) {
+        uniqueRecipes.set(item.id, true);
+        return true;
+      }
+      return false;
+    });
+
+    // Country filter
+    if (!countryFilter.includes('All')) {
+      filteredData = filteredData.filter(item =>
+        item.country && countryFilter.some(country => item.country.includes(country))
+      );
+    }
+
+    // Difficulty filter
+    if (difficultyFilter !== 'All') {
+      filteredData = filteredData.filter(item =>
+        item.difficulty === difficultyFilter
+      );
+    }
+
+    // Language filter
+    if (!languageFilter.includes('All')) {
+      filteredData = filteredData.filter(item =>
+        item.language && languageFilter.includes(item.language)
+      );
+    }
+
+    // Stars filter
+    if (starsFilter !== 'All') {
+      const starsValue = parseInt(starsFilter);
+      filteredData = filteredData.filter(item =>
+        item.rating_score && Math.floor(parseFloat(item.rating_score)) === starsValue
+      );
+    }
+
+    // Cooking time filter
+    if (cookingTimeFilter !== 'All') {
+      filteredData = filteredData.filter(item => {
+        const totalMinutes = calculateTimeInMinutes(item.cooking_time);
+        if (totalMinutes === 0) return false;
+        
+        switch(cookingTimeFilter) {
+          case '15': return totalMinutes <= 15;
+          case '30': return totalMinutes <= 30;
+          case '45': return totalMinutes <= 45;
+          case '60': return totalMinutes >= 60;
+          default: return true;
+        }
+      });
+    }
+
+    // Total time filter
+    if (finalTimeFilter !== 'All') {
+      filteredData = filteredData.filter(item => {
+        if (!item.total_time) return false;
+        
+        // Special case for times greater than 1 hour
+        if (finalTimeFilter === '>1h') {
+          return /h/i.test(item.total_time);
+        }
+        
+        const totalMinutes = calculateTimeInMinutes(item.total_time);
+        if (totalMinutes === 0) return false;
+        
+        switch(finalTimeFilter) {
+          case '15': return totalMinutes <= 15;
+          case '30': return totalMinutes <= 30;
+          case '45': return totalMinutes <= 45;
+          case '60': return totalMinutes <= 60;
+          case '90': return totalMinutes <= 90;
+          case '120': return totalMinutes <= 120;
+          default: return true;
+        }
+      });
+    }
+
+    // Category filter
+    if (categoryFilter.length > 1) {
+      filteredData = filteredData.filter(item => {
+        if (!item.category) return false;
+        const categories = Array.isArray(item.category) ? item.category : [item.category];
+        return categoryFilter.some(cat => categories.includes(cat));
+      });
+    }
+
+    // --- FILTER FOR COLLECTIONS ---
+    let filteredCollections = [];
+    if (contextValue?.collections) {
+      filteredCollections = contextValue.collections.filter(collection => {
+        // Title filter
+        let matches = true;
+        if (searchTermValue && searchTermValue.trim() !== '') {
+          const searchTermLower = searchTermValue.toLowerCase().trim();
+          const searchTerms = searchTermLower.split(' ');
+          matches = searchTerms.every(term =>
+            collection.title.toLowerCase().includes(term)
+          );
+        }
+        // Country filter
+        if (matches && !countryFilter.includes('All')) {
+          matches = collection.country && countryFilter.some(country => 
+            Array.isArray(collection.country) 
+              ? collection.country.includes(country) 
+              : collection.country === country
+          );
+        }
+        // Language filter
+        if (matches && !languageFilter.includes('All')) {
+          matches = collection.language && languageFilter.includes(collection.language);
+        }
+        return matches;
+      });
+    }
+
+    // Save results to context
+    setAllData(filteredData);
+    if (contextValue?.setFilteredCollections) {
+      contextValue.setFilteredCollections(filteredCollections);
+    }
+  }, [originalData, countryFilter, difficultyFilter, languageFilter, starsFilter, categoryFilter, cookingTimeFilter, finalTimeFilter, setAllData, contextValue]);
+
+  // Optimize suggestion generation
+  const generateSuggestions = useCallback((searchTermValue) => {
+    if (!originalData || !Array.isArray(originalData) || !searchTermValue || searchTermValue.trim() === '') {
+      setSuggestions([]);
+      return;
+    }
+
+    const searchTermLower = searchTermValue.toLowerCase().trim();
+    const searchTerms = searchTermLower.split(' ');
+    
+    // Find partial matches in titles
+    let matchedRecipes = originalData.filter(item => {
+      const titleLower = item.title.toLowerCase();
+      
+      // Check if at least one search term is included in the title
+      return searchTerms.some(term => titleLower.includes(term));
+    });
+    
+    // Apply language filter if active
+    if (!languageFilter.includes('All')) {
+      matchedRecipes = matchedRecipes.filter(item => 
+        item.language && languageFilter.includes(item.language)
+      );
+    }
+    
+    // Sort by relevance and score
+    matchedRecipes.sort((a, b) => {
+      const titleA = a.title.toLowerCase();
+      const titleB = b.title.toLowerCase();
+      
+      // Count matching terms in each title
+      const matchesA = searchTerms.filter(term => titleA.includes(term)).length;
+      const matchesB = searchTerms.filter(term => titleB.includes(term)).length;
+      
+      // First sort by number of matches
+      if (matchesB !== matchesA) {
+        return matchesB - matchesA;
+      }
+      
+      // If same number of matches, sort by score
+      return (b.rating_score || 0) - (a.rating_score || 0);
+    });
+    
+    // Limit to 5 suggestions
+    setSuggestions(matchedRecipes.slice(0, 5));
+  }, [originalData, languageFilter]);
+
+  // Create debounced functions once
+  const debouncedHandleFilter = useMemo(() => 
+    debounce(handleFilter, 500),
+    [handleFilter]
+  );
+  
+  const debouncedGenerateSuggestions = useMemo(() => 
+    debounce(generateSuggestions, 200),
+    [generateSuggestions]
+  );
+
+  // Effects
+  useEffect(() => {
+    setIsHomePage(pathname === '/');
+  }, [pathname]);
+
+  useEffect(() => {
+    if (originalData) {
+      debouncedHandleFilter(searchTerm);
+    }
+  }, [searchTerm, countryFilter, difficultyFilter, languageFilter, starsFilter, categoryFilter, cookingTimeFilter, finalTimeFilter, debouncedHandleFilter, originalData]);
+
+  useEffect(() => {
+    const savedSearchTerm = localStorage.getItem('searchTerm');
+    if (savedSearchTerm && originalData) {
+      const filteredData = originalData.filter(item =>
+        item.title.toLowerCase().includes(savedSearchTerm.toLowerCase())
+      );
+      setSearchTerm(savedSearchTerm);
+      setAllData(filteredData);
+      localStorage.removeItem('searchTerm');
+    }
+    
+    // Close suggestions when clicking outside
+    const handleClickOutside = (event) => {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(event.target) &&
+          searchInputRef.current && !searchInputRef.current.contains(event.target)) {
+        setShowSuggestions(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [originalData, setSearchTerm, setAllData]);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    if (!showMenu) return;
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showMenu]);
+
+  // Event handlers
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+  
+  const handleModalSearch = () => {
+    handleFilter(searchTerm);
+    closeModal();
+    handleShowResults();
   };
 
-  const handleSearch = (e) => {
-    const value = e.target.value
-    setSearchTerm(value)
-    debouncedHandleFilter(value)
-  }
+  const handleShowResults = () => {
+    if (pathname.includes('/r')) {
+      router.push('/');
+    } else if (pathname.includes('/collections')) {
+      router.push('/collections');
+    } else {
+      closeModal();
+    }
+  };
+
+  const handleKeyPress = event => {
+    if (event.key === 'Enter') {
+      handleModalSearch();
+      setShowSuggestions(false);
+    } else if (event.key === 'ArrowDown' && suggestions.length > 0) {
+      // Allow navigation through suggestions with arrows
+      const suggestionElements = document.querySelectorAll('.suggestion-item');
+      if (suggestionElements.length > 0) {
+        suggestionElements[0].focus();
+      }
+    }
+  };
+  
+  const handleSearchInputChange = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    
+    if (value.trim() === '') {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    } else {
+      debouncedGenerateSuggestions(value);
+      setShowSuggestions(true);
+    }
+  };
+  
+  const handleSuggestionClick = (suggestion) => {
+    setSearchTerm(suggestion.title);
+    setShowSuggestions(false);
+    handleFilter(suggestion.title);
+    closeModal();
+    if (!isHomePage) {
+      router.push('/');
+    }
+  };
+  
+  const handleSuggestionKeyDown = (event, index, suggestion) => {
+    if (event.key === 'Enter') {
+      handleSuggestionClick(suggestion);
+    } else if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      const suggestionElements = document.querySelectorAll('.suggestion-item');
+      if (index < suggestionElements.length - 1) {
+        suggestionElements[index + 1].focus();
+      }
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      if (index > 0) {
+        const suggestionElements = document.querySelectorAll('.suggestion-item');
+        suggestionElements[index - 1].focus();
+      } else {
+        // Return to search input
+        if (searchInputRef.current) {
+          searchInputRef.current.focus();
+        }
+      }
+    }
+  };
+
+  const handleClearFilters = () => {
+    setSearchTerm('');
+    setCountryFilter(['All']);
+    setDifficultyFilter('All');
+    setLanguageFilter(['All']);
+    setStarsFilter('All');
+    setCategoryFilter([]);
+    setCookingTimeFilter('All');
+    setFinalTimeFilter('All');
+    setAllData(originalData);
+    // Also clear filtered collections
+    if (contextValue?.setFilteredCollections && contextValue?.collections) {
+      contextValue.setFilteredCollections(contextValue?.collections);
+    }
+  };
 
   return (
     <>
@@ -903,7 +731,7 @@ export default function Navbar ({countRecipies }) {
                   onClick={() => setShowMenu(!showMenu)}
                   className="flex items-center gap-2 text-green-600"
                 >
-                  <FaUserCircle className="text-2xl  hover:text-green-300 transition-colors" />
+                  <FaUserCircle className="text-2xl hover:text-green-300 transition-colors" />
                 </div>
                 {showMenu && (
                   <div className="absolute right-0 mt-2 w-48 bg-black rounded-lg shadow-lg py-2 z-50">
@@ -950,7 +778,7 @@ export default function Navbar ({countRecipies }) {
                   onClick={() => setShowMenu(!showMenu)}
                   className="flex items-center gap-2 text-green-600"
                 >
-                  <FaUserCircle className="text-2xl  hover:text-green-300 transition-colors" />
+                  <FaUserCircle className="text-2xl hover:text-green-300 transition-colors" />
                 </div>
                 {showMenu && (
                   <div className="absolute right-0 mt-2 w-48 bg-black rounded-lg shadow-lg py-2 z-50">
@@ -963,7 +791,7 @@ export default function Navbar ({countRecipies }) {
                     </Link>
                     <Link href="/register" passHref>
                       <button
-                        className="block w-full text-left  bg-black px-4 py-2  text-sm text-blue-600 hover:bg-blue-100"
+                        className="block w-full text-left bg-black px-4 py-2 text-sm text-blue-600 hover:bg-blue-100"
                       >
                         Register
                       </button>

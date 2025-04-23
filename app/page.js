@@ -1,56 +1,62 @@
 'use client'
+import { useContext, useState, useEffect, useRef, useMemo } from 'react'
 import Card from '../components/Card'
-import { useContext, useState, useEffect, useRef } from 'react'
 import Navbar from '@/components/Navbar'
 import { CalichefContext } from '../context/MyContext.jsx'
 
-export default function Home () {
+export default function Home() {
   const contextValue = useContext(CalichefContext)
   const [visibleCount, setVisibleCount] = useState(50)
   const containerRef = useRef(null)
-
+  
   if (!contextValue) {
-    console.error('CalichefContext no está disponible en el componente Navbar')
+    console.error('CalichefContext no está disponible en el componente Home')
+    return null // Mejor retornar temprano si el contexto no está disponible
   }
-
-  const { AllData } = contextValue
-
+  
+  const { AllData = [] } = contextValue
+  const recipesCount = AllData?.length || 0
+  
+  const visibleData = useMemo(() => {
+    return AllData?.slice(0, visibleCount) || []
+  }, [AllData, visibleCount])
+  
   // Scroll infinito
   useEffect(() => {
-    function handleScroll() {
-      if (!containerRef.current) return;
-      const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
+    const handleScroll = () => {
+      if (!containerRef.current) return
+      
+      const { scrollTop, scrollHeight, clientHeight } = containerRef.current
       if (scrollTop + clientHeight >= scrollHeight - 100) {
-        setVisibleCount((prev) => {
-          if (AllData && prev < AllData.length) {
-            return prev + 50;
-          }
-          return prev;
-        });
+        setVisibleCount(prev => 
+          prev < recipesCount ? prev + 50 : prev
+        )
       }
     }
-    const ref = containerRef.current;
-    if (ref) {
-      ref.addEventListener('scroll', handleScroll);
-    }
+    
+    const ref = containerRef.current
+    ref?.addEventListener('scroll', handleScroll)
+    
     return () => {
-      if (ref) {
-        ref.removeEventListener('scroll', handleScroll);
-      }
-    };
-  }, [AllData]);
-
+      ref?.removeEventListener('scroll', handleScroll)
+    }
+  }, [recipesCount])
+  
   return (
     <>
-      <Navbar countRecipies={AllData?.length} className='pb-10' />
-      <div ref={containerRef} className='container mx-auto py-2 px-4 min-h-screen overflow-y-auto scrollbar-hidden' style={{ maxHeight: 'calc(100vh - 80px)' }}>
+      <Navbar countRecipies={recipesCount} className='pb-10' />
+      <div 
+        ref={containerRef} 
+        className='container mx-auto py-2 px-4 min-h-screen overflow-y-auto scrollbar-hidden' 
+        style={{ maxHeight: 'calc(100vh - 80px)' }}
+      >
         {AllData ? (
           <>
             <p className='text-white flex justify-end items-center py-2'>
-              {AllData.length} recetas encontradas
+              {recipesCount} recetas encontradas
             </p>
             <div className='flex flex-wrap justify-center md:justify-between items-center gap-y-5'>
-              {AllData.slice(0, visibleCount).map((item, index) => (
+              {visibleData.map(item => (
                 <Card
                   key={item.id}
                   id={item.id}
@@ -63,7 +69,7 @@ export default function Home () {
                 />
               ))}
             </div>
-            {visibleCount < AllData.length && (
+            {visibleCount < recipesCount && (
               <div className='flex justify-center py-6'>
                 <span className='text-gray-400'>Cargando más recetas...</span>
               </div>

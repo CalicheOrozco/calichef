@@ -1,13 +1,12 @@
 'use client';
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Card from '@/components/Card';
 import { CalichefContext } from '@/context/MyContext';
 import { useAuth } from '@/context/AuthContext';
 import Image from 'next/image';
-import { FaHeart, FaRegHeart } from 'react-icons/fa';
-import { FaArrowLeft } from "react-icons/fa6";
+import { FaHeart, FaRegHeart, FaArrowLeft } from 'react-icons/fa';
 import { IoClose } from 'react-icons/io5';
 
 export default function CollectionDetail({ params }) {
@@ -19,11 +18,10 @@ export default function CollectionDetail({ params }) {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [isFavorite, setIsFavorite] = useState(false);
 
-  const contextValue = useContext(CalichefContext);
-  const { collections, originalData } = contextValue || {};
+  const { collections, originalData } = useContext(CalichefContext) || {};
   const { user, updateFavoriteCollections, isAuthenticated } = useAuth();
 
-  // Debounce de búsqueda
+  // Debounce search input
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(searchRecipes);
@@ -32,9 +30,10 @@ export default function CollectionDetail({ params }) {
     return () => clearTimeout(handler);
   }, [searchRecipes]);
 
+  // Load collection and recipe data
   useEffect(() => {
     if (!collections || !originalData) return;
-    // Buscar la colección por ID
+    
     const currentCollection = collections.find(c => c.id === params.id);
     if (!currentCollection) {
       setCollection(null);
@@ -42,10 +41,10 @@ export default function CollectionDetail({ params }) {
       setLoading(false);
       return;
     }
+    
     setCollection(currentCollection);
-    // Filtrar las recetas que pertenecen a esta colección
+    
     if (currentCollection.recipes && Array.isArray(currentCollection.recipes)) {
-      // Optimización: usar un Set para búsquedas más rápidas
       const recipeIdsSet = new Set(currentCollection.recipes);
       const recipesInCollection = originalData.filter(recipe => 
         recipeIdsSet.has(recipe.id)
@@ -54,28 +53,41 @@ export default function CollectionDetail({ params }) {
     } else {
       setCollectionRecipes([]);
     }
-    // Verificar si la colección está en favoritos del usuario
-    if (user && user.favoriteCollections) {
-      setIsFavorite(user.favoriteCollections.includes(currentCollection.id));
-    } else {
-      setIsFavorite(false);
-    }
+    
+    // Check if collection is in user favorites
+    setIsFavorite(user?.favoriteCollections?.includes(currentCollection.id) || false);
     setLoading(false);
   }, [collections, originalData, params.id, user]);
 
-  const handleSearch = (event) => {
+  // Filter recipes based on search terms
+  const filteredRecipes = useMemo(() => {
+    if (!debouncedSearch.trim()) return collectionRecipes;
+    
+    const searchTermsArray = debouncedSearch.toLowerCase().split(' ').filter(Boolean);
+    return collectionRecipes.filter(recipe =>
+      searchTermsArray.every(term => recipe.title.toLowerCase().includes(term))
+    );
+  }, [collectionRecipes, debouncedSearch]);
+
+  // Event handlers with useCallback
+  const handleSearch = useCallback((event) => {
     setSearchRecipes(event.target.value);
-  };
+  }, []);
 
-  const searchTermsArray = debouncedSearch.toLowerCase().split(' ').filter(Boolean);
-  const filteredRecipes = collectionRecipes.filter(recipe =>
-    searchTermsArray.every(term =>
-      recipe.title.toLowerCase().includes(term) 
-      
-    )
-  );
+  const handleClearSearch = useCallback(() => {
+    setSearchRecipes('');
+    setDebouncedSearch('');
+  }, []);
 
-  
+  const handleToggleFavorite = useCallback(() => {
+    updateFavoriteCollections(collection.id);
+    setIsFavorite(prev => !prev);
+  }, [collection?.id, updateFavoriteCollections]);
+
+  const handleBack = useCallback((e) => {
+    e.preventDefault();
+    router.back();
+  }, [router]);
 
   if (loading) {
     return (
@@ -117,18 +129,14 @@ export default function CollectionDetail({ params }) {
         <div className="container mx-auto py-2 px-4 min-h-screen">
           <div className="text-center py-10">
             <p className="text-white text-lg mb-4">Colección no encontrada</p>
-            {/* volver a la pagina */}
             <a
-            onClick={(e) => {
-              e.preventDefault()
-              router.back()
-            }}
-            className="text-white text-xl hover:text-gray-400 mb-4 flex items-center pt-4"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-            </svg>
-          </a>
+              onClick={handleBack}
+              className="text-white text-xl hover:text-gray-400 mb-4 flex items-center pt-4 cursor-pointer"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+              </svg>
+            </a>
           </div>
         </div>
       </>
@@ -140,18 +148,11 @@ export default function CollectionDetail({ params }) {
       <Navbar />
       <div className="container mx-auto py-2 px-4 min-h-screen">
         <div className="mb-6">
-        <div
-          className="text-white text-4xl  md:py-4 lg:pl-4 hover:text-gray-400 flex items-center cursor-pointer"
-        >
-          <FaArrowLeft onClick={(e) => {
-            e.preventDefault()
-            router.back()
-          }}
-          className="mr-2" />
-          
-        </div>
+          <div className="text-white text-4xl md:py-4 lg:pl-4 hover:text-gray-400 flex items-center cursor-pointer">
+            <FaArrowLeft onClick={handleBack} className="mr-2" />
+          </div>
 
-          <div className="flex justify-center items-center flex-col md:flex-row gap-6 items-start mb-8">
+          <div className="flex justify-center flex-col md:flex-row gap-6 items-start mb-8">
             {collection.image_url && (
               <div>
                 <Image
@@ -177,18 +178,12 @@ export default function CollectionDetail({ params }) {
                   <div className="text-4xl cursor-pointer">
                     {isFavorite ? (
                       <FaHeart
-                        onClick={() => {
-                          updateFavoriteCollections(collection.id);
-                          setIsFavorite(!isFavorite);
-                        }}
+                        onClick={handleToggleFavorite}
                         className="text-red-500 hover:text-red-700"
                       />
                     ) : (
                       <FaRegHeart
-                        onClick={() => {
-                          updateFavoriteCollections(collection.id);
-                          setIsFavorite(!isFavorite);
-                        }}
+                        onClick={handleToggleFavorite}
                         className="text-white hover:text-gray-500"
                       />
                     )}
@@ -216,10 +211,7 @@ export default function CollectionDetail({ params }) {
                 </label>
                 {searchRecipes && (
                   <button
-                    onClick={() => {
-                      setSearchRecipes('');
-                      setDebouncedSearch('');
-                    }}
+                    onClick={handleClearSearch}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
                     aria-label="Borrar búsqueda"
                     type="button"

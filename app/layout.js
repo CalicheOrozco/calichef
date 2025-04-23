@@ -8,23 +8,27 @@ export const metadata = {
   description: 'Recetas de cocina para Thermomix'
 }
 
-export default function RootLayout ({ children }) {
+export default function RootLayout({ children }) {
   return (
     <html lang='es'>
       <head>
         <link rel='manifest' href='/manifest.json' />
-        <link rel='icon' href='/favicon2.ico' />
+        <link rel='icon' href='/favicon2.ico' sizes="any" />
         <meta name='robots' content='noarchive' />
         <meta charSet='utf-8' />
         <meta
           name='viewport'
           content='width=device-width, initial-scale=1, shrink-to-fit=no'
         />
+        <meta name='theme-color' content='#ffffff' />
+        <meta name='apple-mobile-web-app-capable' content='yes' />
       </head>
       <body>
-        <AuthProvider>
-          <MyProvider>{children}</MyProvider>
-        </AuthProvider>
+        <React.StrictMode>
+          <AuthProvider>
+            <MyProvider>{children}</MyProvider>
+          </AuthProvider>
+        </React.StrictMode>
       </body>
     </html>
   )

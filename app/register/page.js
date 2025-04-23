@@ -5,33 +5,51 @@ import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 
 export default function Register() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const router = useRouter();
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
+
+  const handleChange = (e) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [id]: value
+    }));
+    // Limpiar error cuando el usuario comienza a escribir nuevamente
+    if (error) setError('');
+  };
+
+  const validateForm = () => {
+    const { password, confirmPassword } = formData;
+    
+    if (password !== confirmPassword) {
+      setError('Las contraseñas no coinciden');
+      return false;
+    }
+    
+    if (password.length < 6) {
+      setError('La contraseña debe tener al menos 6 caracteres');
+      return false;
+    }
+    
+    return true;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
     
-    // Validar que las contraseñas coincidan
-    if (password !== confirmPassword) {
-      setError('Las contraseñas no coinciden');
-      return;
-    }
-    
-    // Validar longitud de contraseña
-    if (password.length < 6) {
-      setError('La contraseña debe tener al menos 6 caracteres');
-      return;
-    }
+    if (!validateForm()) return;
     
     setLoading(true);
 
     try {
+      const { name, email, password } = formData;
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
@@ -46,7 +64,6 @@ export default function Register() {
         throw new Error(data.message || 'Error al registrar usuario');
       }
 
-      // Redireccionar al usuario a la página de login
       router.push('/login');
     } catch (error) {
       setError(error.message);
@@ -58,17 +75,17 @@ export default function Register() {
   return (
     <>
       <Navbar />
-      <div className="flex items-center justify-center mx-auto py-20 px-4 min-h-screen">
-        <div className="max-w-lg mx-auto bg-neutral-900 w-full p-8 rounded-lg shadow-md">
+      <main className="flex items-center justify-center min-h-screen py-16 px-4">
+        <div className="w-full max-w-md bg-neutral-900 p-8 rounded-lg shadow-lg">
           <h1 className="text-2xl text-white font-bold text-center mb-6">Crear Cuenta</h1>
           
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-              {error}
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
+              <p>{error}</p>
             </div>
           )}
           
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} noValidate>
             <div className="mb-4">
               <label htmlFor="name" className="block text-white font-medium mb-2">
                 Nombre
@@ -76,10 +93,11 @@ export default function Register() {
               <input
                 type="text"
                 id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={formData.name}
+                onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 required
+                aria-required="true"
               />
             </div>
             
@@ -90,10 +108,12 @@ export default function Register() {
               <input
                 type="email"
                 id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={formData.email}
+                onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 required
+                aria-required="true"
+                autoComplete="email"
               />
             </div>
             
@@ -104,11 +124,15 @@ export default function Register() {
               <input
                 type="password"
                 id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={formData.password}
+                onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 required
+                aria-required="true"
+                minLength={6}
+                autoComplete="new-password"
               />
+              <p className="text-xs text-gray-400 mt-1">La contraseña debe tener al menos 6 caracteres</p>
             </div>
             
             <div className="mb-6">
@@ -118,32 +142,35 @@ export default function Register() {
               <input
                 type="password"
                 id="confirmPassword"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                value={formData.confirmPassword}
+                onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 required
+                aria-required="true"
+                autoComplete="new-password"
               />
             </div>
             
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-200"
+              className="w-full bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-200 disabled:opacity-70"
+              aria-busy={loading}
             >
               {loading ? 'Registrando...' : 'Registrarse'}
             </button>
           </form>
           
           <div className="mt-4 text-center">
-            <p className="text-gray-600">
+            <p className="text-gray-400">
               ¿Ya tienes una cuenta?{' '}
-              <Link href="/login" className="text-green-500 hover:text-green-600">
+              <Link href="/login" className="text-green-500 hover:text-green-600 focus:outline-none focus:underline">
                 Iniciar Sesión
               </Link>
             </p>
           </div>
         </div>
-      </div>
+      </main>
     </>
   );
 }

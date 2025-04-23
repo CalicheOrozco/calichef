@@ -3,63 +3,46 @@ import { memo } from 'react'
 import { FaStar, FaHeart, FaRegHeart } from 'react-icons/fa'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useEffect, useMemo, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { openDB } from 'idb'
 import { useAuth } from '@/context/AuthContext'
 
 const DB_NAME = 'calicheDatabase'
 const STORE_NAME = 'dataStore'
 
-const Card = memo(function Card({ title, rating_score, rating_count, time, img_url, id, category, isCollection = false }) {
+const Card = memo(function Card({ 
+  title, 
+  rating_score, 
+  rating_count, 
+  time, 
+  img_url, 
+  id, 
+  category, 
+  isCollection = false 
+}) {
   const { user, updateFavorites, updateFavoriteCollections, isAuthenticated } = useAuth()
-
   const cardId = id
 
-  const stars = useMemo(() => {
-    if (rating_score === undefined || rating_score === null) return []
-
-    const [integer, decimal] = rating_score.toString().split('.')
-    const rating_integer = parseInt(integer)
-    const rating_decimal = parseInt(decimal || '0')
-
-    const stars = new Array(5).fill(0)
-    stars.fill(1, 0, rating_integer)
-    if (rating_decimal >= 5) stars[rating_integer] = 2
-
-    return stars
-  }, [rating_score])
-
-  const [isSaved, setIsSaved] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
-  const [isFavoriteCollection, setIsFavoriteCollection] = useState(false)
+  const [isSaved, setIsSaved] = useState(false)
 
+  // Efecto optimizado para verificar el estado de favoritos
   useEffect(() => {
+    if (user) {
+      const favoriteCollections = user?.favoriteCollections || []
+      const favorites = user?.favorites || []
 
-   
-
-    const favoriteCollections = user?.favoriteCollections || []
-    const favorites = user?.favorites || []
-
-    // verificar si es una colección
-    if (isCollection) {
-      // checar si la colección está en favoritos
-      setIsFavoriteCollection(favoriteCollections.includes(cardId))
-      if (favoriteCollections.includes(cardId)) {
-        setIsFavorite(true)
-      }
-    } else {
-      // checar si la receta está en favoritos
-      setIsFavorite(favorites.includes(cardId))
-      if (favorites.includes(cardId)) {
-        setIsSaved(true)
+      if (isCollection) {
+        setIsFavorite(favoriteCollections.includes(cardId))
+      } else {
+        const isInFavorites = favorites.includes(cardId)
+        setIsFavorite(isInFavorites)
+        setIsSaved(isInFavorites)
       }
     }
-
-    
-   
-
   }, [cardId, user, isCollection])
 
+  // Función para gestionar acciones con recetas (optimizada)
   const handleRecipeAction = useCallback(async (action) => {
     try {
       const db = await openDB(DB_NAME, 1, {
@@ -73,41 +56,30 @@ const Card = memo(function Card({ title, rating_score, rating_count, time, img_u
       const favoriteCollections = user?.favoriteCollections || []
       const favorites = user?.favorites || []
       
-  
-      // validar si es una colección
       if (isCollection) {
+        const updatedCollections = action === 'save'
+          ? [...favoriteCollections, cardId]
+          : favoriteCollections.filter(collectionId => collectionId !== cardId)
         
-        if (action ==='save' && !favoriteCollections.includes(cardId)) {
-          const updatedCollections = [...favoriteCollections, cardId]
-          await db.put(STORE_NAME, updatedCollections, 'favoriteCollections')
-          setIsFavoriteCollection(true)
-        } else if (action === 'delete' && favoriteCollections.includes(cardId)) {
-          const updatedCollections = favoriteCollections.filter(collectionId => collectionId!== cardId)
-          await db.put(STORE_NAME, updatedCollections, 'favoriteCollections')
-          setIsFavoriteCollection(false)
-        }
+        await db.put(STORE_NAME, updatedCollections, 'favoriteCollections')
+        setIsFavorite(action === 'save')
       } else {
-        console.log('el card id es: ', cardId)
-        if (action ==='save' &&!favorites.includes(cardId)) {
-          const updatedFavorites = [...favorites, cardId]
-          await db.put(STORE_NAME, updatedFavorites, 'favorites')
-          setIsFavorite(true)
-          setIsSaved(true)
-        } else if (action === 'delete' && favorites.includes(cardId)) {
-          const updatedFavorites = favorites.filter(recipeId => recipeId!== cardId)
-          await db.put(STORE_NAME, updatedFavorites, 'favorites')
-          setIsFavorite(false)
-          setIsSaved(false)
-        }
+        const updatedFavorites = action === 'save'
+          ? [...favorites, cardId]
+          : favorites.filter(recipeId => recipeId !== cardId)
+        
+        await db.put(STORE_NAME, updatedFavorites, 'favorites')
+        setIsFavorite(action === 'save')
+        setIsSaved(action === 'save')
       }
-  
-      
     } catch (error) {
       console.error(`Error al ${action === 'save' ? 'guardar' : 'eliminar'} la receta:`, error)
     }
-  }, [cardId])
+  }, [cardId, user, isCollection])
 
-  const handleFavoriteClick = useCallback(() => {
+  // Optimizado para usar menos re-renderizados
+  const handleFavoriteClick = useCallback((e) => {
+    e.stopPropagation()
     if (isCollection) {
       updateFavoriteCollections(cardId)
     } else {
@@ -121,53 +93,59 @@ const Card = memo(function Card({ title, rating_score, rating_count, time, img_u
     handleRecipeAction(isSaved ? 'delete' : 'save')
   }, [isSaved, handleRecipeAction])
 
-  const CardImage = useMemo(() => (
-    isCollection ? (
-      <div className="w-full h-60 flex items-center justify-center bg-neutral-800">
-        <Image
-          src={img_url}
-          alt={title}
-          width={240}
-          height={240}
-          className="object-cover rounded-t-lg"
-        />
-      </div>
-    ) : (
-      <img src={img_url} alt={title} className="w-full h-60 object-cover" />
-    )
-  ), [img_url, title, isCollection])
+  // Función para renderizar estrellas durante el renderizado (más eficiente)
+  const renderStars = () => {
+    if (rating_score === undefined || rating_score === null) return []
+    
+    const stars = []
+    const [integer, decimal] = rating_score.toString().split('.')
+    const rating_integer = parseInt(integer)
+    const rating_decimal = parseInt(decimal || '0')
+    
+    for (let i = 0; i < 5; i++) {
+      if (i < rating_integer) {
+        stars.push(1)
+      } else if (i === rating_integer && rating_decimal >= 5) {
+        stars.push(2)
+      } else {
+        stars.push(0)
+      }
+    }
+    
+    return stars
+  }
 
-  const RatingStars = useMemo(() => (
-    rating_score !== undefined && rating_score !== null ? (
-      <div className='flex items-center'>
-        {stars.map((star, index) => (
-          <span key={index}>
-            <FaStar className={star === 1 || star === 2 ? 'text-yellow-500' : 'text-gray-300'} />
-          </span>
-        ))}
-        <span className='ml-2 text-gray-400'>{rating_score}</span>
-        <span className='ml-2 text-gray-400'>({rating_count || 0})</span>
-      </div>
-    ) : <div />
-  ), [stars, rating_score, rating_count])
-
-  return useMemo(() => (
-    <div className={`relative bg-neutral-800 rounded-lg shadow-lg overflow-hidden ${isCollection ? 'w-[240px] h-[330px]' : 'h-[380px] w-[347px]'} mx-auto transform transition duration-300 md:hover:scale-105 cursor-pointer md:hover:shadow-2xl border border-neutral-700`}>
+  return (
+    <div className={`relative bg-neutral-800 rounded-lg shadow-lg overflow-hidden ${
+      isCollection ? 'w-[240px] h-[330px]' : 'h-[380px] w-[347px]'
+    } mx-auto transform transition duration-300 md:hover:scale-105 cursor-pointer md:hover:shadow-2xl border border-neutral-700`}>
       <div className='relative'>
         <Link href={`/${isCollection ? `collections/${cardId}` : cardId}`} passHref>
-          {CardImage}
+          {isCollection ? (
+            <div className="w-full h-60 flex items-center justify-center bg-neutral-800">
+              <Image
+                src={img_url}
+                alt={title}
+                width={240}
+                height={240}
+                className="object-cover rounded-t-lg"
+              />
+            </div>
+          ) : (
+            <img src={img_url} alt={title} className="w-full h-60 object-cover" />
+          )}
         </Link>
         <div className='absolute top-2 right-2 text-4xl'>
           {isAuthenticated ? (
             isFavorite ? (
               <FaHeart
                 onClick={handleFavoriteClick}
-                className='text-red-500 hover:text-red-700'
+                className='text-red-500 hover:text-red-700 cursor-pointer'
               />
             ) : (
               <FaRegHeart
                 onClick={handleFavoriteClick}
-                className='text-white hover:text-gray-500'
+                className='text-white hover:text-gray-500 cursor-pointer'
               />
             )
           ) : (
@@ -193,7 +171,17 @@ const Card = memo(function Card({ title, rating_score, rating_count, time, img_u
         <div className='p-4'>
           <h2 className='text-lg font-semibold mb-2 line-clamp-2 text-white'>{title}</h2>
           <div className='flex items-center justify-between'>
-            {RatingStars}
+            {rating_score !== undefined && rating_score !== null && (
+              <div className='flex items-center'>
+                {renderStars().map((star, index) => (
+                  <span key={index}>
+                    <FaStar className={star > 0 ? 'text-yellow-500' : 'text-gray-300'} />
+                  </span>
+                ))}
+                <span className='ml-2 text-gray-400'>{rating_score}</span>
+                <span className='ml-2 text-gray-400'>({rating_count || 0})</span>
+              </div>
+            )}
             <div className='text-gray-400'>{time}</div>
           </div>
           {!isCollection && (
@@ -209,19 +197,10 @@ const Card = memo(function Card({ title, rating_score, rating_count, time, img_u
         )}
       </Link>
     </div>
-  ), [cardId, isSaved, isFavorite, isAuthenticated, CardImage, RatingStars, title, time, category, isCollection, handleFavoriteClick, handleHeartClick])
-}, (prevProps, nextProps) => {
-  return (
-    prevProps.title === nextProps.title &&
-    prevProps.rating_score === nextProps.rating_score &&
-    prevProps.rating_count === nextProps.rating_count &&
-    prevProps.time === nextProps.time &&
-    prevProps.img_url === nextProps.img_url &&
-    prevProps.id === nextProps.id &&
-    prevProps.category === nextProps.category &&
-    prevProps.isCollection
- === nextProps.isCollection
   )
+}, (prevProps, nextProps) => {
+  // Optimización de comparación para memo
+  return prevProps.id === nextProps.id && prevProps.img_url === nextProps.img_url
 })
 
 export default Card

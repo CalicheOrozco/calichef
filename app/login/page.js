@@ -2,17 +2,32 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import Navbar from '@/components/Navbar';
 import { useAuth } from '@/context/AuthContext';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { refreshUser } = useAuth();
-  
+
+  const handleChange = (e) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [id]: value
+    }));
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(prev => !prev);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,7 +40,10 @@ export default function Login() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ 
+          email: formData.email, 
+          password: formData.password 
+        }),
       });
 
       const data = await res.json();
@@ -36,8 +54,7 @@ export default function Login() {
 
       // Actualizar el estado de autenticación antes de redireccionar
       await refreshUser();
-      router.push('/'); // Redireccionar al usuario a la página principal
-      // router.refresh(); // Ya no es necesario forzar refresh manual
+      router.push('/');
     } catch (error) {
       setError(error.message);
     } finally {
@@ -50,7 +67,7 @@ export default function Login() {
       <Navbar />
       <div className="flex items-center justify-center min-h-screen bg-black">
         <div className="max-w-lg w-full bg-neutral-900 p-8 rounded-lg shadow-md">
-            <img src="/calichefLogo.png" alt="Logo" className="mx-auto mb-4" />
+          <img src="/calichefLogo.png" alt="Logo" className="mx-auto mb-4" />
           
           <h2 className="text-xl text-center text-white mb-6">Bienvenido</h2>
           
@@ -66,8 +83,8 @@ export default function Login() {
                 type="email"
                 id="email"
                 placeholder="Dirección de correo electrónico*"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={formData.email}
+                onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-neutral-800 text-white"
                 required
               />
@@ -75,15 +92,22 @@ export default function Login() {
             
             <div className="mb-6 relative">
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 id="password"
                 placeholder="Contraseña*"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={formData.password}
+                onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-neutral-800 text-white"
                 required
               />
-              <span className="absolute right-3 top-3 cursor-pointer text-white">👁️</span>
+              <button 
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="absolute right-3 top-2.5 text-white focus:outline-none"
+                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
             </div>
             
             <Link href="/forgot-password" className="text-blue-500 hover:text-blue-600 text-sm block mb-4">

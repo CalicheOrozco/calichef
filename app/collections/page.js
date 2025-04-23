@@ -1,21 +1,30 @@
 'use client';
-import { useState, useEffect, useContext, useRef } from 'react';
+import { useState, useEffect, useContext, useRef, useCallback } from 'react';
 import { IoClose } from 'react-icons/io5';
 import Navbar from '@/components/Navbar';
 import Card from '@/components/Card';
 import { CalichefContext } from '@/context/MyContext';
 
-
 export default function Collections() {
   const [searchCollections, setSearchCollections] = useState('');
-  const [loadingCollections, setLoadingCollections] = useState(true);
-  const contextValue = useContext(CalichefContext);
-  const { filteredCollections } = contextValue || {};
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  // Estado para scroll infinito
   const [visibleCount, setVisibleCount] = useState(50);
   const containerRef = useRef(null);
+  
+  const { filteredCollections = [] } = useContext(CalichefContext) || {};
+  const isLoading = !filteredCollections.length;
 
+  // Filter collections based on search terms
+  const searchCollectionssArray = debouncedSearch.toLowerCase().split(' ').filter(Boolean);
+  const filteredBySearch = searchCollectionssArray.length > 0
+    ? filteredCollections.filter(collection =>
+        searchCollectionssArray.every(term =>
+          collection.title.toLowerCase().includes(term)
+        )
+      )
+    : filteredCollections;
+
+  // Handle debounced search
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(searchCollections);
@@ -23,51 +32,50 @@ export default function Collections() {
     return () => clearTimeout(handler);
   }, [searchCollections]);
 
-  useEffect(() => {
-    if (filteredCollections) {
-      setLoadingCollections(false);
+  // Create memoized scroll handler
+  const handleScroll = useCallback(() => {
+    if (!containerRef.current) return;
+    
+    const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
+    const isNearBottom = scrollTop + clientHeight >= scrollHeight - 100;
+    
+    if (isNearBottom && visibleCount < filteredBySearch.length) {
+      setVisibleCount(prev => Math.min(prev + 50, filteredBySearch.length));
     }
-  }, [filteredCollections]);
+  }, [visibleCount, filteredBySearch.length]);
 
-  // Scroll infinito
+  // Set up infinite scroll
   useEffect(() => {
-    function handleScroll() {
-      if (!containerRef.current) return;
-      const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
-      if (scrollTop + clientHeight >= scrollHeight - 100) {
-        setVisibleCount((prev) => {
-          if (prev < filteredBySearch.length) {
-            return prev + 50;
-          }
-          return prev;
-        });
-      }
+    const currentRef = containerRef.current;
+    if (currentRef) {
+      currentRef.addEventListener('scroll', handleScroll);
     }
-    const ref = containerRef.current;
-    if (ref) {
-      ref.addEventListener('scroll', handleScroll);
-    }
+    
     return () => {
-      if (ref) {
-        ref.removeEventListener('scroll', handleScroll);
+      if (currentRef) {
+        currentRef.removeEventListener('scroll', handleScroll);
       }
     };
-  }, [filteredCollections, debouncedSearch]);
+  }, [handleScroll]);
 
-  const handleSearch = (event) => {
-    setSearchCollections(event.target.value);
-    setVisibleCount(50); // Reinicia el scroll infinito al buscar
-  };
+  // Reset visible count when search changes
+  useEffect(() => {
+    setVisibleCount(50);
+  }, [debouncedSearch]);
 
-  const searchTermsArray = debouncedSearch.toLowerCase().split(' ').filter(Boolean);
-  const filteredBySearch = filteredCollections ? filteredCollections.filter(collection =>
-    searchTermsArray.every(term =>
-      collection.title.toLowerCase().includes(term)
-    )
-  ) : [];
   const visibleCollections = filteredBySearch.slice(0, visibleCount);
 
-  if (loadingCollections) {
+  const handleSearchChange = (event) => {
+    setSearchCollections(event.target.value);
+  };
+
+  const clearSearch = () => {
+    setSearchCollections('');
+    setDebouncedSearch('');
+    setVisibleCount(50);
+  };
+
+  if (isLoading) {
     return (
       <>
         <Navbar />
@@ -103,9 +111,14 @@ export default function Collections() {
   return (
     <>
       <Navbar />
-      <div ref={containerRef} className="container mx-auto py-2 px-4 min-h-screen overflow-y-auto scrollbar-hidden" style={{ maxHeight: 'calc(100vh - 80px)' }}>
+      <div 
+        ref={containerRef} 
+        className="container mx-auto py-2 px-4 min-h-screen overflow-y-auto scrollbar-hidden" 
+        style={{ maxHeight: 'calc(100vh - 80px)' }}
+      >
         <h1 className="text-2xl font-bold text-white mb-6 pt-4">Colecciones</h1>
-        {filteredCollections && filteredCollections.length > 0 && (
+        
+        {filteredCollections.length > 0 && (
           <form onSubmit={(e) => e.preventDefault()} className="relative mb-8">
             <div className="relative">
               <input
@@ -113,7 +126,7 @@ export default function Collections() {
                 className="block rounded-md px-6 pt-6 pb-1 w-full text-md text-white bg-neutral-700 appearance-none focus:outline-none focus:ring-0 peer"
                 placeholder=" "
                 value={searchCollections}
-                onChange={handleSearch}
+                onChange={handleSearchChange}
               />
               <label
                 htmlFor="Buscar"
@@ -121,13 +134,10 @@ export default function Collections() {
               >
                 Buscar
               </label>
+              
               {searchCollections && (
                 <button
-                  onClick={() => {
-                    setSearchCollections('');
-                    setDebouncedSearch('');
-                    setVisibleCount(50);
-                  }}
+                  onClick={clearSearch}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
                   aria-label="Borrar búsqueda"
                   type="button"
@@ -138,11 +148,13 @@ export default function Collections() {
             </div>
           </form>
         )}
-        {filteredBySearch && filteredBySearch.length > 0 ? (
+        
+        {filteredBySearch.length > 0 ? (
           <>
             <p className="text-white flex justify-end items-center py-2">
               {filteredBySearch.length} colección(es) encontrada(s)
             </p>
+            
             <div className="flex flex-wrap justify-center md:justify-between items-center gap-y-5">
               {visibleCollections.map((collection) => (
                 <Card
@@ -154,7 +166,8 @@ export default function Collections() {
                 />
               ))}
             </div>
-            {visibleCollections.length < filteredBySearch.length && (
+            
+            {visibleCount < filteredBySearch.length && (
               <div className="flex justify-center py-6">
                 <span className="text-gray-400">Cargando más colecciones...</span>
               </div>
