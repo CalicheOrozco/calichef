@@ -12,8 +12,8 @@ if (!JWT_SECRET) {
   throw new Error('La variable de entorno JWT_SECRET no está definida');
 }
 
-function getUserIdFromRequest(request) {
-  const token = request.cookies.get('token')?.value;
+function getUserIdFromRequest() {
+  const token = cookies().get('token')?.value;
   if (!token) throw new Error('Token no encontrado');
   const decoded = jwt.verify(token, JWT_SECRET);
   return decoded.id;
@@ -21,7 +21,7 @@ function getUserIdFromRequest(request) {
 
 export async function GET(request) {
   try {
-    const userId = getUserIdFromRequest(request);
+    const userId = getUserIdFromRequest();
     await connectDB();
 
     const user = await User.findById(userId);
@@ -44,7 +44,7 @@ export async function POST(request) {
     console.log('POST /shoppingList llamado');
     let userId;
     try {
-      userId = getUserIdFromRequest(request);
+      userId = getUserIdFromRequest();
     } catch (err) {
       console.error('Error obteniendo userId:', err);
       return new Response(JSON.stringify({ error: 'No autorizado' }), {
@@ -105,7 +105,7 @@ export async function POST(request) {
 
 export async function DELETE(request) {
   try {
-    const userId = getUserIdFromRequest(request);
+    const userId = getUserIdFromRequest();
     const { idRecipe } = await request.json();
 
     if (!idRecipe) {
@@ -138,7 +138,7 @@ export async function DELETE(request) {
 
 export async function PATCH(request) {
   try {
-    const userId = getUserIdFromRequest(request);
+    const userId = getUserIdFromRequest();
     const { idRecipe, count = 1 } = await request.json();
 
     if (!idRecipe) {
