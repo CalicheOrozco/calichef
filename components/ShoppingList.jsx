@@ -107,6 +107,7 @@ const IngredientItem = ({ ingredient, idx, recipeId, group, count, isChecked, on
       className={`flex items-center gap-3 bg-neutral-900 rounded-lg px-3 py-2 hover:bg-neutral-700 transition-colors duration-200 shadow-sm cursor-pointer ${isChecked ? 'opacity-50 line-through' : ''}`}
       onClick={() => onToggleCheck(ingredientKey)}
       aria-checked={isChecked}
+      role="checkbox"
       tabIndex={0}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onToggleCheck(ingredientKey); }}
     >
@@ -334,7 +335,7 @@ const useClickOutside = (menuOpen, menuRefs, setMenuOpen) => {
 };
 
 // Main component
-export default function ShoppingList({ list }) {
+const ShoppingList = () => {
   const { IngredientCategory } = require('../constants');
   const contextValue = useContext(CalichefContext);
   const { originalData, setShoppingList, fetchShoppingList } = contextValue || {};
@@ -443,3 +444,4 @@ export default function ShoppingList({ list }) {
     </div>
   );
 }
+export default ShoppingList;
