@@ -712,7 +712,7 @@ export default function Navbar({countRecipies}) {
       <header tabIndex='-1' className='page-header'>
         <div className='w-full flex flex-row h-16 md:h-20 bg-neutral-800 border-b border-neutral-700 px-2 md:px-4 justify-between items-center'>
           <Link href='/' className='w-48 md:w-96' passHref>
-            <Image className='object-contain' src='/calichefLogo.png' alt='Calichef Logo' width={192} height={34} />
+            <Image className='object-contain' src='/calichefLogo.png' alt='Calichef Logo' width={524} height={94} />
           </Link>
 
           <div className='flex text-green-600 flex-row items-center gap-2 md:gap-4'>
@@ -939,11 +939,12 @@ export default function Navbar({countRecipies}) {
                                                     />
                                                     {flagUrl && (
                                                         <Image 
-                                                        className='object-contain' 
-                                                        src='/calichefLogo.png' 
-                                                        alt='Calichef Logo' 
+                                                        className='object-cover ml-3 rounded-sm' 
+                                                        src={flagUrl}
+                                                        alt={`Bandera de ${name}`}
                                                         width={20} 
                                                         height={20} />
+                                                        
                                                     )}
                                                     <span className='ml-2 text-white'>{name}</span>
                                                 </div>
