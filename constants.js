@@ -437,7 +437,10 @@ export const IngredientCategory = {
     "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/238",
     "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/3025",
     "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/3407",
-    "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/468"
+    "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/468",
+    "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/70",
+    "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/517",
+    "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/10351"
   ],
   "Fish and seafood": [
     "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/4170",
@@ -557,6 +560,7 @@ export const IngredientCategory = {
     "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/7516",
     "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/57",
     "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/6893"
+
   ],
   "Oils & Cooking Fats": [
     "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/5883",
@@ -570,7 +574,9 @@ export const IngredientCategory = {
     "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/975",
     "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/240",
     "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/3250",
-    "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/66"
+    "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/66",
+    "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/8548"
+  
   ],
   "Grains, Legumes & Rice": [
     "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/987",
@@ -682,7 +688,9 @@ export const IngredientCategory = {
     "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/309",
     "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/349",
     "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/3303",
-    "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/1678"
+    "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/1678",
+    "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/2287"
+
   ],
   "Soups": [
     "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/478",
@@ -787,7 +795,8 @@ export const IngredientCategory = {
     "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/460",
     "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/4979",
     "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/304",
-    "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/48"
+    "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/48",
+    "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/368"
 
   ],
   "Spices & Seasonings": [
@@ -861,7 +870,9 @@ export const IngredientCategory = {
     "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/416",
     "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/962",
     "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/1167",
-    "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/161"  
+    "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/161",  
+    "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/370"
+
   ],
   "Pasta": [
     "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/141",
@@ -896,7 +907,9 @@ export const IngredientCategory = {
     "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/2641",
     "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/98328",
     "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/7528",
-    "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/541"
+    "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/541",
+    "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/2167"
+
   ],
   "Canned Goods": [
     "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/1143",
@@ -947,7 +960,9 @@ export const IngredientCategory = {
     "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/461",
     "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/2136",
     "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/2587",
-    "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/1359"
+    "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/1359",
+    "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/7395",
+    "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/202"
   ],
   "Coffee & Tea": [
     "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/16665",
@@ -969,7 +984,8 @@ export const IngredientCategory = {
     "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/376",
     "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/410",
     "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/3254",
-    "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/409"
+    "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/409",
+    "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/236"
   ],
   "International Foods": [
     "https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48/icons/ingredient_icons/6160",
