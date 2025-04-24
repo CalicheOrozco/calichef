@@ -5,8 +5,8 @@ import Image from 'next/image';
 export default function Ingredients({ ingredients, checkedIngredients, setCheckedIngredients }) {
   return (
     <div className='pb-5'>
-      <h3 className='text-green-500 text-xl sm:text-2xl pb-5'>
-        Ingredientes
+      <h3 className='text-green-500 text-xl sm:text-2xl font-bold pb-5'>
+      Ingredients
       </h3>
       <core-list-section>
         <ul className='space-y-4'>

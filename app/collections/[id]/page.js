@@ -115,7 +115,7 @@ export default function CollectionDetail({ params }) {
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               ></path>
             </svg>
-            <p className="mt-4 text-lg text-gray-600">Cargando...</p>
+            <p className="mt-4 text-lg text-gray-600">Loading...</p>
           </div>
         </div>
       </>
@@ -128,7 +128,7 @@ export default function CollectionDetail({ params }) {
         <Navbar />
         <div className="container mx-auto py-2 px-4 min-h-screen">
           <div className="text-center py-10">
-            <p className="text-white text-lg mb-4">Colección no encontrada</p>
+            <p className="text-white text-lg mb-4">Collection not found</p>
             <a
               onClick={handleBack}
               className="text-white text-xl hover:text-gray-400 mb-4 flex items-center pt-4 cursor-pointer"
@@ -213,7 +213,7 @@ export default function CollectionDetail({ params }) {
                   <button
                     onClick={handleClearSearch}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
-                    aria-label="Borrar búsqueda"
+                    aria-label="Clear search"
                     type="button"
                   >
                     <IoClose className="text-xl" />
@@ -226,7 +226,7 @@ export default function CollectionDetail({ params }) {
           {filteredRecipes.length > 0 ? (
             <>
               <p className="text-white flex justify-end items-center py-2">
-                {filteredRecipes.length} receta(s) encontrada(s)
+                {filteredRecipes.length} collections found
               </p>
               <div className="flex flex-wrap justify-center md:justify-between items-center gap-y-5">
                 {filteredRecipes.map((recipe) => (
@@ -247,14 +247,14 @@ export default function CollectionDetail({ params }) {
             <div className="text-center py-10">
               <p className="text-white text-lg mb-4">
                 {searchRecipes
-                  ? 'No se encontraron recetas con ese término de búsqueda.'
-                  : 'No hay recetas en esta colección.'}
+                  ? 'No recipes were found with that search term.'
+                  : 'There are no recipes in this collection.'}
               </p>
               <button
                 onClick={() => router.push('/')}
                 className="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-200"
               >
-                Explorar Recetas
+                Explore Recipes
               </button>
             </div>
           )}

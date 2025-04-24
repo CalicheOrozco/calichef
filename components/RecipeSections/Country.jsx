@@ -5,8 +5,8 @@ const Country = ({ country, countryMap }) => {
   return (
     <>
       <div className='py-4 sm:py-8 text-white'>
-        <h3 className='text-green-500 text-xl sm:text-2xl pb-4 sm:pb-8'>
-          País
+        <h3 className='text-green-500 text-xl sm:text-2xl pb-4 font-bold sm:pb-8'>
+        Country
         </h3>
         <ul className='flex list-none flex-row justify-start items-center flex-wrap gap-2'>
           {country?.map((item, index) => (

@@ -64,7 +64,7 @@ export default function Home() {
             </div>
             {visibleCount < recipesCount && (
               <div className='flex justify-center py-6'>
-                <span className='text-gray-400'>Cargando más recetas...</span>
+                <span className='text-gray-400'>Loading more recipes...</span>
               </div>
             )}
           </>

@@ -7,8 +7,8 @@ export default function Steps({ steps, checkedSteps, setCheckedSteps }) {
   return (
     <div>
       <core-list-section>
-        <h3 className='text-green-500 text-xl sm:text-2xl pb-4 sm:pb-8'>
-          Preparación
+        <h3 className='text-green-500 text-xl sm:text-2xl font-bold pb-4 sm:pb-8'>
+        Preparation
         </h3>
         <ol className='space-y-3 sm:space-y-4'>
           {steps.map((step, index) => {

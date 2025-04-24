@@ -10,7 +10,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang='es'>
+    <html lang='en'>
       <head>
         <link rel='manifest' href='/manifest.json' />
         <link rel='icon' href='/favicon2.ico' sizes="any" />

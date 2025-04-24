@@ -49,7 +49,7 @@ export default function Login() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || 'Error al iniciar sesión');
+        throw new Error(data.message || 'Login error');
       }
 
       // Actualizar el estado de autenticación antes de redireccionar
@@ -69,7 +69,7 @@ export default function Login() {
         <div className="max-w-lg w-full bg-neutral-900 p-8 rounded-lg shadow-md">
           <img src="/calichefLogo.png" alt="Logo" className="mx-auto mb-4" />
           
-          <h2 className="text-xl text-center text-white mb-6">Bienvenido</h2>
+          <h2 className="text-xl text-center text-white mb-6">Welcome</h2>
           
           {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -82,7 +82,7 @@ export default function Login() {
               <input
                 type="email"
                 id="email"
-                placeholder="Dirección de correo electrónico*"
+                placeholder="Email*"
                 value={formData.email}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-neutral-800 text-white"
@@ -94,7 +94,7 @@ export default function Login() {
               <input
                 type={showPassword ? "text" : "password"}
                 id="password"
-                placeholder="Contraseña*"
+                placeholder="Password*"
                 value={formData.password}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-neutral-800 text-white"
@@ -104,14 +104,14 @@ export default function Login() {
                 type="button"
                 onClick={togglePasswordVisibility}
                 className="absolute right-3 top-2.5 text-white focus:outline-none"
-                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                aria-label={showPassword ? "Hide Password" : "Show Password"}
               >
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
               </button>
             </div>
             
             <Link href="/forgot-password" className="text-blue-500 hover:text-blue-600 text-sm block mb-4">
-              ¿Olvidaste tu contraseña?
+              Forgot your password?
             </Link>
             
             <button
@@ -119,15 +119,15 @@ export default function Login() {
               disabled={loading}
               className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-200"
             >
-              {loading ? 'Iniciando sesión...' : 'Continuar'}
+              {loading ? 'Logging in...' : 'Continue'}
             </button>
           </form>
           
           <div className="mt-4 text-center">
             <p className="text-white">
-              ¿No tienes una cuenta?{' '}
+              Don't have an account?{' '}
               <Link href="/register" className="text-blue-500 hover:text-blue-600">
-                Regístrate
+                Register
               </Link>
             </p>
           </div>

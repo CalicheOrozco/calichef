@@ -6,7 +6,7 @@ const Devices = ({ devices, deviceImages }) => {
     <div>
       <div className='pb-5'>
         <div className='bg-black bg-opacity-80 p-4 sm:p-6 rounded-lg'>
-          <h3 className='text-xl sm:text-2xl text-green-500 font-bold mb-2'>Dispositivos y accesorios</h3>
+          <h3 className='text-xl sm:text-2xl text-green-500 font-bold mb-2'>Devices & Accessories</h3>
           <div className='space-y-3 sm:space-y-4'>
             {devices?.map((item, index) => (
               <div key={index} className='flex items-center'>

@@ -25,9 +25,9 @@ const debounce = (func, wait = 1000) => {
 
 // Maps for lookups instead of repetitive conditionals
 const difficultyMap = {
-  'E': 'Fácil',
-  'M': 'Medio',
-  'A': 'Avanzado'
+  'E': 'Easy',
+  'M': 'Medium',
+  'A': 'Advanced'
 };
 
 const languageMap = {
@@ -498,7 +498,7 @@ export default function Navbar({countRecipies}) {
       });
     }
 
-    // Save results to context
+    // Save Results to context
     setAllData(filteredData);
     if (contextValue?.setFilteredCollections) {
       contextValue.setFilteredCollections(filteredCollections);
@@ -744,19 +744,24 @@ export default function Navbar({countRecipies}) {
                     <Link href="/profile" passHref>
                       <span className="flex gap-x-2 items-center px-4 py-4 text-lg text-white hover:bg-green-900 cursor-pointer">
                         <FaUser />
-                        Ver perfil
+                        Profile
                       </span>
                     </Link>
                     <Link href="/collections" passHref>
                       <span className="flex gap-x-2 items-center px-4 py-4 text-lg text-white hover:bg-green-900 cursor-pointer">
                         <FaLayerGroup />
-                        Collecciones
+                        Collections
                       </span>
                     </Link>
                     <Link href="/favorites" passHref>
                       <span className="flex gap-x-2 items-center px-4 py-4 text-lg text-white hover:bg-green-900 cursor-pointer">
                       <FaHeart />
-                      Favoritos
+                      My Favorites
+                      </span>
+                    </Link>
+                    <Link href="/favoriteCollections" passHref>
+                      <span className="flex gap-x-2 items-center px-4 py-4 text-lg text-white hover:bg-green-900 cursor-pointer icon--cooking-station">
+                        My Collections
                       </span>
                     </Link>
                     <Link href="/shopping-list" passHref>
@@ -765,18 +770,12 @@ export default function Navbar({countRecipies}) {
                       Shopping List
                       </span>
                     </Link>
-                    <Link href="/favoriteCollections" passHref>
-                      <span className="flex gap-x-2 items-center px-4 py-4 text-lg text-white hover:bg-green-900 cursor-pointer">
-                        <FaLayerGroup />
-                        Mis colecciones
-                      </span>
-                    </Link>
                     <button
                       onClick={logout}
                       className="flex gap-x-2 items-center w-full text-left px-4 py-4 text-lg text-red-600 hover:bg-red-600 hover:text-white"
                     >
                       <FaRightFromBracket />
-                      Cerrar sesión
+                      Log Out
                     </button>
                   </div>
                 )}
@@ -819,7 +818,7 @@ export default function Navbar({countRecipies}) {
             <div className='bg-neutral-900 border border-neutral-800 w-full md:w-5/6 rounded-lg shadow-xl flex flex-col' onClick={e => e.stopPropagation()}>
                 <div className='p-4 md:p-8'>
                     <div className='flex justify-between items-center mb-4 md:mb-6'>
-                        <h2 className='text-xl md:text-2xl font-semibold text-white'>Filtrar Recetas</h2>
+                        <h2 className='text-xl md:text-2xl font-semibold text-white'>Search & Filter Recipes</h2>
                         <IoClose
                             className='text-2xl md:text-3xl text-gray-500 hover:text-red-600 transition-colors duration-200 cursor-pointer'
                             onClick={closeModal}
@@ -831,13 +830,13 @@ export default function Navbar({countRecipies}) {
                             <div className='relative'>
                                 <input
                                     type='text'
-                                    placeholder='Buscar recetas...'
+                                    placeholder='Search recipes...'
                                     value={searchTerm}
                                     onChange={handleSearchInputChange}
-                                    onKeyPress={handleKeyPress}
+                                    onKeyDown={handleKeyPress}
                                     ref={searchInputRef}
                                     className='w-full px-3 md:px-4 py-2 md:py-3 border-2 border-neutral-700 bg-neutral-700 text-white rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200 text-sm md:text-base'
-                                    aria-label='Buscar'
+                                    aria-label='Search'
                                 />
                                 {searchTerm && (
                                     <button
@@ -849,7 +848,7 @@ export default function Navbar({countRecipies}) {
                                             }
                                         }}
                                         className='absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white'
-                                        aria-label='Borrar búsqueda'
+                                        aria-label='Clear search'
                                     >
                                         <IoClose className='text-xl' />
                                     </button>
@@ -877,7 +876,7 @@ export default function Navbar({countRecipies}) {
 
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4'>
                             <div className='space-y-2'>
-                                <h3 className='text-lg font-semibold text-white'>País</h3>
+                                <h3 className='text-lg font-semibold text-white'>Country</h3>
                                 <div className='space-y-2 max-h-60 overflow-y-auto'>
                                     <div
                                         className='flex items-center justify-between p-2 hover:bg-neutral-700 rounded-lg cursor-pointer'
@@ -902,7 +901,7 @@ export default function Navbar({countRecipies}) {
                                                 }}
                                                 className='w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500'
                                             />
-                                            <span className='ml-3 text-white'>Todos los países</span>
+                                            <span className='ml-3 text-white'>All countries</span>
                                         </div>
                                     </div>
                                     {getAvailableOptions('country').map(({ code, name }) => {
@@ -946,7 +945,7 @@ export default function Navbar({countRecipies}) {
                                                     )}
                                                     <span className='ml-2 text-white'>{name}</span>
                                                 </div>
-                                                <span className='text-gray-400'>{countryCount} resultados</span>
+                                                <span className='text-gray-400'>{countryCount} Results</span>
                                             </div>
                                         );
                                     })}
@@ -954,7 +953,7 @@ export default function Navbar({countRecipies}) {
                             </div>
 
                             <div className='space-y-2'>
-                                <h3 className='text-lg font-semibold text-white'>Dificultad</h3>
+                                <h3 className='text-lg font-semibold text-white'>Difficulty</h3>
                                 <div className='space-y-2 max-h-60 overflow-y-auto'>
                                     <div
                                         className='flex items-center justify-between p-2 hover:bg-neutral-700 rounded-lg cursor-pointer'
@@ -967,7 +966,7 @@ export default function Navbar({countRecipies}) {
                                                 onChange={() => setDifficultyFilter('All')}
                                                 className='w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500'
                                             />
-                                            <span className='ml-3 text-white'>Todas las dificultades</span>
+                                            <span className='ml-3 text-white'>All difficulties</span>
                                         </div>
                                     </div>
                                     {getAvailableOptions('difficulty').map(({ code, name }) => {
@@ -991,7 +990,7 @@ export default function Navbar({countRecipies}) {
                                                     />
                                                     <span className='ml-3 text-white'>{name}</span>
                                                 </div>
-                                                <span className='text-gray-400'>{difficultyCount} resultados</span>
+                                                <span className='text-gray-400'>{difficultyCount} Results</span>
                                             </div>
                                         );
                                     })}
@@ -999,7 +998,7 @@ export default function Navbar({countRecipies}) {
                             </div>
 
                             <div className='space-y-2'>
-                                <h3 className='text-lg font-semibold text-white'>Idioma</h3>
+                                <h3 className='text-lg font-semibold text-white'>Language</h3>
                                 <div className='space-y-2 max-h-60 overflow-y-auto'>
                                     <div
                                         className='flex items-center justify-between p-2 hover:bg-neutral-700 rounded-lg cursor-pointer'
@@ -1024,7 +1023,7 @@ export default function Navbar({countRecipies}) {
                                                 }}
                                                 className='w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500'
                                             />
-                                            <span className='ml-3 text-white'>Todos los idiomas</span>
+                                            <span className='ml-3 text-white'>All languages</span>
                                         </div>
                                     </div>
                                     {getAvailableOptions('language').map(({ code, name }) => {
@@ -1058,7 +1057,7 @@ export default function Navbar({countRecipies}) {
                                                     />
                                                     <span className='ml-3 text-white'>{name}</span>
                                                 </div>
-                                                <span className='text-gray-400'>{languageCount} resultados</span>
+                                                <span className='text-gray-400'>{languageCount} Results</span>
                                             </div>
                                         );
                                     })}
@@ -1090,7 +1089,7 @@ export default function Navbar({countRecipies}) {
                         </div>
 
                         <div className='space-y-2'>
-                            <h3 className='text-lg font-semibold text-white'>Categoría</h3>
+                            <h3 className='text-lg font-semibold text-white'>Categories</h3>
                             <div className='space-y-2 max-h-60 overflow-y-auto'>
                                 {categories.map((category) => (
                                     <div
@@ -1117,13 +1116,13 @@ export default function Navbar({countRecipies}) {
                                             />
                                             <span className='ml-3 text-white'>{category.name}</span>
                                         </div>
-                                        <span className='text-gray-400'>{category.count} resultados</span>
+                                        <span className='text-gray-400'>{category.count} Results</span>
                                     </div>
                                 ))}
                             </div>
                         </div>
                         <div className='space-y-2'>
-                            <h2 className='text-2xl font-semibold mb-4 text-white'>Tiempo de preparación</h2>
+                            <h2 className='text-2xl font-semibold mb-4 text-white'>Preparation time</h2>
                             <div className='grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 bg-neutral-900 rounded-lg p-3 sm:p-4'>
                                 <div
                                     onClick={() => setCookingTimeFilter(cookingTimeFilter === '15' ? 'All' : '15')}
@@ -1134,7 +1133,7 @@ export default function Navbar({countRecipies}) {
                                     }`}
                                 >
                                     <div className='text-xl sm:text-2xl font-bold text-white'>≤ 15</div>
-                                    <div className='text-xs sm:text-sm text-white'>Minutos</div>
+                                    <div className='text-xs sm:text-sm text-white'>Minutes</div>
                                 </div>
                                 <div
                                     onClick={() => setCookingTimeFilter(cookingTimeFilter === '30' ? 'All' : '30')}
@@ -1145,7 +1144,7 @@ export default function Navbar({countRecipies}) {
                                     }`}
                                 >
                                     <div className='text-xl sm:text-2xl font-bold text-white'>≤ 30</div>
-                                    <div className='text-xs sm:text-sm text-white'>Minutos</div>
+                                    <div className='text-xs sm:text-sm text-white'>Minutes</div>
                                 </div>
                                 <div
                                     onClick={() => setCookingTimeFilter(cookingTimeFilter === '45' ? 'All' : '45')}
@@ -1156,7 +1155,7 @@ export default function Navbar({countRecipies}) {
                                     }`}
                                 >
                                     <div className='text-xl sm:text-2xl font-bold text-white'>≤ 45</div>
-                                    <div className='text-xs sm:text-sm text-white'>Minutos</div>
+                                    <div className='text-xs sm:text-sm text-white'>Minutes</div>
                                 </div>
                                 <div
                                     onClick={() => setCookingTimeFilter(cookingTimeFilter === '60' ? 'All' : '60')}
@@ -1167,13 +1166,13 @@ export default function Navbar({countRecipies}) {
                                     }`}
                                 >
                                     <div className='text-xl sm:text-2xl font-bold text-white'>≥ 1</div>
-                                    <div className='text-xs sm:text-sm text-white'>Hora</div>
+                                    <div className='text-xs sm:text-sm text-white'>Hour</div>
                                 </div>
                             </div>
                         </div>
 
                         <div className='space-y-2'>
-                            <h2 className='text-2xl font-semibold mb-4 text-white'>Tiempo Total</h2>
+                            <h2 className='text-2xl font-semibold mb-4 text-white'>Total Time</h2>
                             <div className='grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 bg-neutral-900 rounded-lg p-3 sm:p-4'>
                                 <div
                                     onClick={() => setFinalTimeFilter(finalTimeFilter === '15' ? 'All' : '15')}
@@ -1184,7 +1183,7 @@ export default function Navbar({countRecipies}) {
                                     }`}
                                 >
                                     <div className='text-xl sm:text-2xl font-bold text-white'>≤ 15</div>
-                                    <div className='text-xs sm:text-sm text-white'>Minutos</div>
+                                    <div className='text-xs sm:text-sm text-white'>Minutes</div>
                                 </div>
                                 <div
                                     onClick={() => setFinalTimeFilter(finalTimeFilter === '30' ? 'All' : '30')}
@@ -1195,7 +1194,7 @@ export default function Navbar({countRecipies}) {
                                     }`}
                                 >
                                     <div className='text-xl sm:text-2xl font-bold text-white'>≤ 30</div>
-                                    <div className='text-xs sm:text-sm text-white'>Minutos</div>
+                                    <div className='text-xs sm:text-sm text-white'>Minutes</div>
                                 </div>
                                 <div
                                     onClick={() => setFinalTimeFilter(finalTimeFilter === '45' ? 'All' : '45')}
@@ -1206,7 +1205,7 @@ export default function Navbar({countRecipies}) {
                                     }`}
                                 >
                                     <div className='text-xl sm:text-2xl font-bold text-white'>≤ 45</div>
-                                    <div className='text-xs sm:text-sm text-white'>Minutos</div>
+                                    <div className='text-xs sm:text-sm text-white'>Minutes</div>
                                 </div>
                                 <div
                                     onClick={() => setFinalTimeFilter(finalTimeFilter === '>1h' ? 'All' : '>1h')}
@@ -1217,7 +1216,7 @@ export default function Navbar({countRecipies}) {
                                     }`}
                                 >
                                     <div className='text-xl sm:text-2xl font-bold text-white'>≥ 1</div>
-                                    <div className='text-xs sm:text-sm text-white'>Hora</div>
+                                    <div className='text-xs sm:text-sm text-white'>Hour</div>
                                 </div>
                             </div>
                         </div>
@@ -1231,14 +1230,14 @@ export default function Navbar({countRecipies}) {
                                 onClick={handleClearFilters}
                                 className='px-4 md:px-6 py-2 md:py-3 rounded-xl bg-red-50 text-red-600 font-medium hover:bg-red-100 transition-colors duration-200 text-sm md:text-base'
                             >
-                                Limpiar
+                                Clear
                             </button>
                         )}
                         <button
                             onClick={handleModalSearch}
                             className='px-4 md:px-6 py-2 md:py-3 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 transition-colors duration-200 text-sm md:text-base'
                         >
-                            Show {countRecipies} results
+                            Show {countRecipies} Results
                         </button>
                     </div>
                 </div>

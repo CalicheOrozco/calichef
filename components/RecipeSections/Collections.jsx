@@ -6,7 +6,7 @@ const Collections = ({ collections }) => {
     <>
       <div className='py-4 sm:py-8 text-white'>
         <h3 className='text-green-500 text-xl sm:text-2xl font-bold pb-4 sm:pb-8'>
-          También incluido en
+          Also featured in
         </h3>
         <div className='flex flex-col space-y-3 sm:space-y-4'>
           {collections.map((collection, index) => (

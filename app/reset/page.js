@@ -20,7 +20,7 @@ export default function ResetPage() {
           await tx.objectStore(STORE_NAME).clear();
           await tx.done;
         } catch (error) {
-          console.error('Error al limpiar IndexedDB:', error);
+          console.error('Error cleaning IndexedDB', error);
         }
         
         // Limpiar cookies
@@ -33,11 +33,11 @@ export default function ResetPage() {
         }
         
         // Mostrar mensaje y redirigir a la página principal
-        alert('Todos los datos del navegador han sido limpiados correctamente.');
+        alert('All browser data has been successfully cleared.');
         window.location.href = '/';
       } catch (error) {
-        console.error('Error al limpiar los datos del navegador:', error);
-        alert('Ocurrió un error al limpiar los datos. Por favor, intenta de nuevo.');
+        console.error('Error clearing browser data:', error);
+        alert('An error occurred while clearing the data. Please try again.');
         window.location.href = '/';
       }
     };
@@ -49,9 +49,9 @@ export default function ResetPage() {
   return (
     <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
       <div className="text-center p-8 max-w-md mx-auto bg-gray-800 rounded-lg shadow-lg">
-        <h1 className="text-2xl font-bold mb-4">Limpiando datos...</h1>
-        <p className="mb-4">Estamos limpiando todos los datos almacenados en tu navegador.</p>
-        <p>Serás redirigido automáticamente a la página principal.</p>
+        <h1 className="text-2xl font-bold mb-4">cleaning data...</h1>
+        <p className="mb-4">We are clearing all data stored in your browser.</p>
+        <p>You will be automatically redirected to the home page.</p>
       </div>
     </div>
   );

@@ -1,12 +1,12 @@
 import React, { memo } from 'react';
 
-const Nutrition = ({ nutritions }) => {
+const Nutrition = ({ nutritions, porciones }) => {
   return (
     <div>
       <div className='pb-5'>
         <div className='bg-black bg-opacity-80 p-4 sm:p-6 rounded-lg'>
           <h3 className='text-xl sm:text-2xl font-bold text-green-500 mb-2'>Nutrition</h3>
-          <p className='text-gray-400 mb-4'>per 1 porción</p>
+          <p className='text-gray-400 mb-4'>per {porciones}</p>
           
           <div className='space-y-3 sm:space-y-4'>
             {nutritions?.map((item, index) => (

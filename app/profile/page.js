@@ -36,7 +36,7 @@ const Loader = () => (
             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
           ></path>
         </svg>
-        <p className="mt-4 text-lg text-gray-600">Cargando...</p>
+        <p className="mt-4 text-lg text-gray-600">Loading...</p>
       </div>
     </div>
   </>
@@ -46,23 +46,23 @@ const SearchField = ({ searchValue, onSearchChange, onClear }) => (
   <form onSubmit={e => e.preventDefault()} className="relative mt-4">
     <div className="relative">
       <input
-        id="Buscar"
+        id="Search"
         className="block rounded-md px-6 pt-6 pb-1 w-full text-md text-white bg-neutral-700 appearance-none focus:outline-none focus:ring-0 peer"
         placeholder=" "
         value={searchValue}
         onChange={onSearchChange}
       />
       <label
-        htmlFor="Buscar"
+        htmlFor="Search"
         className="absolute text-md text-zinc-400 duration-150 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-5 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3"
       >
-        Buscar
+        Search
       </label>
       {searchValue && (
         <button
           onClick={onClear}
           className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
-          aria-label="Borrar búsqueda"
+          aria-label="Clear search"
           type="button"
         >
           <IoClose className="text-xl" />
@@ -135,7 +135,7 @@ export default function Profile() {
   };
 
   const clearBrowserData = async () => {
-    if (!window.confirm('¿Estás seguro que deseas limpiar los datos almacenados en el navegador? Esto no afectará tus datos guardados en la base de datos.')) {
+    if (!window.confirm('Are you sure you want to clear the data stored in your browser? This will not affect your data stored in the database.')) {
       return;
     }
     
@@ -148,11 +148,11 @@ export default function Profile() {
       const tx = db.transaction(STORE_NAME, 'readwrite');
       await tx.objectStore(STORE_NAME).clear();
       await tx.done;
-      alert('Datos del navegador limpiados correctamente. La página se recargará para aplicar los cambios.');
+      alert('DBrowser data successfully cleared. The page will reload to apply the changes.');
       window.location.reload();
     } catch (error) {
-      console.error('Error al limpiar IndexedDB:', error);
-      alert('Ocurrió un error al limpiar los datos. Por favor, intenta de nuevo.');
+      console.error('Error cleaning IndexedDB:', error);
+      alert('An error occurred while clearing the data. Please try again.');
     }
   };
 
@@ -166,24 +166,24 @@ export default function Profile() {
       <div className="container mx-auto py-2 px-4 min-h-screen">
         <div className="max-w-4xl mx-auto bg-black text-white p-8 rounded-lg shadow-md">
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl text-white font-bold">Mi Perfil</h1>
+            <h1 className="text-2xl text-white font-bold">My Profile</h1>
             <button
               onClick={handleLogout}
               className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition duration-200"
             >
-              Cerrar Sesión
+              Log Out
             </button>
           </div>
 
           <div className="mb-8 p-6 border border-gray-200 rounded-lg">
-            <h2 className="text-xl text-white font-semibold mb-4">Información Personal</h2>
+            <h2 className="text-xl text-white font-semibold mb-4">Personal Information</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <p className="text-gray-300">Nombre:</p>
+                <p className="text-gray-300">Name:</p>
                 <p className="font-medium">{user.name}</p>
               </div>
               <div>
-                <p className="text-gray-300">Correo Electrónico:</p>
+                <p className="text-gray-300">Email:</p>
                 <p className="font-medium">{user.email}</p>
               </div>
             </div>
@@ -192,7 +192,7 @@ export default function Profile() {
                 onClick={clearBrowserData}
                 className="bg-yellow-500 text-white py-2 px-4 rounded-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50 transition duration-200"
               >
-                Limpiar Datos del Navegador
+                Clear Browser Data
               </button>
             </div>
           </div>
@@ -205,7 +205,7 @@ export default function Profile() {
             />
 
             <h2 className="text-xl text-white font-semibold mb-4 pt-4">
-              Mis Recetas Favoritas
+            My Favorite Recipes
             </h2>
 
             {loadingFavorites ? (
@@ -213,7 +213,7 @@ export default function Profile() {
             ) : filteredFavorites.length > 0 ? (
               <>
                 <p className="text-white flex justify-end items-center py-2">
-                  {filteredFavorites.length} receta(s) encontrada(s)
+                  {filteredFavorites.length} recipes found
                 </p>
                 <div className="flex flex-wrap justify-center md:justify-between items-center gap-y-5">
                   {filteredFavorites.map(recipe => (

@@ -4,8 +4,8 @@ const Tips = ({ tips }) => (
   tips && (
     <>
       <div className='py-4 sm:py-8 text-white'>
-        <h3 className='text-green-500 text-xl sm:text-2xl pb-4 sm:pb-8'>
-          Sugerencias y consejos
+        <h3 className='text-green-500 text-xl sm:text-2xl font-bold pb-4 sm:pb-8'>
+        Tips
         </h3>
         <ul className='flex flex-col sm:flex-row flex-wrap gap-2 mb-4'>
           {tips?.map((tip, index) => (

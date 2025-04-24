@@ -4,7 +4,7 @@ const Tags = ({ tags }) => {
   return (
     <div className='py-4 sm:py-8'>
       <h3 className='text-green-500 text-xl sm:text-2xl font-bold pb-4 sm:pb-8'>
-        Etiquetas
+        Tags
       </h3>
       <div className='py-3 sm:py-6 flex flex-wrap gap-2 sm:gap-4'>
         {tags?.map((tag, index) => (

@@ -6,6 +6,7 @@ import Card from './Card'
 import Image from 'next/image'
 import { useAuth } from '@/context/AuthContext'
 import { CalichefContext } from '../context/MyContext'
+import { deviceImages, countryMap } from '../constants'
 
 // Memoized sub-components
 const RecipeMetaInfo = memo(({ difficulty, cooking_time, total_time, porciones }) => {
@@ -42,6 +43,7 @@ const RecipeMetaInfo = memo(({ difficulty, cooking_time, total_time, porciones }
     </div>
   );
 });
+RecipeMetaInfo.displayName = "RecipeMetaInfo";
 
 // Extract repeating UI patterns into components
 const MetaItem = memo(({ icon, label, value }) => (
@@ -54,6 +56,7 @@ const MetaItem = memo(({ icon, label, value }) => (
     <span className='text-white text-sm sm:text-base'>{value}</span>
   </div>
 ));
+MetaItem.displayName = "MetaItem";
 
 const RatingStars = memo(({ rating_score }) => {
   const rating = rating_score?.toString().split('.') || ['0', '0']
@@ -77,6 +80,7 @@ const RatingStars = memo(({ rating_score }) => {
     </div>
   );
 });
+RatingStars.displayName = "RatingStars";
 
 const ActionButton = memo(({ icon: Icon, activeIcon: ActiveIcon, isActive, onClick, label }) => (
   <div className='flex flex-col justify-center items-center cursor-pointer'>
@@ -96,6 +100,7 @@ const ActionButton = memo(({ icon: Icon, activeIcon: ActiveIcon, isActive, onCli
     <span className='text-white text-sm sm:text-base'>{label}</span>
   </div>
 ));
+ActionButton.displayName = "ActionButton";
 
 // Loading fallbacks
 const LoadingFallback = () => <div className="p-4 text-white">Loading...</div>;
@@ -104,6 +109,12 @@ const LoadingFallback = () => <div className="p-4 text-white">Loading...</div>;
 const LazyIngredients = lazy(() => import('./RecipeSections/Ingredients'));
 const LazySteps = lazy(() => import('./RecipeSections/Steps'));
 const LazyTips = lazy(() => import('./RecipeSections/Tips'));
+const LazyNutrition = lazy(() => import('./RecipeSections/Nutrition'));
+const LazyUsefulItems = lazy(() => import('./RecipeSections/UsefulItems'));
+const LazyDevices = lazy(() => import('./RecipeSections/Devices'));
+const LazyCountry = lazy(() => import('./RecipeSections/Country'));
+const LazyCollections = lazy(() => import('./RecipeSections/Collections'));
+const LazyTags = lazy(() => import('./RecipeSections/Tags'));
 
 // Main Recipe component with optimizations
 function Recipe({
@@ -245,25 +256,23 @@ function Recipe({
                   activeIcon={FaHeart}
                   isActive={isFavorite}
                   onClick={() => updateFavorites(id)}
-                  label="Favorito"
+                  label="Favorite"
                 />
               )}
               
               <ActionButton 
                 icon={FaShareFromSquare}
                 onClick={handleShareRecipe}
-                label="Compartir"
+                label="Share"
               />
-
-              {isAuthenticated && (
-                <ActionButton 
-                  icon={MdShoppingCart}
-                  activeIcon={MdRemoveShoppingCart}
-                  isActive={isInShoppingList}
-                  onClick={handleShoppingList}
-                  label="Add Shopping"
+              
+              <ActionButton 
+                icon={MdShoppingCart}
+                activeIcon={MdRemoveShoppingCart}
+                isActive={isInShoppingList}
+                onClick={handleShoppingList}
+                label="Add Shopping"
               />
-              )}
             </div>
           </div>
         </div>
@@ -290,6 +299,27 @@ function Recipe({
               />
             </Suspense>
             <hr className='separator--silver-60' />
+            
+            {/* Nutrition Section */}
+            {nutritions && (
+              <Suspense fallback={<LoadingFallback />}>
+                <LazyNutrition nutritions={nutritions} porciones={porciones} />
+              </Suspense>
+            )}
+            
+            {/* Devices Section */}
+            {devices && (
+              <Suspense fallback={<LoadingFallback />}>
+                <LazyDevices devices={devices} deviceImages={deviceImages} />
+              </Suspense>
+            )}
+            
+            {/* Useful Items Section */}
+            {useful_items && (
+              <Suspense fallback={<LoadingFallback />}>
+                <LazyUsefulItems useful_items={useful_items} />
+              </Suspense>
+            )}
           </div>
           
           {/* Instructions Column - Right side */}
@@ -301,9 +331,32 @@ function Recipe({
                 setCheckedSteps={setCheckedSteps}
               />
             </Suspense>
+            
+            {/* Tips Section */}
             {tips && (
               <Suspense fallback={<LoadingFallback />}>
                 <LazyTips tips={tips} />
+              </Suspense>
+            )}
+            
+            {/* Country Section */}
+            {country && (
+              <Suspense fallback={<LoadingFallback />}>
+                <LazyCountry country={country} countryMap={countryMap} />
+              </Suspense>
+            )}
+            
+            {/* Collections Section */}
+            {collections && collections.length > 0 && (
+              <Suspense fallback={<LoadingFallback />}>
+                <LazyCollections collections={collections} />
+              </Suspense>
+            )}
+            
+            {/* Tags Section */}
+            {tags && (
+              <Suspense fallback={<LoadingFallback />}>
+                <LazyTags tags={tags} />
               </Suspense>
             )}
           </div>
@@ -311,6 +364,7 @@ function Recipe({
         
         {/* Mobile Layout - Stacked sections */}
         <div className='lg:hidden bg-black'>
+          {/* Ingredients Section */}
           <Suspense fallback={<LoadingFallback />}>
             <div className='p-4 text-white'>
               <LazyIngredients 
@@ -322,6 +376,7 @@ function Recipe({
             </div>
           </Suspense>
           
+          {/* Steps Section */}
           <Suspense fallback={<LoadingFallback />}>
             <div className='p-4'>
               <LazySteps 
@@ -333,10 +388,65 @@ function Recipe({
             </div>
           </Suspense>
           
+          {/* Tips Section */}
           {tips && (
             <Suspense fallback={<LoadingFallback />}>
               <div className='p-4'>
                 <LazyTips tips={tips} />
+              </div>
+            </Suspense>
+          )}
+          
+          {/* Useful Items Section */}
+          {useful_items && (
+            <Suspense fallback={<LoadingFallback />}>
+              <div className='p-4 text-white'>
+                <LazyUsefulItems useful_items={useful_items} />
+              </div>
+            </Suspense>
+          )}
+          
+          {/* Devices Section */}
+          {devices && (
+            <Suspense fallback={<LoadingFallback />}>
+              <div className='p-4 text-white'>
+                <LazyDevices devices={devices} deviceImages={deviceImages} />
+              </div>
+            </Suspense>
+          )}
+          
+          {/* Country Section */}
+          {country && (
+            <Suspense fallback={<LoadingFallback />}>
+              <div className='p-4'>
+                <LazyCountry country={country} countryMap={countryMap} />
+              </div>
+            </Suspense>
+          )}
+          
+          {/* Collections Section */}
+          {collections && collections.length > 0 && (
+            <Suspense fallback={<LoadingFallback />}>
+              <div className='p-4'>
+                <LazyCollections collections={collections} />
+              </div>
+            </Suspense>
+          )}
+          
+          {/* Tags Section */}
+          {tags && (
+            <Suspense fallback={<LoadingFallback />}>
+              <div className='p-4'>
+                <LazyTags tags={tags} />
+              </div>
+            </Suspense>
+          )}
+          
+          {/* Nutrition Section - At the end for mobile */}
+          {nutritions && (
+            <Suspense fallback={<LoadingFallback />}>
+              <div className='p-4 text-white'>
+                <LazyNutrition nutritions={nutritions} />
               </div>
             </Suspense>
           )}
@@ -376,8 +486,3 @@ function Recipe({
 }
 
 export default memo(Recipe);
-
-RecipeMetaInfo.displayName = "RecipeMetaInfo"
-MetaItem.displayName = "MetaItem"
-RatingStars.displayName = "RatingStars"
-ActionButton.displayName = "ActionButton"

@@ -29,12 +29,12 @@ export default function Register() {
     const { password, confirmPassword } = formData;
     
     if (password !== confirmPassword) {
-      setError('Las contraseñas no coinciden');
+      setError('Passwords do not match');
       return false;
     }
     
     if (password.length < 6) {
-      setError('La contraseña debe tener al menos 6 caracteres');
+      setError('The password must be at least 6 characters long.');
       return false;
     }
     
@@ -61,7 +61,7 @@ export default function Register() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || 'Error al registrar usuario');
+        throw new Error(data.message || 'Error registering user');
       }
 
       router.push('/login');
@@ -77,7 +77,7 @@ export default function Register() {
       <Navbar />
       <main className="flex items-center justify-center min-h-screen py-16 px-4">
         <div className="w-full max-w-md bg-neutral-900 p-8 rounded-lg shadow-lg">
-          <h1 className="text-2xl text-white font-bold text-center mb-6">Crear Cuenta</h1>
+          <h1 className="text-2xl text-white font-bold text-center mb-6">Create Account</h1>
           
           {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
@@ -88,7 +88,7 @@ export default function Register() {
           <form onSubmit={handleSubmit} noValidate>
             <div className="mb-4">
               <label htmlFor="name" className="block text-white font-medium mb-2">
-                Nombre
+                Name
               </label>
               <input
                 type="text"
@@ -103,7 +103,7 @@ export default function Register() {
             
             <div className="mb-4">
               <label htmlFor="email" className="block text-white font-medium mb-2">
-                Correo Electrónico
+                Email
               </label>
               <input
                 type="email"
@@ -119,7 +119,7 @@ export default function Register() {
             
             <div className="mb-4">
               <label htmlFor="password" className="block text-white font-medium mb-2">
-                Contraseña
+                Password
               </label>
               <input
                 type="password"
@@ -132,12 +132,12 @@ export default function Register() {
                 minLength={6}
                 autoComplete="new-password"
               />
-              <p className="text-xs text-gray-400 mt-1">La contraseña debe tener al menos 6 caracteres</p>
+              <p className="text-xs text-gray-400 mt-1">The password must be at least 6 characters long.</p>
             </div>
             
             <div className="mb-6">
               <label htmlFor="confirmPassword" className="block text-white font-medium mb-2">
-                Confirmar Contraseña
+                Confirm Password
               </label>
               <input
                 type="password"
@@ -157,15 +157,15 @@ export default function Register() {
               className="w-full bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-200 disabled:opacity-70"
               aria-busy={loading}
             >
-              {loading ? 'Registrando...' : 'Registrarse'}
+              {loading ? 'Registering...' : 'Register'}
             </button>
           </form>
           
           <div className="mt-4 text-center">
             <p className="text-gray-400">
-              ¿Ya tienes una cuenta?{' '}
+              You already have an account?{' '}
               <Link href="/login" className="text-green-500 hover:text-green-600 focus:outline-none focus:underline">
-                Iniciar Sesión
+                Login
               </Link>
             </p>
           </div>
