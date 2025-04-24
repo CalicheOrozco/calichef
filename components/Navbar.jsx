@@ -938,11 +938,12 @@ export default function Navbar({countRecipies}) {
                                                         className='w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500'
                                                     />
                                                     {flagUrl && (
-                                                        <img 
-                                                            src={flagUrl} 
-                                                            alt={`Bandera de ${name}`} 
-                                                            className='ml-3 w-5 h-5 rounded-sm object-cover'
-                                                        />
+                                                        <Image 
+                                                        className='object-contain' 
+                                                        src='/calichefLogo.png' 
+                                                        alt='Calichef Logo' 
+                                                        width={20} 
+                                                        height={20} />
                                                     )}
                                                     <span className='ml-2 text-white'>{name}</span>
                                                 </div>
