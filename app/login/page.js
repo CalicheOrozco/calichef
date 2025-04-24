@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import Navbar from '@/components/Navbar';
 import { useAuth } from '@/context/AuthContext';
+import Image from 'next/image';
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -67,7 +68,7 @@ export default function Login() {
       <Navbar />
       <div className="flex items-center justify-center min-h-screen bg-black">
         <div className="max-w-lg w-full bg-neutral-900 p-8 rounded-lg shadow-md">
-          <img src="/calichefLogo.png" alt="Logo" className="mx-auto mb-4" />
+          <Image src="/calichefLogo.png" alt="Logo" className="mx-auto mb-4" width={200} height={80} />
           
           <h2 className="text-xl text-center text-white mb-6">Welcome</h2>
           
@@ -125,7 +126,7 @@ export default function Login() {
           
           <div className="mt-4 text-center">
             <p className="text-white">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <Link href="/register" className="text-blue-500 hover:text-blue-600">
                 Register
               </Link>

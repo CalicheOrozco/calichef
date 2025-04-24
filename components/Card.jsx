@@ -132,7 +132,7 @@ const Card = memo(function Card({
               />
             </div>
           ) : (
-            <img src={img_url} alt={title} className="w-full h-60 object-cover" />
+            <Image src={img_url} alt={title} width={400} height={240} className="w-full h-60 object-cover" />
           )}
         </Link>
         <div className='absolute top-2 right-2 text-4xl'>

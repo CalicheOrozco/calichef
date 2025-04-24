@@ -10,6 +10,7 @@ import { MdShoppingCart } from "react-icons/md"
 import { IoClose, IoHomeSharp } from 'react-icons/io5'
 import Link from 'next/link'
 import { countryMap } from '../constants';
+import Image from 'next/image'
 
 // Move debounce outside component to prevent recreation on each render
 const debounce = (func, wait = 1000) => {
@@ -711,7 +712,7 @@ export default function Navbar({countRecipies}) {
       <header tabIndex='-1' className='page-header'>
         <div className='w-full flex flex-row h-16 md:h-20 bg-neutral-800 border-b border-neutral-700 px-2 md:px-4 justify-between items-center'>
           <Link href='/' className='w-48 md:w-96' passHref>
-            <img className='object-contain' src='/calichefLogo.png' alt='Calichef Logo' />
+            <Image className='object-contain' src='/calichefLogo.png' alt='Calichef Logo' width={192} height={34} />
           </Link>
 
           <div className='flex text-green-600 flex-row items-center gap-2 md:gap-4'>
