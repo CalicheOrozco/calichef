@@ -623,11 +623,12 @@ export default function Navbar({countRecipies}) {
   };
 
   const handleShowResults = () => {
-    if (pathname.includes('/r')) {
+    if (pathname.includes('/r') || pathname.includes('/shopping-list') || pathname.includes('/favorites') || pathname.includes('/profile')) {
       router.push('/');
     } else if (pathname.includes('/collections')) {
       router.push('/collections');
-    } else {
+    } 
+    else {
       closeModal();
     }
   };

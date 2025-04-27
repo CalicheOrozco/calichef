@@ -49,6 +49,7 @@ const MyProvider = ({ children }) => {
   const [filteredCollections, setFilteredCollections] = useState([])
   const [shoppingList, setShoppingList] = useState([]);
   const [shoppingChecked, setShoppingChecked] = useState({});
+  const [loadingData, setLoadingData] = useState(true)
 
 
 
@@ -242,9 +243,10 @@ const MyProvider = ({ children }) => {
 
 
         await Promise.all(dataFetches)
-
+        setLoadingData(false)
       } catch (error) {
         console.error('Database error:', error)
+        setLoadingData(false)
       }
     }
 
@@ -358,11 +360,8 @@ const MyProvider = ({ children }) => {
         setShoppingList,
         shoppingChecked,
         setShoppingChecked,
-        fetchShoppingList
-
-
-
-
+        fetchShoppingList,
+        loadingData
       }}
     >
       {children}
