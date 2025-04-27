@@ -80,7 +80,6 @@ export default function Home() {
     return sorted;
   };
   const sortedData = useMemo(() => {
-    console.log('sortData', AllData, sortBy)
     if (!AllData || AllData.length === 0) return [];
     return sortData(AllData, sortBy);
   }, [AllData, sortBy]);
@@ -149,23 +148,22 @@ export default function Home() {
       >
         {AllData ? (
           <>
-            
-            <div className='flex justify-between mb-4'>
-            <p className='text-white flex justify-end items-center py-2'>
-              {recipesCount} recipes found
-            </p>
-              <div>
-              <label htmlFor='sortBy' className='text-white mr-2'>Sort By:</label>
-              <select
-                id='sortBy'
-                value={sortBy}
-                onChange={e => setSortBy(e.target.value)}
-                className='rounded-md px-3 py-1 bg-neutral-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-green-500'
-              >
-                {SORT_OPTIONS.map(opt => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
+            <div className='flex flex-col sm:flex-row justify-between mb-4'>
+              <p className='text-white flex justify-end items-center py-2'>
+                {recipesCount} recipes found
+              </p>
+              <div className='flex justify-end items-center'>
+                <label htmlFor='sortBy' className='text-white mr-2'>Sort By:</label>
+                <select
+                  id='sortBy'
+                  value={sortBy}
+                  onChange={e => setSortBy(e.target.value)}
+                  className='rounded-md px-3 py-1 bg-neutral-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-green-500'
+                >
+                  {SORT_OPTIONS.map(opt => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
               </div>
             </div>
             <div className='flex flex-wrap justify-center md:justify-between items-center gap-y-5'>
