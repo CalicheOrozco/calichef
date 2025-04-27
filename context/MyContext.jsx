@@ -1,6 +1,7 @@
 'use client'
 import React, { createContext, useState, useEffect } from 'react'
 import { openDB } from 'idb'
+import { useAuth } from './AuthContext';
 
 const DB_NAME = 'calicheDatabase'
 const STORE_NAME = 'dataStore'
@@ -11,6 +12,7 @@ const STORE_NAME = 'dataStore'
 const CalichefContext = createContext()
 
 const MyProvider = ({ children }) => {
+  const { user } = useAuth();
   const [AllData, setAllData] = useState(null)
   const [collections, setCollections] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -171,8 +173,12 @@ const MyProvider = ({ children }) => {
 
 
 
-    fetchShoppingList();
-  }, []);
+    // Escuchar cambios en user y disparar fetchShoppingList si hay usuario y la lista no está cargada
+    if (user && shoppingList.length === 0) {
+      fetchShoppingList();
+    }
+    // No hacer nada si no hay usuario
+  }, [user]);
 
   useEffect(() => {
     async function fetchData() {

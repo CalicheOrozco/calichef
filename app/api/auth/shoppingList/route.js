@@ -3,6 +3,7 @@ import User from '@/models/User';
 import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import { config } from 'dotenv';
+import { cookies } from 'next/headers';
 
 config();
 
