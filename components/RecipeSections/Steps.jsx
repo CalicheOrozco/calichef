@@ -6,6 +6,7 @@ export default function Steps({ steps, checkedSteps, setCheckedSteps }) {
   
   return (
     <div>
+      <div className='pb-4 sm:pb-8'>
       <core-list-section>
         <h3 className='text-green-500 text-xl sm:text-2xl font-bold pb-4 sm:pb-8'>
         Preparation
@@ -37,6 +38,8 @@ export default function Steps({ steps, checkedSteps, setCheckedSteps }) {
           })}
         </ol>
       </core-list-section>
+    </div>
+    <hr className='separator--silver-60' />
     </div>
   );
 }

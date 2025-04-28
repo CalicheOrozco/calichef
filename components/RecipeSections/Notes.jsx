@@ -99,7 +99,8 @@ export default function Notes({ recipeId }) {
 
   return (
     <div>
-      <div className='flex justify-between items-center py-4 sm:py-8'>
+      <div className='pb-6 sm:py-8'>
+      <div className='flex justify-between items-center pb-4 sm:pb-8'>
         <h3 className='text-green-500 text-xl sm:text-2xl font-bold'>My Notes</h3>
         <span className='text-gray-400 text-sm'>Visible only to you</span>
       </div>
@@ -169,6 +170,9 @@ export default function Notes({ recipeId }) {
           )}
         </div>
       )}
+    
+    </div>
+    <hr className='separator--silver-60' />
     </div>
   );
 }

@@ -7,9 +7,9 @@ const Devices = ({ devices, deviceImages }) => {
       <div className='pb-5'>
         <div className='bg-black bg-opacity-80 p-4 sm:p-6 rounded-lg'>
           <h3 className='text-xl sm:text-2xl text-green-500 font-bold mb-2'>Devices & Accessories</h3>
-          <div className='space-y-3 sm:space-y-4'>
+          <div className='py-1 sm:py-2 flex items-center  gap-4 flex-wrap'>
             {devices?.map((item, index) => (
-              <div key={index} className='flex items-center'>
+              <div key={index} className='flex items-center flex-col'>
                 <Image
                   src={deviceImages[item] || 'https://assets.tmecosys.com/image/upload/t_web_ingredient_48x48_2x/icons/ingredient_icons/546'}
                   alt={item}
