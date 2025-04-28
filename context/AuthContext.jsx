@@ -189,6 +189,37 @@ export const AuthProvider = ({ children }) => {
     }
   };
   
+  const updateRecipeNotes = async (recipeId, noteContent) => {
+    if (!user) return;
+    
+    try {
+      const res = await fetch('/api/auth/notes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ recipeId, noteContent }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setUser({
+          ...user,
+          notes: {
+            ...user.notes,
+            [recipeId]: noteContent
+          }
+        });
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Error al actualizar las notas:', error);
+      return false;
+    }
+  };
+  
   
 
   return (
@@ -202,6 +233,7 @@ export const AuthProvider = ({ children }) => {
         updateFavorites,
         updateFavoriteCollections,
         updateShoppingList,
+        updateRecipeNotes,
         isAuthenticated: !!user,
         refreshUser,
       }}

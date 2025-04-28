@@ -115,6 +115,7 @@ const LazyDevices = lazy(() => import('./RecipeSections/Devices'));
 const LazyCountry = lazy(() => import('./RecipeSections/Country'));
 const LazyCollections = lazy(() => import('./RecipeSections/Collections'));
 const LazyTags = lazy(() => import('./RecipeSections/Tags'));
+const LazyNotes = lazy(() => import('./RecipeSections/Notes'));
 
 // Main Recipe component with optimizations
 function Recipe({
@@ -331,13 +332,21 @@ function Recipe({
                 setCheckedSteps={setCheckedSteps}
               />
             </Suspense>
-            
+
             {/* Tips Section */}
             {tips && (
               <Suspense fallback={<LoadingFallback />}>
                 <LazyTips tips={tips} />
               </Suspense>
             )}
+                                    
+            {/* Notes Section - Only for authenticated users */}
+            {isAuthenticated && (
+              <Suspense fallback={<LoadingFallback />}>
+                <LazyNotes recipeId={id} />
+              </Suspense>
+            )}
+            
             
             {/* Country Section */}
             {country && (
@@ -396,6 +405,15 @@ function Recipe({
               </div>
             </Suspense>
           )}
+
+          {/* Notes Section - Only for authenticated users */}
+          {isAuthenticated && (
+            <Suspense fallback={<LoadingFallback />}>
+              <div className='p-4'>
+                <LazyNotes recipeId={id} />
+              </div>
+            </Suspense>
+          )}   
           
           {/* Useful Items Section */}
           {useful_items && (

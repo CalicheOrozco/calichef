@@ -53,7 +53,8 @@ export async function GET(request) {
           name: user.name,
           email: user.email,
           favorites: user.favorites,
-          favoriteCollections: user.favoriteCollections
+          favoriteCollections: user.favoriteCollections,
+          notes: user.notes || {}
         }
       },
       { status: 200 }

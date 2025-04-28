@@ -40,6 +40,15 @@ const UserSchema = new mongoose.Schema({
     ],
     default: []
   },
+  notes:{
+    type: [
+      {
+        idRecipe: { type: String, required: true },
+        note: { type: String, required: true }
+      }
+    ],
+    default: []
+  },
   createdAt: {
     type: Date,
     default: Date.now
