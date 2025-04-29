@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useContext, useMemo } from 'react';
+import { useState, useEffect, useContext, useMemo, useRef, useCallback } from 'react';
 import { IoClose } from 'react-icons/io5';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
@@ -12,6 +12,8 @@ export default function FavoriteCollections() {
   const router = useRouter();
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [highlightedCollectionId, setHighlightedCollectionId] = useState(null);
+  const containerRef = useRef(null);
   
   const { collections } = useContext(CalichefContext);
 
@@ -60,15 +62,92 @@ export default function FavoriteCollections() {
     setSearchInput('');
     setDebouncedSearch('');
   };
+  
+  // Guardar posición de scroll antes de navegar a una colección
+  useEffect(() => {
+    const handleLinkClick = (e) => {
+      if (e.target.closest('a[href^="/collections/"]')) {
+        localStorage.setItem('favoriteCollectionsScroll', window.scrollY.toString());
+        
+        // Encontrar el índice de la colección seleccionada
+        const card = e.target.closest('.card-item');
+        if (card && card.dataset.id) {
+          const collectionId = card.dataset.id;
+          const index = favoriteCollections.findIndex(c => c.id === collectionId);
+          if (index !== -1) {
+            localStorage.setItem('lastFavoriteCollectionIndex', index.toString());
+          }
+        }
+      }
+    };
+    
+    document.addEventListener('click', handleLinkClick);
+    return () => document.removeEventListener('click', handleLinkClick);
+  }, [favoriteCollections]);
+  
+  // Restaurar posición de scroll y destacar colección seleccionada al volver
+  useEffect(() => {
+    if (loading || !favoriteCollections.length) return;
+    
+    // Verificar si hay un índice de colección guardado
+    const lastCollectionIndex = localStorage.getItem('lastFavoriteCollectionIndex');
+    
+    if (lastCollectionIndex !== null) {
+      const index = parseInt(lastCollectionIndex, 10);
+      if (!isNaN(index) && index >= 0 && index < favoriteCollections.length) {
+        // Destacar la colección seleccionada
+        setHighlightedCollectionId(favoriteCollections[index].id);
+        
+        // Restaurar la posición de scroll
+        const scrollPosition = localStorage.getItem('favoriteCollectionsScroll');
+        if (scrollPosition) {
+          window.scrollTo(0, parseInt(scrollPosition, 10));
+        }
+        
+        // Eliminar los datos guardados después de usarlos
+        localStorage.removeItem('lastFavoriteCollectionIndex');
+        localStorage.removeItem('favoriteCollectionsScroll');
+        
+        // Quitar el destacado después de un tiempo
+        setTimeout(() => {
+          setHighlightedCollectionId(null);
+        }, 2000);
+      }
+    }
+  }, [loading, favoriteCollections]);
+  
+  // Función para manejar el clic en una tarjeta
+  const handleCardClick = useCallback((collection, index) => {
+    // Esta función se llamará desde el componente CollectionGrid
+    localStorage.setItem('favoriteCollectionsScroll', window.scrollY.toString());
+    localStorage.setItem('lastFavoriteCollectionIndex', index.toString());
+  }, []);
 
   if (loading || !collections) {
     return <LoadingScreen />;
   }
 
+  // Estilos para la tarjeta destacada
+  const highlightedCardStyle = `
+    @keyframes pulseHighlight {
+      0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+    }
+    .highlighted-card {
+      border: 2px solid #22c55e !important;
+      animation: pulseHighlight 2s infinite;
+      transform: scale(1.03);
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+  `;
+
   return (
     <>
+      <style jsx global>{highlightedCardStyle}</style>
       <Navbar />
-      <div className="container mx-auto py-2 px-4 min-h-screen">
+      <div className="container mx-auto py-2 px-4 min-h-screen" ref={containerRef}>
         <h1 className="text-2xl font-bold text-white mb-6 pt-4">My Favorite Collections</h1>
 
         {favoriteCollections.length > 0 && (
@@ -80,7 +159,11 @@ export default function FavoriteCollections() {
         )}
 
         {filteredFavorites.length > 0 ? (
-          <CollectionGrid collections={filteredFavorites} />
+          <CollectionGrid 
+            collections={filteredFavorites} 
+            onCardClick={handleCardClick}
+            highlightedId={highlightedCollectionId}
+          />
         ) : (
           <EmptyState 
             hasSearch={!!searchInput}
@@ -159,21 +242,27 @@ function SearchBar({ value, onChange, onClear }) {
   );
 }
 
-function CollectionGrid({ collections }) {
+function CollectionGrid({ collections, onCardClick, highlightedId }) {
   return (
     <>
       <p className="text-white flex justify-end items-center py-2">
         {collections.length} collections found
       </p>
       <div className="flex flex-wrap justify-center md:justify-between items-center gap-y-5">
-        {collections.map((collection) => (
-          <Card
+        {collections.map((collection, index) => (
+          <div 
             key={collection.id}
-            id={`${collection.id}`}
-            title={collection.title}
-            img_url={collection.image_url}
-            isCollection={true}
-          />
+            onClick={() => onCardClick(collection, index)}
+            className={`card-item transition-all duration-500 ${highlightedId === collection.id ? 'ring-4 ring-green-500 scale-105 z-10' : ''}`}
+            data-id={collection.id}
+          >
+            <Card
+              id={`${collection.id}`}
+              title={collection.title}
+              img_url={collection.image_url}
+              isCollection={true}
+            />
+          </div>
         ))}
       </div>
     </>

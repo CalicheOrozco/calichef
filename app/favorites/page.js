@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useContext, useMemo } from 'react';
+import { useState, useEffect, useContext, useMemo, useRef, useCallback } from 'react';
 import { IoClose } from 'react-icons/io5';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
@@ -77,6 +77,9 @@ export default function Favorites() {
   const [favoriteRecipes, setFavoriteRecipes] = useState([]);
   const [loadingRecipes, setLoadingRecipes] = useState(true);
   const [searchRecipes, setSearchRecipes] = useState('');
+  const [lastViewedRecipe, setLastViewedRecipe] = useState(null);
+  const [highlightedRecipe, setHighlightedRecipe] = useState(null);
+  const containerRef = useRef(null);
   
   const { originalData } = useContext(CalichefContext);
 
@@ -98,6 +101,36 @@ export default function Favorites() {
     
     setLoadingRecipes(false);
   }, [user, loading, router, originalData]);
+  
+  // Efecto para restaurar la posición de scroll y destacar la receta vista anteriormente
+  useEffect(() => {
+    if (loadingRecipes || !containerRef.current) return;
+    
+    // Recuperar el índice de la última receta vista
+    const lastRecipeIndex = localStorage.getItem('lastRecipeIndex');
+    if (lastRecipeIndex !== null) {
+      const index = parseInt(lastRecipeIndex, 10);
+      if (!isNaN(index) && index >= 0 && index < favoriteRecipes.length) {
+        setLastViewedRecipe(favoriteRecipes[index]);
+        setHighlightedRecipe(favoriteRecipes[index].id);
+        
+        // Restaurar la posición de scroll
+        const scrollPosition = localStorage.getItem('favoritesScrollPosition');
+        if (scrollPosition) {
+          window.scrollTo(0, parseInt(scrollPosition, 10));
+        }
+        
+        // Eliminar los datos guardados después de usarlos
+        localStorage.removeItem('lastRecipeIndex');
+        localStorage.removeItem('favoritesScrollPosition');
+        
+        // Quitar el destacado después de un tiempo
+        setTimeout(() => {
+          setHighlightedRecipe(null);
+        }, 2000);
+      }
+    }
+  }, [loadingRecipes, favoriteRecipes]);
 
   // Filtrar recetas usando useMemo para mejorar rendimiento
   const filteredFavorites = useMemo(() => {
@@ -116,6 +149,14 @@ export default function Favorites() {
   const clearSearch = () => {
     setSearchRecipes('');
   };
+  
+  // Función para guardar la posición de scroll y el índice de la receta antes de navegar
+  const handleCardClick = useCallback((recipe, index) => {
+    // Guardar la posición actual de scroll
+    localStorage.setItem('favoritesScrollPosition', window.scrollY.toString());
+    // Guardar el índice de la receta seleccionada
+    localStorage.setItem('lastRecipeIndex', index.toString());
+  }, []);
 
   if (loading || loadingRecipes) {
     return <LoadingSpinner />;
@@ -140,18 +181,23 @@ export default function Favorites() {
             <p className="text-white flex justify-end items-center py-2">
               {filteredFavorites.length} collections found
             </p>
-            <div className="flex flex-wrap justify-center md:justify-between items-center gap-y-5">
-              {filteredFavorites.map((recipe) => (
-                <Card
-                  key={recipe.id}
-                  id={recipe.id}
-                  title={recipe.title}
-                  rating_score={recipe.rating_score}
-                  rating_count={recipe.rating_count}
-                  time={recipe.total_time}
-                  img_url={recipe.image_url}
-                  category={recipe.category}
-                />
+            <div ref={containerRef} className="flex flex-wrap justify-center md:justify-between items-center gap-y-5">
+              {filteredFavorites.map((recipe, index) => (
+                <div 
+                  key={recipe.id} 
+                  onClick={() => handleCardClick(recipe, index)}
+                  className={`transition-all duration-500 ${highlightedRecipe === recipe.id ? 'ring-4 ring-green-500 scale-105 z-10' : ''}`}
+                >
+                  <Card
+                    id={recipe.id}
+                    title={recipe.title}
+                    rating_score={recipe.rating_score}
+                    rating_count={recipe.rating_count}
+                    time={recipe.total_time}
+                    img_url={recipe.image_url}
+                    category={recipe.category}
+                  />
+                </div>
               ))}
             </div>
           </>
