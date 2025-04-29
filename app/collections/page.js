@@ -31,6 +31,16 @@ export default function Collections() {
     }, 400);
     return () => clearTimeout(handler);
   }, [searchCollections]);
+  // Guardar posición de scroll antes de navegar a una colección
+  useEffect(() => {
+    const handleLinkClick = (e) => {
+      if (e.target.closest('a[href^="/collections/"]')) {
+        localStorage.setItem('collectionsScroll', containerRef.current ? containerRef.current.scrollTop : window.scrollY);
+      }
+    };
+    document.addEventListener('click', handleLinkClick);
+    return () => document.removeEventListener('click', handleLinkClick);
+  }, []);
 
   // Create memoized scroll handler
   const handleScroll = useCallback(() => {
@@ -64,6 +74,67 @@ export default function Collections() {
   }, [debouncedSearch]);
 
   const visibleCollections = filteredBySearch.slice(0, visibleCount);
+
+  // Estado para la colección destacada
+  const [highlightedCollectionIndex, setHighlightedCollectionIndex] = useState(null);
+
+  // Restaurar posición de scroll al montar y destacar la colección seleccionada
+  useEffect(() => {
+    // Verificar si hay un índice de colección guardado (al regresar de una colección)
+    const lastCollectionIndex = localStorage.getItem('lastCollectionIndex');
+    
+    if (lastCollectionIndex) {
+      const index = parseInt(lastCollectionIndex, 10);
+      setHighlightedCollectionIndex(index);
+      
+      // Asegurarse de cargar suficientes elementos para mostrar la colección seleccionada
+      const neededVisible = index + 20; // Cargar el índice más un buffer
+      if (visibleCount < neededVisible) {
+        setVisibleCount(Math.min(neededVisible, filteredBySearch.length));
+      }
+      
+      // Usar setTimeout para dar tiempo a que se renderice el DOM
+      setTimeout(() => {
+        const cards = containerRef.current?.querySelectorAll('.card-item');
+        if (cards && cards[index]) {
+          // Hacer scroll suave hacia la tarjeta
+          cards[index].scrollIntoView({ behavior: 'smooth', block: 'center' });
+          
+          // Añadir clase de destaque a la tarjeta
+          cards[index].classList.add('highlighted-card');
+          
+          // Quitar el destaque después de un tiempo
+          setTimeout(() => {
+            cards[index].classList.remove('highlighted-card');
+            setHighlightedCollectionIndex(null);
+          }, 3000);
+          
+          // Limpiar el localStorage
+          localStorage.removeItem('lastCollectionIndex');
+        }
+      }, 300);
+    } else {
+      // Comportamiento anterior para restaurar posición de scroll exacta
+      const savedScroll = localStorage.getItem('collectionsScroll');
+      if (savedScroll && containerRef.current) {
+        const scrollValue = parseInt(savedScroll, 10);
+        
+        // Cargar suficientes elementos y luego hacer scroll
+        const estimatedItemsNeeded = Math.ceil(scrollValue / 330) + 20; // Estimación basada en altura aproximada
+        
+        if (visibleCount < estimatedItemsNeeded) {
+          setVisibleCount(Math.min(estimatedItemsNeeded, filteredBySearch.length));
+        }
+        
+        // Usar requestAnimationFrame para asegurar que el DOM está actualizado
+        requestAnimationFrame(() => {
+          containerRef.current.scrollTop = scrollValue;
+          localStorage.removeItem('collectionsScroll');
+        });
+      }
+    }
+  }, [visibleCollections.length, visibleCount, filteredBySearch.length]);
+
 
   const handleSearchChange = (event) => {
     setSearchCollections(event.target.value);
@@ -101,15 +172,32 @@ export default function Collections() {
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               ></path>
             </svg>
-            <p className="mt-4 text-lg text-gray-600">Cargando...</p>
+            <p className="mt-4 text-lg text-gray-600">Loading...</p>
           </div>
         </div>
       </>
     );
   }
 
+  // Estilos para la tarjeta destacada
+  const highlightedCardStyle = `
+    @keyframes pulseHighlight {
+      0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+    }
+    .highlighted-card {
+      border: 2px solid #22c55e !important;
+      animation: pulseHighlight 2s infinite;
+      transform: scale(1.03);
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+  `;
+
   return (
     <>
+      <style jsx global>{highlightedCardStyle}</style>
       <Navbar />
       <div 
         ref={containerRef} 
@@ -139,7 +227,7 @@ export default function Collections() {
                 <button
                   onClick={clearSearch}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
-                  aria-label="Borrar búsqueda"
+                  aria-label="Clear search"
                   type="button"
                 >
                   <IoClose className="text-xl" />
@@ -169,14 +257,14 @@ export default function Collections() {
             
             {visibleCount < filteredBySearch.length && (
               <div className="flex justify-center py-6">
-                <span className="text-gray-400">Cargando más colecciones...</span>
+                <span className="text-gray-400">Loading more collections...</span>
               </div>
             )}
           </>
         ) : (
           <div className="text-center py-10">
             <p className="text-white text-lg mb-4">
-              {searchCollections ? 'No se encontraron colecciones con ese término de búsqueda.' : 'No hay colecciones disponibles.'}
+              {searchCollections ? 'No collections were found with that search term.' : 'No collections available..'}
             </p>
           </div>
         )}
@@ -184,3 +272,4 @@ export default function Collections() {
     </>
   );
 }
+

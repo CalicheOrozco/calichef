@@ -86,8 +86,18 @@ export default function CollectionDetail({ params }) {
 
   const handleBack = useCallback((e) => {
     e.preventDefault();
+    // Guardar el índice de la card seleccionada antes de regresar
+    if (collection && collection.id) {
+      // Buscar el índice de la colección en el array de colecciones
+      const index = collections.findIndex(c => c.id === collection.id);
+      
+      if (index !== -1) {
+        // Guardar el índice en localStorage para que la página de colecciones pueda resaltarla
+        localStorage.setItem('lastCollectionIndex', index);
+      }
+    }
     router.back();
-  }, [router]);
+  }, [router, collection, collections]);
 
   if (loading) {
     return (

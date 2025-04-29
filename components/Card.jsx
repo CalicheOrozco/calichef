@@ -118,7 +118,7 @@ const Card = memo(function Card({
   return (
     <div className={`relative bg-neutral-800 rounded-lg shadow-lg overflow-hidden ${
       isCollection ? 'w-[240px] h-[330px]' : 'h-[380px] w-[347px]'
-    } mx-auto transform transition duration-300 md:hover:scale-105 cursor-pointer md:hover:shadow-2xl border border-neutral-700`}>
+    } mx-auto transform transition duration-300 md:hover:scale-105 cursor-pointer md:hover:shadow-2xl border border-neutral-700 card-item`}>
       <div className='relative'>
         <Link href={`/${isCollection ? `collections/${cardId}` : cardId}`} passHref>
           {isCollection ? (
