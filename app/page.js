@@ -47,8 +47,9 @@ export default function Home() {
   const containerRef = useRef(null)
   const { AllData = [], loadingData } = contextValue || {}
   const recipesCount = AllData?.length || 0
+  // Estado para la receta destacada
+  const [highlightedRecipeIndex, setHighlightedRecipeIndex] = useState(null)
   const sortData = (data, sortBy) => {
-    console.log('sortData', data, sortBy)
     let sorted = [...data];
     if (sortBy === 'longest_prep_time') {
       sorted.sort((a, b) => 
@@ -88,6 +89,29 @@ export default function Home() {
     return sortedData.slice(0, visibleCount);
   }, [sortedData, visibleCount]);
 
+  // Guardar posición de scroll antes de navegar a una receta
+  useEffect(() => {
+    const handleLinkClick = (e) => {
+      if (e.target.closest('a[href^="/"]') && !e.target.closest('a[href^="/collections"]') && !e.target.closest('a[href^="/favorites"]')) {
+        // Guardar la posición de scroll
+        localStorage.setItem('homeScroll', containerRef.current ? containerRef.current.scrollTop : window.scrollY);
+        
+        // Encontrar el índice de la receta seleccionada
+        const card = e.target.closest('.card-item');
+        if (card) {
+          const cards = Array.from(document.querySelectorAll('.card-item'));
+          const index = cards.indexOf(card);
+          if (index !== -1) {
+            localStorage.setItem('lastRecipeIndex', index.toString());
+          }
+        }
+      }
+    };
+    
+    document.addEventListener('click', handleLinkClick);
+    return () => document.removeEventListener('click', handleLinkClick);
+  }, []);
+  
   // Scroll infinito
   useEffect(() => {
     const handleScroll = () => {
@@ -103,6 +127,63 @@ export default function Home() {
       ref?.removeEventListener('scroll', handleScroll);
     };
   }, [recipesCount]);
+  
+  // Restaurar posición de scroll y destacar receta seleccionada
+  useEffect(() => {
+    // Verificar si hay un índice de receta guardado (al regresar de una receta)
+    const lastRecipeIndex = localStorage.getItem('lastRecipeIndex');
+    
+    if (lastRecipeIndex) {
+      const index = parseInt(lastRecipeIndex, 10);
+      setHighlightedRecipeIndex(index);
+      
+      // Asegurarse de cargar suficientes elementos para mostrar la receta seleccionada
+      const neededVisible = index + 20; // Cargar el índice más un buffer
+      if (visibleCount < neededVisible) {
+        setVisibleCount(Math.min(neededVisible, sortedData.length));
+      }
+      
+      // Usar setTimeout para dar tiempo a que se renderice el DOM
+      setTimeout(() => {
+        const cards = containerRef.current?.querySelectorAll('.card-item');
+        if (cards && cards[index]) {
+          // Hacer scroll suave hacia la tarjeta
+          cards[index].scrollIntoView({ behavior: 'smooth', block: 'center' });
+          
+          // Añadir clase de destaque a la tarjeta
+          cards[index].classList.add('highlighted-card');
+          
+          // Quitar el destaque después de un tiempo
+          setTimeout(() => {
+            cards[index].classList.remove('highlighted-card');
+            setHighlightedRecipeIndex(null);
+          }, 3000);
+          
+          // Limpiar el localStorage
+          localStorage.removeItem('lastRecipeIndex');
+        }
+      }, 300);
+    } else {
+      // Comportamiento anterior para restaurar posición de scroll exacta
+      const savedScroll = localStorage.getItem('homeScroll');
+      if (savedScroll && containerRef.current) {
+        const scrollValue = parseInt(savedScroll, 10);
+        
+        // Cargar suficientes elementos y luego hacer scroll
+        const estimatedItemsNeeded = Math.ceil(scrollValue / 330) + 20; // Estimación basada en altura aproximada
+        
+        if (visibleCount < estimatedItemsNeeded) {
+          setVisibleCount(Math.min(estimatedItemsNeeded, sortedData.length));
+        }
+        
+        // Usar requestAnimationFrame para asegurar que el DOM está actualizado
+        requestAnimationFrame(() => {
+          containerRef.current.scrollTop = scrollValue;
+          localStorage.removeItem('homeScroll');
+        });
+      }
+    }
+  }, [visibleData.length, visibleCount, sortedData.length]);
 
   if (!contextValue) {
     console.error('CalichefContext no está disponible en el componente Home')
@@ -138,8 +219,25 @@ export default function Home() {
       </div>
     )
   }
+  // Estilos para la tarjeta destacada
+  const highlightedCardStyle = `
+    @keyframes pulseHighlight {
+      0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+    }
+    .highlighted-card {
+      border: 2px solid #22c55e !important;
+      animation: pulseHighlight 2s infinite;
+      transform: scale(1.03);
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+  `;
+
   return (
     <>
+      <style jsx global>{highlightedCardStyle}</style>
       <Navbar countRecipies={recipesCount} className='pb-10' />
       <div 
         ref={containerRef} 
