@@ -158,11 +158,11 @@ export default function CollectionDetail({ params }) {
       <Navbar />
       <div className="container mx-auto py-2 px-4 min-h-screen">
         <div className="mb-6">
-          <div className="text-white text-4xl md:py-4 lg:pl-4 hover:text-green-500 flex items-center cursor-pointer">
+          <div className="text-white text-4xl py-4 lg:pl-4 hover:text-green-500 flex items-center cursor-pointer">
             <FaArrowLeft onClick={handleBack} className="mr-2" />
           </div>
 
-          <div className="flex justify-center flex-col md:flex-row gap-6 items-start mb-8">
+          <div className="flex justify-center flex-col md:flex-row gap-6 items-center md:items-start mb-8">
             {collection.image_url && (
               <div>
                 <Image
