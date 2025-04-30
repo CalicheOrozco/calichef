@@ -271,7 +271,7 @@ const MyProvider = ({ children }) => {
       const finalData = allDataSets
         .filter(Array.isArray)
         .flat()
-        .sort(() => Math.random() - 0.5)
+        
 
 
       setAllData(finalData)

@@ -114,20 +114,24 @@ export default function Favorites() {
         setLastViewedRecipe(favoriteRecipes[index]);
         setHighlightedRecipe(favoriteRecipes[index].id);
         
-        // Restaurar la posición de scroll
-        const scrollPosition = localStorage.getItem('favoritesScrollPosition');
-        if (scrollPosition) {
-          window.scrollTo(0, parseInt(scrollPosition, 10));
-        }
-        
-        // Eliminar los datos guardados después de usarlos
-        localStorage.removeItem('lastRecipeIndex');
-        localStorage.removeItem('favoritesScrollPosition');
-        
-        // Quitar el destacado después de un tiempo
+        // Usar setTimeout para dar tiempo a que se renderice el DOM
         setTimeout(() => {
-          setHighlightedRecipe(null);
-        }, 2000);
+          const cards = containerRef.current?.querySelectorAll('.card-item');
+          if (cards && cards[index]) {
+            // Hacer scroll suave hacia la tarjeta
+            cards[Math.floor(index * 2)].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // verificar si la tarjeta está fuera de la vista
+          }
+          
+          // Eliminar los datos guardados después de usarlos
+          localStorage.removeItem('lastRecipeIndex');
+          localStorage.removeItem('favoritesScrollPosition');
+          
+          // Quitar el destacado después de un tiempo
+          setTimeout(() => {
+            setHighlightedRecipe(null);
+          }, 2000);
+        }, 300);
       }
     }
   }, [loadingRecipes, favoriteRecipes]);
@@ -186,7 +190,7 @@ export default function Favorites() {
                 <div 
                   key={recipe.id} 
                   onClick={() => handleCardClick(recipe, index)}
-                  className={`transition-all duration-500 ${highlightedRecipe === recipe.id ? 'ring-4 ring-green-500 scale-105 z-10' : ''}`}
+                  className={`card-item transition-all duration-500 ${highlightedRecipe === recipe.id ? 'ring-4 ring-green-500 scale-105 z-10' : ''}`}
                 >
                   <Card
                     id={recipe.id}
