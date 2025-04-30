@@ -13,6 +13,7 @@ export default function FavoriteCollections() {
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [highlightedCollectionId, setHighlightedCollectionId] = useState(null);
+  const [lastViewedCollectionId, setLastViewedCollectionId] = useState(null);
   const containerRef = useRef(null);
   
   const { collections } = useContext(CalichefContext);
@@ -85,42 +86,66 @@ export default function FavoriteCollections() {
     return () => document.removeEventListener('click', handleLinkClick);
   }, [favoriteCollections]);
   
-  // Restaurar posición de scroll y destacar colección seleccionada al volver
-  useEffect(() => {
-    if (loading || !favoriteCollections.length) return;
+  // Efecto para restaurar la posición de scroll y destacar la colección vista anteriormente
+useEffect(() => {
+  // Solo ejecutar cuando cargue la página y no esté cargando
+  if (loading) return;
+
+  // Recuperar los datos guardados
+  const savedScrollPosition = localStorage.getItem('favoriteCollectionsScroll');
+  const lastCollectionIndex = localStorage.getItem('lastFavoriteCollectionIndex');
+  
+  if (lastCollectionIndex !== null) {
+    const index = parseInt(lastCollectionIndex, 10);
     
-    // Verificar si hay un índice de colección guardado
-    const lastCollectionIndex = localStorage.getItem('lastFavoriteCollectionIndex');
-    
-    if (lastCollectionIndex !== null) {
-      const index = parseInt(lastCollectionIndex, 10);
-      if (!isNaN(index) && index >= 0 && index < favoriteCollections.length) {
-        // Destacar la colección seleccionada
-        setHighlightedCollectionId(favoriteCollections[index].id);
+    // Verificar que el índice es válido
+    if (!isNaN(index) && index >= 0 && index < favoriteCollections.length) {
+      const collection = favoriteCollections[index];
+      if (collection) {
+        // Guardar el ID de la colección destacada
+        setHighlightedCollectionId(collection.id);
         
-        // Restaurar la posición de scroll
-        const scrollPosition = localStorage.getItem('favoriteCollectionsScroll');
-        if (scrollPosition) {
-          window.scrollTo(0, parseInt(scrollPosition, 10));
-        }
-        
-        // Eliminar los datos guardados después de usarlos
-        localStorage.removeItem('lastFavoriteCollectionIndex');
-        localStorage.removeItem('favoriteCollectionsScroll');
-        
-        // Quitar el destacado después de un tiempo
+        // Usar setTimeout para dar tiempo a que se renderice el DOM
         setTimeout(() => {
-          setHighlightedCollectionId(null);
-        }, 2000);
+          const cards = containerRef.current?.querySelectorAll('.card-item');
+          if (cards && cards[index]) {
+            // Primero hacer scroll a la parte superior
+            window.scrollTo({ top: 0, behavior: 'auto' });
+            
+            // Luego hacer scroll suave hacia la tarjeta correcta
+            setTimeout(() => {
+              cards[index * 2].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+          }
+          
+          // Eliminar los datos guardados después de usarlos
+          localStorage.removeItem('lastFavoriteCollectionIndex');
+          localStorage.removeItem('favoriteCollectionsScroll');
+
+          // Quitar el destacado después de un tiempo
+          setTimeout(() => {
+            setHighlightedCollectionId(null);
+          }, 2000);
+        }, 300);
       }
     }
-  }, [loading, favoriteCollections]);
+  } else if (savedScrollPosition) {
+    // Si no hay colección específica pero sí una posición de scroll, restaurarla
+    window.scrollTo({
+      top: parseInt(savedScrollPosition, 10),
+      behavior: 'smooth'
+    });
+    localStorage.removeItem('favoriteCollectionsScroll');
+  }
+}, [loading, favoriteCollections]);
   
   // Función para manejar el clic en una tarjeta
   const handleCardClick = useCallback((collection, index) => {
-    // Esta función se llamará desde el componente CollectionGrid
     localStorage.setItem('favoriteCollectionsScroll', window.scrollY.toString());
     localStorage.setItem('lastFavoriteCollectionIndex', index.toString());
+    if (collection && collection.id) {
+      localStorage.setItem('lastViewedCollectionId', collection.id);
+    }
   }, []);
 
   if (loading || !collections) {
@@ -137,9 +162,10 @@ export default function FavoriteCollections() {
     .highlighted-card {
       border: 2px solid #22c55e !important;
       animation: pulseHighlight 2s infinite;
-      transform: scale(1.03);
+      transform: scale(1.05);
       transition: all 0.3s ease;
       z-index: 10;
+      box-shadow: 0 0 15px rgba(34, 197, 94, 0.6);
     }
   `;
 
@@ -203,7 +229,7 @@ function LoadingScreen() {
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
             ></path>
           </svg>
-          <p className="mt-4 text-lg text-gray-600">loading...</p>
+          <p className="mt-4 text-lg text-gray-600">Loading...</p>
         </div>
       </div>
     </>
@@ -253,7 +279,7 @@ function CollectionGrid({ collections, onCardClick, highlightedId }) {
           <div 
             key={collection.id}
             onClick={() => onCardClick(collection, index)}
-            className={`card-item transition-all duration-500 ${highlightedId === collection.id ? 'ring-4 ring-green-500 scale-105 z-10' : ''}`}
+            className={`card-item transition-all duration-500 ${highlightedId === collection.id ? 'highlighted-card' : ''}`}
             data-id={collection.id}
           >
             <Card
