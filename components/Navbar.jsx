@@ -794,14 +794,14 @@ export default function Navbar({countRecipies}) {
                   <div className="absolute right-0 mt-2 w-48 bg-black rounded-lg shadow-lg py-2 z-50">
                     <Link href="/login" passHref>
                       <button
-                        className="block w-full text-left bg-black px-4 py-2 text-sm text-green-600 hover:bg-green-100"
+                        className="block w-full text-left bg-black px-4 py-4 text-lg text-green-600 hover:bg-green-100"
                       >
                         Login
                       </button>
                     </Link>
                     <Link href="/register" passHref>
                       <button
-                        className="block w-full text-left bg-black px-4 py-2 text-sm text-blue-600 hover:bg-blue-100"
+                        className="block w-full text-left bg-black px-4 py-4 text-lg text-blue-600 hover:bg-blue-100"
                       >
                         Register
                       </button>
