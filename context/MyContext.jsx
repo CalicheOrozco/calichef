@@ -22,6 +22,7 @@ const MyProvider = ({ children }) => {
     return null;
   });
   const [searchTerm, setSearchTerm] = useState('')
+  const [searchCollections, setSearchCollections] = useState('')
   const [countryFilter, setCountryFilter] = useState(['All'])
   const [difficultyFilter, setDifficultyFilter] = useState('All')
   const [languageFilter, setLanguageFilter] = useState(['ES'])
@@ -271,6 +272,7 @@ const MyProvider = ({ children }) => {
       const finalData = allDataSets
         .filter(Array.isArray)
         .flat()
+        .sort(() => Math.random() - 0.5)
         
 
 
@@ -320,7 +322,9 @@ const MyProvider = ({ children }) => {
     }
   }, [originalData]);
 
-
+  useEffect(() => {
+    setSearchCollections(searchTerm)
+  }, [searchTerm])
 
 
 
@@ -337,9 +341,10 @@ const MyProvider = ({ children }) => {
         collections,
         setCollections,
         originalData,
-
         searchTerm,
         setSearchTerm,
+        searchCollections,
+        setSearchCollections,
         countryFilter,
         setCountryFilter,
         difficultyFilter,

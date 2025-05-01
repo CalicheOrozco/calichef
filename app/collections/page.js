@@ -6,12 +6,11 @@ import Card from '@/components/Card';
 import { CalichefContext } from '@/context/MyContext';
 
 export default function Collections() {
-  const [searchCollections, setSearchCollections] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [visibleCount, setVisibleCount] = useState(50);
   const containerRef = useRef(null);
   
-  const { filteredCollections = [] } = useContext(CalichefContext);
+  const { filteredCollections, searchCollections ,setSearchCollections  } = useContext(CalichefContext);
   const isLoading = !filteredCollections.length;
 
   // Filter collections based on search terms

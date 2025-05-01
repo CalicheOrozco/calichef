@@ -76,12 +76,11 @@ export default function Favorites() {
   const router = useRouter();
   const [favoriteRecipes, setFavoriteRecipes] = useState([]);
   const [loadingRecipes, setLoadingRecipes] = useState(true);
-  const [searchRecipes, setSearchRecipes] = useState('');
   const [lastViewedRecipe, setLastViewedRecipe] = useState(null);
   const [highlightedRecipe, setHighlightedRecipe] = useState(null);
   const containerRef = useRef(null);
   
-  const { originalData } = useContext(CalichefContext);
+  const { originalData, searchTerm, setSearchTerm } = useContext(CalichefContext);
 
   // Cargar favoritos cuando el usuario esté disponible
   useEffect(() => {
@@ -138,20 +137,20 @@ export default function Favorites() {
 
   // Filtrar recetas usando useMemo para mejorar rendimiento
   const filteredFavorites = useMemo(() => {
-    if (!searchRecipes.trim()) return favoriteRecipes;
+    if (!searchTerm.trim()) return favoriteRecipes;
     
-    const searchTerms = searchRecipes.toLowerCase().split(' ').filter(Boolean);
+    const searchTerms = searchTerm.toLowerCase().split(' ').filter(Boolean);
     return favoriteRecipes.filter(recipe =>
       searchTerms.every(term => recipe.title.toLowerCase().includes(term))
     );
-  }, [favoriteRecipes, searchRecipes]);
+  }, [favoriteRecipes, searchTerm]);
 
   const handleSearchChange = (event) => {
-    setSearchRecipes(event.target.value);
+    setSearchTerm(event.target.value);
   };
 
   const clearSearch = () => {
-    setSearchRecipes('');
+    setSearchTerm('');
   };
   
   // Función para guardar la posición de scroll y el índice de la receta antes de navegar
@@ -174,7 +173,7 @@ export default function Favorites() {
 
         {favoriteRecipes.length > 0 && (
           <SearchBar 
-            searchValue={searchRecipes} 
+            searchValue={searchTerm} 
             onSearchChange={handleSearchChange} 
             onSearchClear={clearSearch} 
           />
@@ -208,15 +207,15 @@ export default function Favorites() {
         ) : (
           <div className="text-center py-10">
             <p className="text-white text-lg mb-4">
-              {searchRecipes 
-                ? 'No se encontraron recetas con ese término de búsqueda.' 
-                : 'No tienes recetas favoritas guardadas.'}
+              {searchTerm 
+                ? 'No recipes were found with that search term.' 
+                : 'You have no saved favorite recipes.'}
             </p>
             <button
               onClick={() => router.push('/')}
               className="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-200"
             >
-              Explorar Recetas
+              Explore Recipes
             </button>
           </div>
         )}

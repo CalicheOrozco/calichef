@@ -10,13 +10,14 @@ import { CalichefContext } from '@/context/MyContext';
 export default function FavoriteCollections() {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [highlightedCollectionId, setHighlightedCollectionId] = useState(null);
   const [lastViewedCollectionId, setLastViewedCollectionId] = useState(null);
   const containerRef = useRef(null);
   
   const { collections } = useContext(CalichefContext);
+
+  const { searchCollections ,setSearchCollections } = useContext(CalichefContext);
 
   // Redirigir si no hay usuario autenticado
   useEffect(() => {
@@ -28,11 +29,11 @@ export default function FavoriteCollections() {
   // Debounce de búsqueda
   useEffect(() => {
     const handler = setTimeout(() => {
-      setDebouncedSearch(searchInput);
+      setDebouncedSearch(searchCollections);
     }, 400);
 
     return () => clearTimeout(handler);
-  }, [searchInput]);
+  }, [searchCollections]);
 
   // Calcular colecciones favoritas
   const favoriteCollections = useMemo(() => {
@@ -55,12 +56,12 @@ export default function FavoriteCollections() {
 
   // Manejar cambios en la búsqueda
   const handleSearch = (event) => {
-    setSearchInput(event.target.value);
+    setSearchCollections(event.target.value);
   };
 
   // Limpiar búsqueda
   const clearSearch = () => {
-    setSearchInput('');
+    setSearchCollections('');
     setDebouncedSearch('');
   };
   
@@ -178,7 +179,7 @@ useEffect(() => {
 
         {favoriteCollections.length > 0 && (
           <SearchBar 
-            value={searchInput} 
+            value={searchCollections} 
             onChange={handleSearch} 
             onClear={clearSearch} 
           />
@@ -192,7 +193,7 @@ useEffect(() => {
           />
         ) : (
           <EmptyState 
-            hasSearch={!!searchInput}
+            hasSearch={!!searchCollections}
             onExplore={() => router.push('/collections')}
           />
         )}
