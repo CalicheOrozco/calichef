@@ -4,23 +4,18 @@ import React, { useContext, useState, useEffect, useCallback, useRef, useMemo } 
 import { usePathname, useRouter } from 'next/navigation'
 import { CalichefContext } from '../context/MyContext'
 import { FaSearch, FaStar, FaUserCircle } from 'react-icons/fa'
-import { FaUser , FaHeart, FaRightFromBracket, FaLayerGroup} from "react-icons/fa6";
+import { FaUser, FaHeart, FaRightFromBracket, FaLayerGroup } from "react-icons/fa6"
 import { MdShoppingCart } from "react-icons/md"
-
 import { IoClose, IoHomeSharp } from 'react-icons/io5'
 import Link from 'next/link'
-import { countryMap } from '../constants';
+import { countryMap } from '../constants'
 import Image from 'next/image'
 
-// Move debounce outside component to prevent recreation on each render
 const debounce = (func, wait = 1000) => {
   let timeout
   return (...args) => {
-    const context = this
-    if (timeout) clearTimeout(timeout)
-    timeout = setTimeout(() => {
-      func.apply(context, args)
-    }, wait)
+    clearTimeout(timeout)
+    timeout = setTimeout(() => func(...args), wait)
   }
 }
 
@@ -29,45 +24,143 @@ const difficultyMap = {
   'E': 'Easy',
   'M': 'Medium',
   'A': 'Advanced'
-};
+}
 
 const languageMap = {
   'ES': 'Español',
   'EN': 'English',
-  'FR': 'Français',
-};
+  'FR': 'Français'
+}
 
-// Helper for time processing to avoid repetitive code
+// Utility for time processing
 const calculateTimeInMinutes = (timeString) => {
-  if (!timeString) return 0;
+  if (!timeString) return 0
   
-  const matches = timeString.match(/(\d+)\s*(h|min)/gi);
-  let totalMinutes = 0;
+  const matches = timeString.match(/(\d+)\s*(h|min)/gi)
+  let totalMinutes = 0
 
   if (matches) {
     matches.forEach(match => {
-      const numberMatch = match.match(/(\d+)/);
-      const unitMatch = match.match(/(h|min)/i);
-      
-      if (numberMatch && unitMatch) {
-        const value = parseInt(numberMatch[1]);
-        const unit = unitMatch[1].toLowerCase();
-        totalMinutes += unit === 'h' ? value * 60 : value;
-      }
-    });
+      const [value, unit] = match.replace(/\s+/g, '').match(/(\d+)(h|min)/i).slice(1)
+      totalMinutes += unit.toLowerCase() === 'h' ? parseInt(value) * 60 : parseInt(value)
+    })
+    return totalMinutes
   }
   
-  if ((!matches || totalMinutes === 0) && timeString) {
-    const directNumber = parseInt(timeString);
-    if (!isNaN(directNumber)) {
-      totalMinutes = directNumber;
-    }
-  }
-  
-  return totalMinutes;
-};
+  // Handle direct number input
+  const directNumber = parseInt(timeString)
+  return isNaN(directNumber) ? 0 : directNumber
+}
 
-export default function Navbar({countRecipies}) {
+// Split the navbar component into smaller subcomponents
+const UserMenu = ({ user, logout, menuRef, showMenu, setShowMenu }) => {
+  if (!user) {
+    return (
+      <div className="relative" ref={menuRef}>
+        <div
+          onClick={() => setShowMenu(!showMenu)}
+          className="flex items-center gap-2 text-green-600"
+        >
+          <FaUserCircle className="text-2xl hover:text-green-300 transition-colors" />
+        </div>
+        {showMenu && (
+          <div className="absolute right-0 mt-2 w-48 bg-black rounded-lg shadow-lg py-2 z-50">
+            <Link href="/login" passHref>
+              <button className="block w-full text-left bg-black px-4 py-4 text-lg text-green-600 hover:bg-green-100">
+                Login
+              </button>
+            </Link>
+            <Link href="/register" passHref>
+              <button className="block w-full text-left bg-black px-4 py-4 text-lg text-blue-600 hover:bg-blue-100">
+                Register
+              </button>
+            </Link>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  return (
+    <div className="relative" ref={menuRef}>
+      <div
+        onClick={() => setShowMenu(!showMenu)}
+        className="flex items-center gap-2 text-green-600"
+      >
+        <FaUserCircle className="text-2xl hover:text-green-300 transition-colors" />
+      </div>
+      {showMenu && (
+        <div className="absolute right-0 mt-2 w-56 bg-black rounded-lg shadow-lg py-2 z-50">
+          <div className="px-4 py-4 text-xl text-white font-semibold border-b">
+            {user.name.charAt(0).toUpperCase() + user.name.slice(1)}
+          </div>
+          <Link href="/profile" passHref>
+            <span className="flex gap-x-2 items-center px-4 py-4 text-lg text-white hover:bg-green-900 cursor-pointer">
+              <FaUser />
+              Profile
+            </span>
+          </Link>
+          <Link href="/collections" passHref>
+            <span className="flex gap-x-2 items-center px-4 py-4 text-lg text-white hover:bg-green-900 cursor-pointer">
+              <FaLayerGroup />
+              Collections
+            </span>
+          </Link>
+          <Link href="/favorites" passHref>
+            <span className="flex gap-x-2 items-center px-4 py-4 text-lg text-white hover:bg-green-900 cursor-pointer">
+              <FaHeart />
+              My Favorites
+            </span>
+          </Link>
+          <Link href="/favoriteCollections" passHref>
+            <span className="flex gap-x-2 items-center px-4 py-4 text-lg text-white hover:bg-green-900 cursor-pointer icon--cooking-station">
+              My Collections
+            </span>
+          </Link>
+          <Link href="/shopping-list" passHref>
+            <span className="flex gap-x-2 items-center px-4 py-4 text-lg text-white hover:bg-green-900 cursor-pointer">
+              <MdShoppingCart />
+              Shopping List
+            </span>
+          </Link>
+          <button
+            onClick={logout}
+            className="flex gap-x-2 items-center w-full text-left px-4 py-4 text-lg text-red-600 hover:bg-red-600 hover:text-white"
+          >
+            <FaRightFromBracket />
+            Log Out
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// Search suggestions component
+const SearchSuggestions = ({ suggestions, handleSuggestionClick, handleSuggestionKeyDown, suggestionsRef }) => {
+  if (!suggestions || !suggestions.length) return null
+  
+  return (
+    <div 
+      ref={suggestionsRef}
+      className="absolute z-50 mt-1 w-full bg-neutral-800 border border-neutral-700 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+    >
+      {suggestions.map((suggestion, index) => (
+        <div
+          key={suggestion.id}
+          className="suggestion-item px-4 py-2 hover:bg-neutral-700 cursor-pointer text-white"
+          onClick={() => handleSuggestionClick(suggestion)}
+          onKeyDown={(e) => handleSuggestionKeyDown(e, index, suggestion)}
+          tabIndex={0}
+        >
+          {suggestion.title}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+export default function Navbar({ countRecipies }) {
   // Router and pathname
   const router = useRouter()
   const pathname = usePathname()
@@ -110,7 +203,9 @@ export default function Navbar({countRecipies}) {
     isModalOpen,
     setIsModalOpen,
     categoryFilter,
-    setCategoryFilter
+    setCategoryFilter,
+    filteredCollections,
+    setFilteredCollections,
   } = contextValue
 
   // Local state for time filters
@@ -131,582 +226,568 @@ export default function Navbar({countRecipies}) {
     )
   }, [searchTerm, countryFilter, difficultyFilter, languageFilter, starsFilter, categoryFilter, cookingTimeFilter, finalTimeFilter])
 
-  // Memoize filtered data for categories to prevent recalculation on every render
+  // Memoize filtered data for categories to prevent recalculation
   const categories = useMemo(() => {
-    if (!originalData) return [];
+    if (!originalData || !Array.isArray(originalData)) return []
     
     // Apply all filters except category filter
-    let filteredData = [...originalData];
+    let filteredData = originalData
     
     if (searchTerm) {
-      const searchTermLower = searchTerm.toLowerCase();
+      const searchTermLower = searchTerm.toLowerCase()
       filteredData = filteredData.filter(item =>
         item.title.toLowerCase().includes(searchTermLower)
-      );
+      )
     }
     
     if (!countryFilter.includes('All')) {
       filteredData = filteredData.filter(
         item => item.country && countryFilter.some(country => item.country.includes(country))
-      );
+      )
     }
     
     if (difficultyFilter !== 'All') {
       filteredData = filteredData.filter(
         item => item.difficulty && item.difficulty === difficultyFilter
-      );
+      )
     }
     
     if (!languageFilter.includes('All')) {
       filteredData = filteredData.filter(
         item => item.language && languageFilter.includes(item.language)
-      );
+      )
     }
     
     if (starsFilter !== 'All') {
-      const starsValue = parseInt(starsFilter);
+      const starsValue = parseInt(starsFilter)
       filteredData = filteredData.filter(
         item => item.rating_score && Math.floor(parseFloat(item.rating_score)) === starsValue
-      );
+      )
     }
     
     // Apply time filters
     if (cookingTimeFilter !== 'All') {
       filteredData = filteredData.filter(item => {
-        const totalMinutes = calculateTimeInMinutes(item.cooking_time);
-        if (totalMinutes === 0) return false;
+        const totalMinutes = calculateTimeInMinutes(item.cooking_time)
+        if (totalMinutes === 0) return false
         
         switch(cookingTimeFilter) {
-          case '15': return totalMinutes <= 15;
-          case '30': return totalMinutes <= 30;
-          case '45': return totalMinutes <= 45;
-          case '60': return totalMinutes >= 60;
-          default: return true;
+          case '15': return totalMinutes <= 15
+          case '30': return totalMinutes <= 30
+          case '45': return totalMinutes <= 45
+          case '60': return totalMinutes >= 60
+          default: return true
         }
-      });
+      })
     }
     
     if (finalTimeFilter !== 'All') {
       filteredData = filteredData.filter(item => {
-        if (!item.total_time) return false;
+        if (!item.total_time) return false
         
         // Special case for times greater than 1 hour
         if (finalTimeFilter === '>1h') {
-          return /h/i.test(item.total_time);
+          return /h/i.test(item.total_time)
         }
         
-        const totalMinutes = calculateTimeInMinutes(item.total_time);
-        if (totalMinutes === 0) return false;
+        const totalMinutes = calculateTimeInMinutes(item.total_time)
+        if (totalMinutes === 0) return false
         
         switch(finalTimeFilter) {
-          case '15': return totalMinutes <= 15;
-          case '30': return totalMinutes <= 30;
-          case '45': return totalMinutes <= 45;
-          case '60': return totalMinutes <= 60;
-          case '90': return totalMinutes <= 90;
-          case '120': return totalMinutes <= 120;
-          default: return true;
+          case '15': return totalMinutes <= 15
+          case '30': return totalMinutes <= 30
+          case '45': return totalMinutes <= 45
+          case '60': return totalMinutes <= 60
+          case '90': return totalMinutes <= 90
+          case '120': return totalMinutes <= 120
+          default: return true
         }
-      });
+      })
     }
     
-    // Count categories
-    const categoryCount = {};
+    // Count categories with a more efficient approach
+    const categoryCount = {}
     filteredData.forEach(item => {
-      if (item.category) {
-        const categories = Array.isArray(item.category) ? item.category : [item.category];
-        categories.forEach(category => {
-          if (category && typeof category === 'string') {
-            categoryCount[category] = (categoryCount[category] || 0) + 1;
-          }
-        });
-      }
-    });
+      if (!item.category) return
+      
+      const categories = Array.isArray(item.category) ? item.category : [item.category]
+      categories.forEach(category => {
+        if (category && typeof category === 'string') {
+          categoryCount[category] = (categoryCount[category] || 0) + 1
+        }
+      })
+    })
 
     return Object.entries(categoryCount)
       .map(([name, count]) => ({ name, count }))
-      .sort((a, b) => b.count - a.count);
-  }, [originalData, searchTerm, countryFilter, difficultyFilter, languageFilter, starsFilter, cookingTimeFilter, finalTimeFilter]);
+      .sort((a, b) => b.count - a.count)
+  }, [originalData, searchTerm, countryFilter, difficultyFilter, languageFilter, starsFilter, cookingTimeFilter, finalTimeFilter])
 
   // Memoize available options for filters to prevent recalculation
   const getAvailableOptions = useCallback((field) => {
-    if (!originalData) return [];
+    if (!originalData || !Array.isArray(originalData)) return []
 
-    let filteredData = [...originalData];
-
-    // Apply all filters except the one we're getting options for
-    if (searchTerm && field !== 'search') {
-      const searchTermLower = searchTerm.toLowerCase();
-      filteredData = filteredData.filter(item =>
-        item.title.toLowerCase().includes(searchTermLower)
-      );
-    }
-    
-    if (!countryFilter.includes('All') && field !== 'country') {
-      filteredData = filteredData.filter(
-        item => item.country && countryFilter.some(country => item.country.includes(country))
-      );
-    }
-    
-    if (difficultyFilter !== 'All' && field !== 'difficulty') {
-      filteredData = filteredData.filter(
-        item => item.difficulty && item.difficulty === difficultyFilter
-      );
-    }
-    
-    if (!languageFilter.includes('All') && field !== 'language') {
-      filteredData = filteredData.filter(
-        item => item.language && languageFilter.includes(item.language)
-      );
-    }
-    
-    if (starsFilter !== 'All' && field !== 'rating') {
-      const starsValue = parseInt(starsFilter);
-      filteredData = filteredData.filter(
-        item => item.rating_score && Math.floor(parseFloat(item.rating_score)) === starsValue
-      );
-    }
-    
-    if (cookingTimeFilter !== 'All' && field !== 'cooking_time') {
-      filteredData = filteredData.filter(item => {
-        const totalMinutes = calculateTimeInMinutes(item.cooking_time);
-        if (totalMinutes === 0) return false;
+    // Apply current filters but exclude the field we're checking
+    let filteredData = originalData.filter(item => {
+      // Only apply filters that aren't the current field being calculated
+      const matchesSearch = !searchTerm || field === 'search' || 
+                            (item.title && item.title.toLowerCase().includes(searchTerm.toLowerCase()))
+      
+      const matchesCountry = countryFilter.includes('All') || field === 'country' || 
+    (item.country && countryFilter.some(country => item.country.includes(country)))
+      
+      const matchesDifficulty = difficultyFilter === 'All' || field === 'difficulty' || 
+    (item.difficulty && item.difficulty === difficultyFilter)
+      
+      const matchesLanguage = languageFilter.includes('All') || field === 'language' || 
+    (item.language && languageFilter.includes(item.language))
+      
+      const matchesStars = starsFilter === 'All' || field === 'rating' || 
+                          (item.rating_score && Math.floor(parseFloat(item.rating_score)) === parseInt(starsFilter))
+      
+      const matchesCookingTime = cookingTimeFilter === 'All' || field === 'cooking_time' || (() => {
+        const minutes = calculateTimeInMinutes(item.cooking_time)
+        if (minutes === 0) return false
         
         switch(cookingTimeFilter) {
-          case '15': return totalMinutes <= 15;
-          case '30': return totalMinutes <= 30;
-          case '45': return totalMinutes <= 45;
-          case '60': return totalMinutes >= 60;
-          default: return true;
+          case '15': return minutes <= 15
+          case '30': return minutes <= 30
+          case '45': return minutes <= 45
+          case '60': return minutes >= 60
+          default: return true
         }
-      });
-    }
-
-    if (finalTimeFilter !== 'All' && field !== 'final_time') {
-      filteredData = filteredData.filter(item => {
-        if (!item.total_time) return false;
+      })()
+      
+      const matchesFinalTime = finalTimeFilter === 'All' || field === 'final_time' || (() => {
+        if (!item.total_time) return false
         
-        // Special case for times greater than 1 hour
         if (finalTimeFilter === '>1h') {
-          return /h/i.test(item.total_time);
+          return /h/i.test(item.total_time)
         }
         
-        const totalMinutes = calculateTimeInMinutes(item.total_time);
-        if (totalMinutes === 0) return false;
+        const minutes = calculateTimeInMinutes(item.total_time)
+        if (minutes === 0) return false
         
         switch(finalTimeFilter) {
-          case '15': return totalMinutes <= 15;
-          case '30': return totalMinutes <= 30;
-          case '45': return totalMinutes <= 45;
-          case '60': return totalMinutes <= 60;
-          case '90': return totalMinutes <= 90;
-          case '120': return totalMinutes <= 120;
-          default: return true;
+          case '15': return minutes <= 15
+          case '30': return minutes <= 30
+          case '45': return minutes <= 45
+          case '60': return minutes <= 60
+          case '90': return minutes <= 90
+          case '120': return minutes <= 120
+          default: return true
         }
-      });
-    }
-    
-    // Apply category filter if it exists and is not the current field
-    if (categoryFilter.length > 1 && field !== 'category') {
-      filteredData = filteredData.filter(item => {
-        if (!item.category) return false;
-        const categories = Array.isArray(item.category) ? item.category : [item.category];
-        return categoryFilter.some(cat => categories.includes(cat));
-      });
-    }
+      })()
+      
+      const matchesCategory = categoryFilter.length <= 1 || field === 'category' || (() => {
+        if (!item.category) return false
+        const categories = Array.isArray(item.category) ? item.category : [item.category]
+        return categoryFilter.some(cat => categories.includes(cat))
+      })()
+      
+      return matchesSearch && matchesCountry && matchesDifficulty && 
+             matchesLanguage && matchesStars && matchesCookingTime && 
+             matchesFinalTime && matchesCategory
+    })
     
     // Get unique values for the specified field
-    const uniqueValues = new Set();
-    filteredData.forEach(item => {
-      if (field === 'country' && item.country) {
-        item.country.forEach(country => uniqueValues.add(country));
-      } else if (field === 'difficulty' && item.difficulty) {
-        uniqueValues.add(item.difficulty);
-      } else if (field === 'language' && item.language) {
-        uniqueValues.add(item.language);
-      } else if (field === 'rating' && item.rating_score) {
-        uniqueValues.add(Math.floor(parseFloat(item.rating_score)).toString());
-      }
-    });
-
-    const values = Array.from(uniqueValues);
+    const uniqueValues = new Set()
     
-    // Map the values to their full names
-    if (field === 'country') {
-      return values.map(code => ({ code, name: countryMap[code] || code })).sort((a, b) => a.name.localeCompare(b.name));
-    } else if (field === 'difficulty') {
-      return values.map(code => ({ code, name: difficultyMap[code] || code })).sort((a, b) => a.name.localeCompare(b.name));
-    } else if (field === 'language') {
-      return values.map(code => ({ code, name: languageMap[code] || code })).sort((a, b) => a.name.localeCompare(b.name));
+    // Gather unique values efficiently based on field type
+    switch(field) {
+      case 'country':
+        filteredData.forEach(item => {
+          if (item.country) {
+            item.country.forEach(country => uniqueValues.add(country))
+          }
+        })
+        return Array.from(uniqueValues)
+          .map(code => ({ code, name: countryMap[code] || code }))
+          .sort((a, b) => a.name.localeCompare(b.name))
+      
+      case 'difficulty':
+        filteredData.forEach(item => {
+          if (item.difficulty) {
+            uniqueValues.add(item.difficulty)
+          }
+        })
+        return Array.from(uniqueValues)
+          .map(code => ({ code, name: difficultyMap[code] || code }))
+          .sort((a, b) => a.name.localeCompare(b.name))
+      
+      case 'language':
+        filteredData.forEach(item => {
+          if (item.language) {
+            uniqueValues.add(item.language)
+          }
+        })
+        return Array.from(uniqueValues)
+          .map(code => ({ code, name: languageMap[code] || code }))
+          .sort((a, b) => a.name.localeCompare(b.name))
+      
+      case 'rating':
+        filteredData.forEach(item => {
+          if (item.rating_score) {
+            uniqueValues.add(Math.floor(parseFloat(item.rating_score)).toString())
+          }
+        })
+        return Array.from(uniqueValues).sort()
+      
+      default:
+        return []
     }
-    
-    return values.sort();
-  }, [originalData, searchTerm, countryFilter, difficultyFilter, languageFilter, starsFilter, categoryFilter, cookingTimeFilter, finalTimeFilter]);
+  }, [originalData, searchTerm, countryFilter, difficultyFilter, languageFilter, starsFilter, categoryFilter, cookingTimeFilter, finalTimeFilter])
 
-  // Optimize filter function using memoization and optimized algorithms
-  const handleFilter = useCallback(searchTermValue => {
+  // Optimized filter function using memoization
+  const handleFilter = useCallback((searchTermValue) => {
     if (!originalData || !Array.isArray(originalData)) {
-      setAllData([]);
-      return;
+      setAllData([])
+      return
     }
     
-    if (typeof searchTermValue !== 'string') {
-      searchTermValue = '';
-    }
+    // Handle null/undefined searchTerm
+    const searchValue = typeof searchTermValue === 'string' ? searchTermValue : ''
 
     // Early exit if no filters are active
-    if (!searchTermValue && 
+    if (!searchValue && 
         countryFilter.includes('All') && 
         difficultyFilter === 'All' && 
         languageFilter.includes('All') &&
         starsFilter === 'All' && 
         cookingTimeFilter === 'All' && 
         finalTimeFilter === 'All' && 
-        categoryFilter.length === 0) {
-      setAllData(originalData);
-      return;
+        categoryFilter.length <= 1) {
+      setAllData(originalData)
+      return
     }
 
-    // Create a Map for tracking unique recipes by ID
-    const uniqueRecipes = new Map();
-    let filteredData = originalData;
-
+    // Use Set for better performance with unique IDs
+    const uniqueIds = new Set()
+    
     // Apply filters in order of likely restrictiveness (most restrictive first)
-    if (searchTermValue && searchTermValue.trim() !== '') {
-      const searchTermLower = searchTermValue.toLowerCase().trim();
-      const searchTerms = searchTermLower.split(' ');
+    let filteredData = originalData
+
+    // Search filter (likely most restrictive)
+    if (searchValue && searchValue.trim() !== '') {
+      const searchTermLower = searchValue.toLowerCase().trim()
+      const searchTerms = searchTermLower.split(' ')
       filteredData = filteredData.filter(item =>
-        searchTerms.every(term =>
-          item.title.toLowerCase().includes(term)
-        )
-      );
+        item.title && searchTerms.every(term => item.title.toLowerCase().includes(term))
+      )
     }
 
-    // Remove duplicates based on ID
+    // Apply additional filters
     filteredData = filteredData.filter(item => {
-      if (!uniqueRecipes.has(item.id)) {
-        uniqueRecipes.set(item.id, true);
-        return true;
-      }
-      return false;
-    });
-
-    // Country filter
-    if (!countryFilter.includes('All')) {
-      filteredData = filteredData.filter(item =>
-        item.country && countryFilter.some(country => item.country.includes(country))
-      );
-    }
-
-    // Difficulty filter
-    if (difficultyFilter !== 'All') {
-      filteredData = filteredData.filter(item =>
-        item.difficulty === difficultyFilter
-      );
-    }
-
-    // Language filter
-    if (!languageFilter.includes('All')) {
-      filteredData = filteredData.filter(item =>
-        item.language && languageFilter.includes(item.language)
-      );
-    }
-
-    // Stars filter
-    if (starsFilter !== 'All') {
-      const starsValue = parseInt(starsFilter);
-      filteredData = filteredData.filter(item =>
-        item.rating_score && Math.floor(parseFloat(item.rating_score)) === starsValue
-      );
-    }
-
-    // Cooking time filter
-    if (cookingTimeFilter !== 'All') {
-      filteredData = filteredData.filter(item => {
-        const totalMinutes = calculateTimeInMinutes(item.cooking_time);
-        if (totalMinutes === 0) return false;
+      // Skip items we've already seen (deduplication)
+      if (item.id && uniqueIds.has(item.id)) return false
+      if (item.id) uniqueIds.add(item.id)
+      
+      // Country filter
+      const countryMatch = countryFilter.includes('All') || 
+                          (item.country && countryFilter.some(country => item.country.includes(country)))
+      if (!countryMatch) return false
+      
+      // Difficulty filter
+      const difficultyMatch = difficultyFilter === 'All' || 
+                             (item.difficulty && item.difficulty === difficultyFilter)
+      if (!difficultyMatch) return false
+      
+      // Language filter
+      const languageMatch = languageFilter.includes('All') || 
+                           (item.language && languageFilter.includes(item.language))
+      if (!languageMatch) return false
+      
+      // Stars filter
+      const starsMatch = starsFilter === 'All' || 
+                        (item.rating_score && Math.floor(parseFloat(item.rating_score)) === parseInt(starsFilter))
+      if (!starsMatch) return false
+      
+      // Cooking time filter
+      if (cookingTimeFilter !== 'All') {
+        const minutes = calculateTimeInMinutes(item.cooking_time)
+        if (minutes === 0) return false
         
         switch(cookingTimeFilter) {
-          case '15': return totalMinutes <= 15;
-          case '30': return totalMinutes <= 30;
-          case '45': return totalMinutes <= 45;
-          case '60': return totalMinutes >= 60;
-          default: return true;
+          case '15': if (minutes > 15) return false; break
+          case '30': if (minutes > 30) return false; break
+          case '45': if (minutes > 45) return false; break
+          case '60': if (minutes < 60) return false; break
         }
-      });
-    }
-
-    // Total time filter
-    if (finalTimeFilter !== 'All') {
-      filteredData = filteredData.filter(item => {
-        if (!item.total_time) return false;
-        
-        // Special case for times greater than 1 hour
-        if (finalTimeFilter === '>1h') {
-          return /h/i.test(item.total_time);
-        }
-        
-        const totalMinutes = calculateTimeInMinutes(item.total_time);
-        if (totalMinutes === 0) return false;
-        
-        switch(finalTimeFilter) {
-          case '15': return totalMinutes <= 15;
-          case '30': return totalMinutes <= 30;
-          case '45': return totalMinutes <= 45;
-          case '60': return totalMinutes <= 60;
-          case '90': return totalMinutes <= 90;
-          case '120': return totalMinutes <= 120;
-          default: return true;
-        }
-      });
-    }
-
-    // Category filter
-    if (categoryFilter.length > 1) {
-      filteredData = filteredData.filter(item => {
-        if (!item.category) return false;
-        const categories = Array.isArray(item.category) ? item.category : [item.category];
-        return categoryFilter.some(cat => categories.includes(cat));
-      });
-    }
-
-    // --- FILTER FOR COLLECTIONS ---
-    let filteredCollections = [];
-    if (contextValue?.collections) {
-      filteredCollections = contextValue.collections.filter(collection => {
-        // Title filter
-        let matches = true;
-        if (searchTermValue && searchTermValue.trim() !== '') {
-          const searchTermLower = searchTermValue.toLowerCase().trim();
-          const searchTerms = searchTermLower.split(' ');
-          matches = searchTerms.every(term =>
-            collection.title.toLowerCase().includes(term)
-          );
-        }
-        // Country filter
-        if (matches && !countryFilter.includes('All')) {
-          matches = collection.country && countryFilter.some(country => 
-            Array.isArray(collection.country) 
-              ? collection.country.includes(country) 
-              : collection.country === country
-          );
-        }
-        // Language filter
-        if (matches && !languageFilter.includes('All')) {
-          matches = collection.language && languageFilter.includes(collection.language);
-        }
-        return matches;
-      });
-    }
-
-    // Save Results to context
-    setAllData(filteredData);
-    if (contextValue?.setFilteredCollections) {
-      contextValue.setFilteredCollections(filteredCollections);
-    }
-  }, [originalData, countryFilter, difficultyFilter, languageFilter, starsFilter, categoryFilter, cookingTimeFilter, finalTimeFilter, setAllData, contextValue]);
-
-  // Optimize suggestion generation
-  const generateSuggestions = useCallback((searchTermValue) => {
-    if (!originalData || !Array.isArray(originalData) || !searchTermValue || searchTermValue.trim() === '') {
-      setSuggestions([]);
-      return;
-    }
-
-    const searchTermLower = searchTermValue.toLowerCase().trim();
-    const searchTerms = searchTermLower.split(' ');
-    
-    // Find partial matches in titles
-    let matchedRecipes = originalData.filter(item => {
-      const titleLower = item.title.toLowerCase();
-      
-      // Check if at least one search term is included in the title
-      return searchTerms.some(term => titleLower.includes(term));
-    });
-    
-    // Apply language filter if active
-    if (!languageFilter.includes('All')) {
-      matchedRecipes = matchedRecipes.filter(item => 
-        item.language && languageFilter.includes(item.language)
-      );
-    }
-    
-    // Sort by relevance and score
-    matchedRecipes.sort((a, b) => {
-      const titleA = a.title.toLowerCase();
-      const titleB = b.title.toLowerCase();
-      
-      // Count matching terms in each title
-      const matchesA = searchTerms.filter(term => titleA.includes(term)).length;
-      const matchesB = searchTerms.filter(term => titleB.includes(term)).length;
-      
-      // First sort by number of matches
-      if (matchesB !== matchesA) {
-        return matchesB - matchesA;
       }
       
-      // If same number of matches, sort by score
-      return (b.rating_score || 0) - (a.rating_score || 0);
-    });
+      // Total time filter
+      if (finalTimeFilter !== 'All') {
+        if (!item.total_time) return false
+        
+        if (finalTimeFilter === '>1h') {
+          if (!/h/i.test(item.total_time)) return false
+        } else {
+          const minutes = calculateTimeInMinutes(item.total_time)
+          if (minutes === 0) return false
+          
+          const timeLimit = parseInt(finalTimeFilter)
+          if (minutes > timeLimit) return false
+        }
+      }
+      
+      // Category filter
+      if (categoryFilter.length > 1) {
+        if (!item.category) return false
+        const categories = Array.isArray(item.category) ? item.category : [item.category]
+        if (!categoryFilter.some(cat => categories.includes(cat))) return false
+      }
+      
+      return true
+    })
     
-    // Limit to 5 suggestions
-    setSuggestions(matchedRecipes.slice(0, 5));
-  }, [originalData, languageFilter]);
+    // Update context with filtered data
+    setAllData(filteredData)
+    
+    // Update filtered collections if needed
+    if (contextValue?.setFilteredCollections && contextValue.collections) {
+      updateFilteredCollections(searchValue)
+    }
+  }, [originalData, countryFilter, difficultyFilter, languageFilter, starsFilter, categoryFilter, cookingTimeFilter, finalTimeFilter, setAllData])
 
-  // Create debounced functions once
+  // Update filtered collections separately
+  const updateFilteredCollections = useCallback((searchValue) => {
+    if (!contextValue?.collections) return
+    
+    const filtered = contextValue.collections.filter(collection => {
+      // Title filter
+      if (searchValue && searchValue.trim() !== '') {
+        const searchTermLower = searchValue.toLowerCase().trim()
+        const searchTerms = searchTermLower.split(' ')
+        if (!searchTerms.every(term => collection.title.toLowerCase().includes(term))) {
+          return false
+        }
+      }
+      
+      // Country filter
+      if (!countryFilter.includes('All')) {
+        if (!collection.country) return false
+        
+        const collectionCountries = Array.isArray(collection.country) 
+          ? collection.country 
+          : [collection.country]
+        
+        if (!countryFilter.some(country => collectionCountries.includes(country))) {
+          return false
+        }
+      }
+      
+      // Language filter
+      if (!languageFilter.includes('All')) {
+        if (!collection.language || !languageFilter.includes(collection.language)) {
+          return false
+        }
+      }
+      
+      return true
+    })
+    
+    setFilteredCollections(filtered)
+  }, [contextValue, countryFilter, languageFilter, setFilteredCollections])
+
+  // Generate search suggestions with optimization
+  const generateSuggestions = useCallback((searchTermValue) => {
+    if (!originalData || !Array.isArray(originalData) || !searchTermValue || searchTermValue.trim() === '') {
+      setSuggestions([])
+      return
+    }
+
+    const searchTermLower = searchTermValue.toLowerCase().trim()
+    const searchTerms = searchTermLower.split(' ')
+    
+    // Find the top 5 matches
+    const matches = originalData
+      .filter(item => {
+        // Apply basic filters
+        const titleLower = item.title?.toLowerCase() || ''
+        const matchesSearch = searchTerms.some(term => titleLower.includes(term))
+        const matchesLanguage = languageFilter.includes('All') || 
+                               (item.language && languageFilter.includes(item.language))
+        
+        return matchesSearch && matchesLanguage
+      })
+      .map(item => {
+        // Calculate relevance score
+        const titleLower = item.title?.toLowerCase() || ''
+        const matchCount = searchTerms.filter(term => titleLower.includes(term)).length
+        const ratingScore = parseFloat(item.rating_score || 0)
+        
+        return {
+          ...item,
+          _relevance: matchCount * 10 + ratingScore
+        }
+      })
+      .sort((a, b) => b._relevance - a._relevance)
+      .slice(0, 5)
+    
+    setSuggestions(matches)
+  }, [originalData, languageFilter])
+
+  // Create debounced functions with memoization
   const debouncedHandleFilter = useMemo(() => 
     debounce(handleFilter, 500),
     [handleFilter]
-  );
+  )
   
   const debouncedGenerateSuggestions = useMemo(() => 
     debounce(generateSuggestions, 200),
     [generateSuggestions]
-  );
+  )
 
-  // Effects
+  // Effects for pathname
   useEffect(() => {
-    setIsHomePage(pathname === '/');
-  }, [pathname]);
+    setIsHomePage(pathname === '/')
+  }, [pathname])
 
+  // Apply filters when contexts or filters change
   useEffect(() => {
     if (originalData) {
-      debouncedHandleFilter(searchTerm);
+      debouncedHandleFilter(searchTerm)
     }
-  }, [searchTerm, countryFilter, difficultyFilter, languageFilter, starsFilter, categoryFilter, cookingTimeFilter, finalTimeFilter, debouncedHandleFilter, originalData]);
+  }, [
+    searchTerm, countryFilter, difficultyFilter, languageFilter, 
+    starsFilter, categoryFilter, cookingTimeFilter, finalTimeFilter, 
+    debouncedHandleFilter, originalData
+  ])
 
+  // Load saved search term and handle clicks outside
   useEffect(() => {
-    const savedSearchTerm = localStorage.getItem('searchTerm');
+    // Load saved search term from localStorage
+    const savedSearchTerm = localStorage.getItem('searchTerm')
     if (savedSearchTerm && originalData) {
-      const filteredData = originalData.filter(item =>
-        item.title.toLowerCase().includes(savedSearchTerm.toLowerCase())
-      );
-      setSearchTerm(savedSearchTerm);
-      setAllData(filteredData);
-      localStorage.removeItem('searchTerm');
+      setSearchTerm(savedSearchTerm)
+      debouncedHandleFilter(savedSearchTerm)
+      localStorage.removeItem('searchTerm')
     }
     
     // Close suggestions when clicking outside
     const handleClickOutside = (event) => {
       if (suggestionsRef.current && !suggestionsRef.current.contains(event.target) &&
           searchInputRef.current && !searchInputRef.current.contains(event.target)) {
-        setShowSuggestions(false);
+        setShowSuggestions(false)
       }
-    };
+    }
     
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [originalData, setSearchTerm, setAllData]);
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [originalData, setSearchTerm, debouncedHandleFilter])
 
   // Close menu when clicking outside
   useEffect(() => {
-    if (!showMenu) return;
+    if (!showMenu) return
+    
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setShowMenu(false);
+        setShowMenu(false)
       }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showMenu]);
+    }
+    
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [showMenu])
 
   // Event handlers
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const openModal = () => setIsModalOpen(true)
+  const closeModal = () => setIsModalOpen(false)
   
   const handleModalSearch = () => {
-    handleFilter(searchTerm);
-    closeModal();
-    handleShowResults();
-  };
+    handleFilter(searchTerm)
+    closeModal()
+    handleShowResults()
+  }
 
   const handleShowResults = () => {
-    if (pathname.includes('/r') || pathname.includes('/shopping-list') || pathname.includes('/favorites') || pathname.includes('/profile')) {
-      router.push('/');
+    if (pathname.includes('/r') || 
+        pathname.includes('/shopping-list') || 
+        pathname.includes('/favorites') || 
+        pathname.includes('/profile')) {
+      router.push('/')
     } else if (pathname.includes('/collections')) {
-      router.push('/collections');
-    } 
-    else {
-      closeModal();
+      router.push('/collections')
+    } else {
+      closeModal()
     }
-  };
+  }
 
   const handleKeyPress = event => {
     if (event.key === 'Enter') {
-      handleModalSearch();
-      setShowSuggestions(false);
+      handleModalSearch()
+      setShowSuggestions(false)
     } else if (event.key === 'ArrowDown' && suggestions.length > 0) {
-      // Allow navigation through suggestions with arrows
-      const suggestionElements = document.querySelectorAll('.suggestion-item');
+      // Navigate through suggestions with arrows
+      const suggestionElements = document.querySelectorAll('.suggestion-item')
       if (suggestionElements.length > 0) {
-        suggestionElements[0].focus();
+        suggestionElements[0].focus()
       }
     }
-  };
+  }
   
   const handleSearchInputChange = (e) => {
-    const value = e.target.value;
-    setSearchTerm(value);
+    const value = e.target.value
+    setSearchTerm(value)
     
     if (value.trim() === '') {
-      setSuggestions([]);
-      setShowSuggestions(false);
+      setSuggestions([])
+      setShowSuggestions(false)
     } else {
-      debouncedGenerateSuggestions(value);
-      setShowSuggestions(true);
+      debouncedGenerateSuggestions(value)
+      setShowSuggestions(true)
     }
-  };
+  }
   
   const handleSuggestionClick = (suggestion) => {
-    setSearchTerm(suggestion.title);
-    setShowSuggestions(false);
-    handleFilter(suggestion.title);
-    closeModal();
+    setSearchTerm(suggestion.title)
+    setShowSuggestions(false)
+    handleFilter(suggestion.title)
+    closeModal()
     if (!isHomePage) {
-      router.push('/');
+      router.push('/')
     }
-  };
+  }
   
   const handleSuggestionKeyDown = (event, index, suggestion) => {
     if (event.key === 'Enter') {
-      handleSuggestionClick(suggestion);
+      handleSuggestionClick(suggestion)
     } else if (event.key === 'ArrowDown') {
-      event.preventDefault();
-      const suggestionElements = document.querySelectorAll('.suggestion-item');
+      event.preventDefault()
+      const suggestionElements = document.querySelectorAll('.suggestion-item')
       if (index < suggestionElements.length - 1) {
-        suggestionElements[index + 1].focus();
+        suggestionElements[index + 1].focus()
       }
     } else if (event.key === 'ArrowUp') {
-      event.preventDefault();
+      event.preventDefault()
       if (index > 0) {
-        const suggestionElements = document.querySelectorAll('.suggestion-item');
-        suggestionElements[index - 1].focus();
+        const suggestionElements = document.querySelectorAll('.suggestion-item')
+        suggestionElements[index - 1].focus()
       } else {
         // Return to search input
         if (searchInputRef.current) {
-          searchInputRef.current.focus();
+          searchInputRef.current.focus()
         }
       }
     }
-  };
+  }
 
   const handleClearFilters = () => {
-    setSearchTerm('');
-    setCountryFilter(['All']);
-    setDifficultyFilter('All');
-    setLanguageFilter(['All']);
-    setStarsFilter('All');
-    setCategoryFilter([]);
-    setCookingTimeFilter('All');
-    setFinalTimeFilter('All');
-    setAllData(originalData);
-    // Also clear filtered collections
-    if (contextValue?.setFilteredCollections && contextValue?.collections) {
-      contextValue.setFilteredCollections(contextValue?.collections);
-    }
-  };
+    setSearchTerm('')
+    setCountryFilter(['All'])
+    setDifficultyFilter('All')
+    setLanguageFilter(['All'])
+    setStarsFilter('All')
+    setCategoryFilter([])
+    setCookingTimeFilter('All')
+    setFinalTimeFilter('All')
+    setAllData(originalData)
+    setFilteredCollections(contextValue.collections)
+    
+    
+    
+    
+  }
 
   return (
     <>
