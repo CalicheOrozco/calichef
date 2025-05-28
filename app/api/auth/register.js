@@ -17,7 +17,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ message: 'El usuario ya existe' });
     }
 
-    const user = await User.create({ name, email, password });
+    const user = await User.create({ name, email, password, languagePreferences: ['EN'] });
 
     res.status(201).json({ success: true, user: { id: user._id, name: user.name, email: user.email, favorites: user.favorites } });
   } catch (error) {

@@ -49,6 +49,10 @@ const UserSchema = new mongoose.Schema({
     ],
     default: []
   },
+  languagePreferences: {
+    type: [String],
+    default: ['EN']
+  },
   createdAt: {
     type: Date,
     default: Date.now

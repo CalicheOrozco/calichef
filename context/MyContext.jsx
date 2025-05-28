@@ -25,7 +25,7 @@ const MyProvider = ({ children }) => {
   const [searchCollections, setSearchCollections] = useState('')
   const [countryFilter, setCountryFilter] = useState(['All'])
   const [difficultyFilter, setDifficultyFilter] = useState('All')
-  const [languageFilter, setLanguageFilter] = useState(['ES'])
+  const [languageFilter, setLanguageFilter] = useState(['EN'])
   const [starsFilter, setStarsFilter] = useState('All')
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [categoryFilter, setCategoryFilter] = useState([])
@@ -51,111 +51,6 @@ const MyProvider = ({ children }) => {
   const [shoppingList, setShoppingList] = useState([]);
   const [shoppingChecked, setShoppingChecked] = useState({});
   const [loadingData, setLoadingData] = useState(true)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   const fetchShoppingList = async () => {
     try {
@@ -326,12 +221,20 @@ const MyProvider = ({ children }) => {
     setSearchCollections(searchTerm)
   }, [searchTerm])
 
-
-
-
-
-
-
+  useEffect(() => {
+    console.log('user:', user)
+    let langPrefs = [];
+    if (user) {
+      if (user.languagePreferences && Array.isArray(user.languagePreferences) && user.languagePreferences.length > 0) {
+        langPrefs = user.languagePreferences;
+      }
+    }
+    if (langPrefs.length > 0) {
+      setLanguageFilter(langPrefs);
+    } else {
+      setLanguageFilter(['EN']);
+    }
+  }, [user])
 
   return (
     <CalichefContext.Provider
