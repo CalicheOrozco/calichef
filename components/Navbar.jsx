@@ -379,11 +379,15 @@ export default function Navbar({ countRecipies }) {
         }
       })()
       
-      const matchesCategory = categoryFilter.length <= 1 || field === 'category' || (() => {
-        if (!item.category) return false
-        const categories = Array.isArray(item.category) ? item.category : [item.category]
-        return categoryFilter.some(cat => categories.includes(cat))
-      })()
+      const matchesCategory = categoryFilter.length === 0 || field === 'category' || (() => {
+        // Category filter
+        if (categoryFilter.length > 0) {
+          if (!item.category) return false
+          const categories = Array.isArray(item.category) ? item.category : [item.category]
+          if (!categoryFilter.some(cat => categories.includes(cat))) return false
+        }
+        return true;
+      })();
       
       return matchesSearch && matchesCountry && matchesDifficulty && 
              matchesLanguage && matchesStars && matchesCookingTime && 
@@ -531,7 +535,7 @@ export default function Navbar({ countRecipies }) {
       }
       
       // Category filter
-      if (categoryFilter.length > 1) {
+      if (categoryFilter.length > 0) {
         if (!item.category) return false
         const categories = Array.isArray(item.category) ? item.category : [item.category]
         if (!categoryFilter.some(cat => categories.includes(cat))) return false
@@ -1320,7 +1324,7 @@ export default function Navbar({ countRecipies }) {
                         )}
                         <button
                             onClick={handleModalSearch}
-                            className='px-4 md:px-6 py-2 md:py-3 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 transition-colors duration-200 text-sm md:text-base'
+                            className='px-4 md:px-6 py-2 md:py-3 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 transition-all duration-200 text-sm md:text-base'
                         >
                             Show {countRecipies} Results
                         </button>
