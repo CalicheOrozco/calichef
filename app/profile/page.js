@@ -287,7 +287,7 @@ export default function Profile() {
                 </div>
               </>
             ) : (
-              <p className="text-gray-300">No se encontraron recetas favoritas con ese nombre.</p>
+              <p className="text-gray-300">No favorite recipes were found with that name.</p>
             )}
           </div>
         </div>
