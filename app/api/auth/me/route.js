@@ -61,10 +61,58 @@ export async function GET(request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Error al obtener usuario:', error);
+    console.error('Error al obtener el usuario:', error);
     return NextResponse.json(
-      { success: false, message: 'No autorizado' },
-      { status: 401 }
+      { success: false, message: 'Error del servidor' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request) {
+  try {
+    // Obtener token de la cookie
+    const token = request.cookies.get('token')?.value;
+    
+    if (!token) {
+      return NextResponse.json(
+        { success: false, message: 'No autorizado' },
+        { status: 401 }
+      );
+    }
+    
+    // Verificar token
+    const decoded = jwt.verify(token, JWT_SECRET);
+    
+    // Conectar a la base de datos
+    await connectDB();
+    
+    // Obtener preferencias del cuerpo de la solicitud
+    const { languagePreferences } = await request.json();
+    
+    // Buscar usuario por ID
+    const user = await User.findById(decoded.id);
+    
+    if (!user) {
+      return NextResponse.json(
+        { success: false, message: 'Usuario no encontrado' },
+        { status: 404 }
+      );
+    }
+    
+    // Actualizar preferencias de idioma
+    user.languagePreferences = languagePreferences;
+    await user.save();
+    
+    return NextResponse.json(
+      { success: true, message: 'Preferencias actualizadas correctamente' },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error('Error al actualizar preferencias:', error);
+    return NextResponse.json(
+      { success: false, message: 'Error del servidor' },
+      { status: 500 }
     );
   }
 }

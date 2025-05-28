@@ -155,6 +155,48 @@ export default function Profile() {
       alert('An error occurred while clearing the data. Please try again.');
     }
   };
+  const languageMap = {
+    'ES': 'Español',
+    'EN': 'English',
+    'FR': 'Français'
+  };
+
+  const [selectedLanguages, setSelectedLanguages] = useState(user?.languagePreferences || []);
+          
+          const handleLanguageChange = (language) => {
+            setSelectedLanguages((prev) =>
+              prev.includes(language)
+                ? prev.filter((lang) => lang !== language)
+                : [...prev, language]
+            );
+          };
+          
+          const saveLanguagePreferences = async () => {
+            // Logic to update languagePreferences in the database
+            // Assuming updateUserPreferences is a function to update user preferences
+            async function updateUserPreferences(preferences) {
+              try {
+                const response = await fetch('/api/auth/me', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(preferences),
+                });
+                if (!response.ok) {
+                  throw new Error('Failed to update preferences');
+                }
+                const data = await response.json();
+                console.log('Preferences updated successfully:', data);
+                alert('Preferences updated successfully!');
+                window.location.href = '/';
+              } catch (error) {
+                console.error('Error updating preferences:', error);
+                alert('Failed to update preferences. Please try again.');
+              }
+            }
+            await updateUserPreferences({ languagePreferences: selectedLanguages });
+          };
 
   if (loading || !user) {
     return <Loader />;
@@ -175,6 +217,7 @@ export default function Profile() {
             </button>
           </div>
 
+
           <div className="mb-8 p-6 border border-gray-200 rounded-lg">
             <h2 className="text-xl text-white font-semibold mb-4">Personal Information</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -186,13 +229,26 @@ export default function Profile() {
                 <p className="text-gray-300">Email:</p>
                 <p className="font-medium">{user.email}</p>
               </div>
+              <div>
+                <p className="text-gray-300">Language Preference:</p>
+                {Object.entries(languageMap).map(([code, name]) => (
+                  <div key={code}>
+                    <input
+                      type="checkbox"
+                      checked={selectedLanguages.includes(code)}
+                      onChange={() => handleLanguageChange(code)}
+                    />
+                    <label className="ml-2">{name}</label>
+                  </div>
+                ))}
+              </div>
             </div>
             <div className="mt-4 pt-4 border-t border-gray-700">
               <button
-                onClick={clearBrowserData}
-                className="bg-yellow-500 text-white py-2 px-4 rounded-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50 transition duration-200"
+                onClick={saveLanguagePreferences}
+                className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-200"
               >
-                Clear Browser Data
+                Save Preferences
               </button>
             </div>
           </div>
