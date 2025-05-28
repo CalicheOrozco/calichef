@@ -19,6 +19,7 @@ export async function POST(request) {
     
     // Obtener datos del cuerpo de la solicitud
     const { email, password } = await request.json();
+    const lowerCaseEmail = email.toLowerCase();
     
     // Validar datos
     if (!email || !password) {
@@ -29,7 +30,7 @@ export async function POST(request) {
     }
     
     // Buscar usuario y seleccionar explícitamente el campo password
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({ email: lowerCaseEmail }).select('+password');
     
     // Verificar si el usuario existe
     if (!user) {

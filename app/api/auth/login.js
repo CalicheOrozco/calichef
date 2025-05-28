@@ -11,11 +11,12 @@ export default async function handler(req, res) {
   }
 
   const { email, password } = req.body;
+  const lowerCaseEmail = email.toLowerCase();
 
   try {
     await connectDB();
 
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({ email: lowerCaseEmail }).select('+password');
 
     if (!user) {
       return res.status(401).json({ message: 'Credenciales inválidas' });

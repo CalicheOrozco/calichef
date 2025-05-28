@@ -10,6 +10,7 @@ export async function POST(request) {
     
     // Obtener datos del cuerpo de la solicitud
     const { name, email, password } = await request.json();
+    const lowerCaseEmail = email.toLowerCase();
     
     // Validar datos
     if (!name || !email || !password) {
@@ -20,7 +21,7 @@ export async function POST(request) {
     }
     
     // Verificar si el usuario ya existe
-    const userExists = await User.findOne({ email });
+    const userExists = await User.findOne({ email: lowerCaseEmail });
     if (userExists) {
       return NextResponse.json(
         { success: false, message: 'Este correo electrónico ya está registrado' },
@@ -31,7 +32,7 @@ export async function POST(request) {
     // Crear usuario
     const user = await User.create({
       name,
-      email,
+      email: lowerCaseEmail,
       password
     });
     
