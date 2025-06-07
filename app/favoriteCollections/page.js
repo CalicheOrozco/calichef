@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Card from '@/components/Card';
 import { CalichefContext } from '@/context/MyContext';
+import ScrollToTop from '@/components/ScrollToTop';
 
 export default function FavoriteCollections() {
   const { user, loading } = useAuth();
@@ -174,7 +175,12 @@ useEffect(() => {
     <>
       <style jsx global>{highlightedCardStyle}</style>
       <Navbar />
-      <div className="container mx-auto py-2 px-4 min-h-screen" ref={containerRef}>
+      <ScrollToTop />
+      <div 
+        className="container mx-auto py-2 px-4 min-h-screen overflow-y-auto scrollbar-hidden" 
+        style={{ maxHeight: 'calc(100vh - 80px)' }}
+        ref={containerRef}
+      >
         <h1 className="text-2xl font-bold text-white mb-6 pt-4">My Favorite Collections</h1>
 
         {favoriteCollections.length > 0 && (

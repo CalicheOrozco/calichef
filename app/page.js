@@ -2,6 +2,7 @@
 import { useContext, useState, useEffect, useRef, useMemo } from 'react'
 import Card from '../components/Card'
 import Navbar from '@/components/Navbar'
+import ScrollToTop from '@/components/ScrollToTop'
 import { CalichefContext } from '../context/MyContext.jsx'
 
 const SORT_OPTIONS = [
@@ -239,6 +240,7 @@ export default function Home() {
     <>
       <style jsx global>{highlightedCardStyle}</style>
       <Navbar countRecipies={recipesCount} className='pb-10' />
+      <ScrollToTop />
       <div 
         ref={containerRef} 
         className='container mx-auto py-2 px-4 min-h-screen overflow-y-auto scrollbar-hidden' 

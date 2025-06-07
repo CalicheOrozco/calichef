@@ -4,6 +4,7 @@ import { IoClose } from 'react-icons/io5';
 import Navbar from '@/components/Navbar';
 import Card from '@/components/Card';
 import { CalichefContext } from '@/context/MyContext';
+import ScrollToTop from '@/components/ScrollToTop';
 
 export default function Collections() {
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -149,6 +150,7 @@ export default function Collections() {
     return (
       <>
         <Navbar />
+        <ScrollToTop />
         <div className="container mx-auto py-2 px-4 min-h-screen flex justify-center items-center">
           <div className="text-center">
             <svg
@@ -198,6 +200,7 @@ export default function Collections() {
     <>
       <style jsx global>{highlightedCardStyle}</style>
       <Navbar />
+      <ScrollToTop />
       <div 
         ref={containerRef} 
         className="container mx-auto py-2 px-4 min-h-screen overflow-y-auto scrollbar-hidden" 

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Card from '@/components/Card';
 import { CalichefContext } from '@/context/MyContext';
+import ScrollToTop from '@/components/ScrollToTop';
 
 // Componente de carga reutilizable
 const LoadingSpinner = () => (
@@ -168,7 +169,11 @@ export default function Favorites() {
   return (
     <>
       <Navbar />
-      <div className="container mx-auto py-2 px-4 min-h-screen">
+      <ScrollToTop />
+      <div 
+        className="container mx-auto py-2 px-4 min-h-screen overflow-y-auto scrollbar-hidden" 
+        style={{ maxHeight: 'calc(100vh - 80px)' }}
+      >
         <h1 className="text-2xl font-bold text-white mb-6 pt-4">My Favorite Recipes</h1>
 
         {favoriteRecipes.length > 0 && (
