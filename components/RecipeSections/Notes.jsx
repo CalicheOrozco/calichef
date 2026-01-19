@@ -146,7 +146,7 @@ export default function Notes({ recipeId }) {
           </div>
         </div>
       ) : (
-        <div className='bg-neutral-800 rounded-lg p-4 border border-neutral-700'>
+        <div className='notes-section bg-neutral-800 rounded-lg p-4 border border-neutral-700'>
           {originalNote ? (
             <div>
               <p className='text-white whitespace-pre-wrap'>{originalNote}</p>
