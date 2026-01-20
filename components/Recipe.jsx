@@ -83,7 +83,10 @@ const RatingStars = memo(({ rating_score }) => {
 RatingStars.displayName = "RatingStars";
 
 const ActionButton = memo(({ icon: Icon, activeIcon: ActiveIcon, isActive, onClick, label }) => (
-  <div className='flex flex-col justify-center items-center cursor-pointer'>
+  <div className={
+    `flex flex-col justify-center items-center cursor-pointer` +
+    (isActive ? " isFavorite" : "")
+  }>
     {isActive && ActiveIcon ? (
       <ActiveIcon
         onClick={onClick}
