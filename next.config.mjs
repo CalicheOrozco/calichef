@@ -16,11 +16,12 @@ const nextConfig = {
     minimumCacheTTL: 60,
   },
   // Reduce JS bundle size
-  swcMinify: true,
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
     styledComponents: true,
   },
+  // Ensure Turbopack is explicitly configured (silences webpack/turbopack conflict)
+  turbopack: {},
 }
 
 // Configure PWA settings for better performance

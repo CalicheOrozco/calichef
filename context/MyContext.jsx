@@ -1,6 +1,6 @@
 'use client'
 import React, { createContext, useState, useEffect } from 'react'
-import { openDB } from 'idb'
+import { openDB, deleteDB } from 'idb'
 import { useAuth } from './AuthContext';
 
 const DB_NAME = 'calicheDatabase'
@@ -80,11 +80,30 @@ const MyProvider = ({ children }) => {
   useEffect(() => {
     async function fetchData() {
       try {
-        const db = await openDB(DB_NAME, 1, {
-          upgrade(db) {
-            db.createObjectStore(STORE_NAME)
+        let db
+        try {
+          db = await openDB(DB_NAME, 1, {
+            upgrade(db) {
+              db.createObjectStore(STORE_NAME)
+            }
+          })
+        } catch (error) {
+          // If the existing DB has a higher version, attempt to delete and recreate it
+          if (error && error.name === 'VersionError') {
+            try {
+              await deleteDB(DB_NAME)
+            } catch (delErr) {
+              console.error('Error deleting old IndexedDB:', delErr)
+            }
+            db = await openDB(DB_NAME, 1, {
+              upgrade(db) {
+                db.createObjectStore(STORE_NAME)
+              }
+            })
+          } else {
+            throw error
           }
-        })
+        }
 
         const fetchAndCacheData = async (key, url, setDataFunc) => {
           try {
