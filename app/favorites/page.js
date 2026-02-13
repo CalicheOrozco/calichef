@@ -93,9 +93,10 @@ export default function Favorites() {
     }
 
     if (user.favorites && originalData) {
-      const favorites = originalData.filter(recipe =>
-        user.favorites.includes(recipe.id)
-      );
+      const recipesById = new Map(originalData.map(recipe => [recipe.id, recipe]));
+      const favorites = user.favorites
+        .map((favoriteId) => recipesById.get(favoriteId))
+        .filter(Boolean);
       setFavoriteRecipes(favorites);
     }
     
