@@ -15,16 +15,19 @@ const Post = () => {
   const id = useMemo(() => pathname.split('/').pop(), [pathname])
   const router = useRouter()
   const [recipeData, setRecipeData] = useState({ recipe: null, recommended: [] })
-  const { originalData } = useContext(CalichefContext) || { originalData: null }
+  const [recipeNotFound, setRecipeNotFound] = useState(false)
+  const { originalData, loadingData } = useContext(CalichefContext) || { originalData: null, loadingData: true }
 
   useEffect(() => {
-    if (!id || !originalData) return
+    if (!id || !originalData || loadingData) return
 
     const recipe = originalData.find(item => item.id === id)
     if (!recipe) {
-      console.error(`Receta con id ${id} no encontrada`)
+      setRecipeNotFound(true)
       return
     }
+
+    setRecipeNotFound(false)
 
     // Extraer recomendaciones
     const idRecommended = recipe.recommended || []
@@ -134,6 +137,10 @@ const Post = () => {
             {...recipe}
             recommended={recommended}
           />
+        ) : recipeNotFound && !loadingData ? (
+          <div className='flex justify-center items-center h-[60vh]'>
+            <p className='text-lg text-gray-600'>Receta no encontrada.</p>
+          </div>
         ) : renderLoader()}
       </div>
     </>
