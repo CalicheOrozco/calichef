@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect, useContext, useMemo, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Card from '@/components/Card';
 import { CalichefContext } from '@/context/MyContext';
@@ -10,6 +10,8 @@ import { FaHeart, FaRegHeart, FaArrowLeft } from 'react-icons/fa';
 import { IoClose } from 'react-icons/io5';
 
 export default function CollectionDetail({ params }) {
+  const pathname = usePathname();
+  const id = useMemo(() => pathname.split('/').pop(), [pathname]);
   const router = useRouter();
   const [collection, setCollection] = useState(null);
   const [collectionRecipes, setCollectionRecipes] = useState([]);
@@ -32,9 +34,9 @@ export default function CollectionDetail({ params }) {
 
   // Load collection and recipe data
   useEffect(() => {
-    if (!collections || !originalData) return;
+    if (!id || !collections || !originalData) return;
     
-    const currentCollection = collections.find(c => c.id === params.id);
+    const currentCollection = collections.find(c => c.id === id);
     if (!currentCollection) {
       setCollection(null);
       setCollectionRecipes([]);
@@ -57,7 +59,7 @@ export default function CollectionDetail({ params }) {
     // Check if collection is in user favorites
     setIsFavorite(user?.favoriteCollections?.includes(currentCollection.id) || false);
     setLoading(false);
-  }, [collections, originalData, params.id, user]);
+  }, [id, collections, originalData, user]);
 
   // Filter recipes based on search terms
   const filteredRecipes = useMemo(() => {
