@@ -15,7 +15,7 @@ const LoadingSpinner = () => (
     <div className="container mx-auto py-2 px-4 min-h-screen flex justify-center items-center">
       <div className="text-center">
         <svg
-          className="animate-spin h-8 w-8 text-gray-600 mx-auto"
+          className="animate-spin h-8 w-8 text-neutral-300 mx-auto"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -34,7 +34,7 @@ const LoadingSpinner = () => (
             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
           ></path>
         </svg>
-        <p className="mt-4 text-lg text-gray-600">Loading...</p>
+        <p className="mt-4 text-lg text-neutral-300">Loading...</p>
       </div>
     </div>
   </>
@@ -93,9 +93,11 @@ export default function Favorites() {
     }
 
     if (user.favorites && originalData) {
-      const favorites = originalData.filter(recipe =>
-        user.favorites.includes(recipe.id)
-      );
+      // Preserve the user's favorites order instead of inheriting originalData order
+      const recipeById = new Map(originalData.map((recipe) => [recipe.id, recipe]));
+      const favorites = user.favorites
+        .map((id) => recipeById.get(id))
+        .filter(Boolean);
       setFavoriteRecipes(favorites);
     }
     

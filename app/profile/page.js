@@ -17,7 +17,7 @@ const Loader = () => (
     <div className="container mx-auto py-2 px-4 min-h-screen flex justify-center items-center">
       <div className="text-center">
         <svg
-          className="animate-spin h-8 w-8 text-gray-600 mx-auto"
+          className="animate-spin h-8 w-8 text-neutral-300 mx-auto"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -36,7 +36,7 @@ const Loader = () => (
             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
           ></path>
         </svg>
-        <p className="mt-4 text-lg text-gray-600">Loading...</p>
+        <p className="mt-4 text-lg text-neutral-300">Loading...</p>
       </div>
     </div>
   </>
@@ -206,7 +206,7 @@ export default function Profile() {
     <>
       <Navbar />
       <div className="container mx-auto py-2 px-4 min-h-screen">
-        <div className="max-w-4xl mx-auto bg-black text-white p-8 rounded-lg shadow-md">
+        <div className="max-w-4xl mx-auto panel p-8">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl text-white font-bold">My Profile</h1>
             <button
@@ -218,7 +218,7 @@ export default function Profile() {
           </div>
 
 
-          <div className="mb-8 p-6 border border-gray-200 rounded-lg">
+          <div className="mb-8 p-6 border border-neutral-800 rounded-xl bg-neutral-950/30">
             <h2 className="text-xl text-white font-semibold mb-4">Personal Information</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -237,6 +237,7 @@ export default function Profile() {
                       type="checkbox"
                       checked={selectedLanguages.includes(code)}
                       onChange={() => handleLanguageChange(code)}
+                      className="accent-green-500"
                     />
                     <label className="ml-2">{name}</label>
                   </div>

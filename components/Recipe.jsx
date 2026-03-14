@@ -49,11 +49,11 @@ RecipeMetaInfo.displayName = "RecipeMetaInfo";
 const MetaItem = memo(({ icon, label, value }) => (
   <div className='flex flex-col justify-center items-center'>
     <span
-      className={`bg-gray-50 rounded-full shadow-md text-green-600 hover:bg-gray-200 hover:text-green-800 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center text-xl sm:text-2xl ${icon}`}
+      className={`bg-neutral-900/70 ring-1 ring-white/10 text-green-400 hover:bg-neutral-800 hover:text-green-300 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center text-xl sm:text-2xl ${icon}`}
       aria-label={label}
     ></span>
-    <span className='font-bold text-base sm:text-lg mt-2'>{label}</span>
-    <span className='text-white text-sm sm:text-base'>{value}</span>
+    <span className='font-semibold text-base sm:text-lg mt-2 text-neutral-200'>{label}</span>
+    <span className='text-neutral-50 text-sm sm:text-base'>{value}</span>
   </div>
 ));
 MetaItem.displayName = "MetaItem";
@@ -73,10 +73,10 @@ const RatingStars = memo(({ rating_score }) => {
     <div className='flex flex-row mb-6 text-xl'>
       {stars.map((star, index) => (
         <span key={index}>
-          <FaStar className={star ? 'text-yellow-500' : 'text-gray-300'} />
+          <FaStar className={star ? 'text-yellow-400' : 'text-neutral-600'} />
         </span>
       ))}
-      <span className='ml-2 text-white'>{rating_score}</span>
+      <span className='ml-2 text-neutral-50'>{rating_score}</span>
     </div>
   );
 });
@@ -96,17 +96,17 @@ const ActionButton = memo(({ icon: Icon, activeIcon: ActiveIcon, isActive, onCli
     ) : (
       <Icon
         onClick={onClick}
-        className='text-white hover:text-gray-500 text-3xl sm:text-4xl font-semibold cursor-pointer'
+        className='text-neutral-200 hover:text-neutral-50 text-3xl sm:text-4xl font-semibold cursor-pointer'
         aria-label={`Add to ${label.toLowerCase()}`}
       />
     )}
-    <span className='text-white text-sm sm:text-base'>{label}</span>
+    <span className='text-neutral-100 text-sm sm:text-base'>{label}</span>
   </div>
 ));
 ActionButton.displayName = "ActionButton";
 
 // Loading fallbacks
-const LoadingFallback = () => <div className="p-4 text-white">Loading...</div>;
+const LoadingFallback = () => <div className="p-4 text-neutral-100">Loading...</div>;
 
 // Lazy loaded components - these need to be created as separate files
 const LazyIngredients = lazy(() => import('./RecipeSections/Ingredients'));
@@ -204,8 +204,8 @@ function Recipe({
   };
 
   return (
-    <main className='bg-black text-white'>
-      <div className='page-content flex flex-col max-w-screen-2xl mx-auto px-4'>
+    <main className='text-neutral-50'>
+      <div className='page-content flex flex-col max-w-screen-2xl mx-auto px-4 py-6'>
         {/* Recipe Header Section */}
         <div className='flex flex-col lg:flex-row h-full'>
           {/* Image Section */}
@@ -216,17 +216,17 @@ function Recipe({
               width={584} 
               height={480} 
               priority // Mark as priority since it's LCP
-              className="block rounded-sm object-cover w-full max-w-lg" 
+              className="block rounded-xl ring-1 ring-white/10 shadow-lg object-cover w-full max-w-lg" 
             />
           </div>
 
           {/* Recipe Info Section */}
-          <div className='flex flex-col bg-black p-4 sm:p-6 lg:p-8 w-full lg:w-1/2'>
+          <div className='flex flex-col panel p-4 sm:p-6 lg:p-8 w-full lg:w-1/2'>
             {/* Categories */}
             {category && category.length > 0 && (
               <div className='flex flex-wrap gap-2 mb-4'>
                 {category.map((cat, index) => (
-                  <span key={index} className='bg-green-700 text-white px-3 py-1 rounded-full text-sm'>
+                  <span key={index} className='bg-green-500/10 text-green-300 ring-1 ring-green-500/20 px-3 py-1 rounded-full text-sm'>
                     {cat}
                   </span>
                 ))}
@@ -237,7 +237,7 @@ function Recipe({
             {tm_versions && tm_versions.length > 0 && (
               <div>
                 {tm_versions.map(version => (
-                  <span key={version} className="inline-block cursor-pointer text-sm font-medium leading-4 px-2 py-1 mr-1 border border-green-500 rounded text-green-500 hover:border-green-700 hover:text-green-700 antialiased">
+                  <span key={version} className="inline-block cursor-pointer text-sm font-medium leading-4 px-2 py-1 mr-1 border border-neutral-700 rounded text-neutral-200 hover:border-green-500 hover:text-green-300 antialiased">
                     {version.toUpperCase()}
                   </span>
                 ))}
@@ -245,7 +245,7 @@ function Recipe({
             )}
             
             {/* Title */}
-            <h1 className='text-3xl sm:text-4xl my-6 sm:my-10 font-bold text-white'>
+            <h1 className='text-3xl sm:text-4xl my-6 sm:my-10 font-bold text-neutral-50'>
               {title}
             </h1>
             
@@ -292,9 +292,9 @@ function Recipe({
         />
         
         {/* Desktop Layout - Side by side columns */}
-        <div className='hidden lg:flex lg:flex-row bg-black'>
+        <div className='hidden lg:flex lg:flex-row gap-6'>
           {/* Ingredients Column - Left side */}
-          <div className='w-1/2 p-4 text-white'>
+          <div className='w-1/2 panel p-4'>
             <Suspense fallback={<LoadingFallback />}>
               <LazyIngredients 
                 ingredients={ingredients}
@@ -327,7 +327,7 @@ function Recipe({
           </div>
           
           {/* Instructions Column - Right side */}
-          <div className='w-1/2 p-4'>
+          <div className='w-1/2 panel p-4'>
             <Suspense fallback={<LoadingFallback />}>
               <LazySteps 
                 steps={steps}
@@ -375,10 +375,10 @@ function Recipe({
         </div>
         
         {/* Mobile Layout - Stacked sections */}
-        <div className='lg:hidden bg-black'>
+        <div className='lg:hidden space-y-4'>
           {/* Ingredients Section */}
           <Suspense fallback={<LoadingFallback />}>
-            <div className='p-4 text-white'>
+            <div className='panel p-4'>
               <LazyIngredients 
                 ingredients={ingredients}
                 checkedIngredients={checkedIngredients}
@@ -390,7 +390,7 @@ function Recipe({
           
           {/* Steps Section */}
           <Suspense fallback={<LoadingFallback />}>
-            <div className='p-4'>
+            <div className='panel p-4'>
               <LazySteps 
                 steps={steps}
                 checkedSteps={checkedSteps}
@@ -403,7 +403,7 @@ function Recipe({
           {/* Tips Section */}
           {tips && (
             <Suspense fallback={<LoadingFallback />}>
-              <div className='p-4'>
+              <div className='panel p-4'>
                 <LazyTips tips={tips} />
               </div>
             </Suspense>
@@ -412,7 +412,7 @@ function Recipe({
           {/* Notes Section - Only for authenticated users */}
           {isAuthenticated && (
             <Suspense fallback={<LoadingFallback />}>
-              <div className='p-4'>
+              <div className='panel p-4'>
                 <LazyNotes recipeId={id} />
               </div>
             </Suspense>
@@ -421,7 +421,7 @@ function Recipe({
           {/* Useful Items Section */}
           {useful_items && (
             <Suspense fallback={<LoadingFallback />}>
-              <div className='p-4 text-white'>
+              <div className='panel p-4'>
                 <LazyUsefulItems useful_items={useful_items} />
               </div>
             </Suspense>
@@ -430,7 +430,7 @@ function Recipe({
           {/* Devices Section */}
           {devices && (
             <Suspense fallback={<LoadingFallback />}>
-              <div className='p-4 text-white'>
+              <div className='panel p-4'>
                 <LazyDevices devices={devices} deviceImages={deviceImages} />
               </div>
             </Suspense>
@@ -439,7 +439,7 @@ function Recipe({
           {/* Country Section */}
           {country && (
             <Suspense fallback={<LoadingFallback />}>
-              <div className='p-4'>
+              <div className='panel p-4'>
                 <LazyCountry country={country} countryMap={countryMap} />
               </div>
             </Suspense>
@@ -448,7 +448,7 @@ function Recipe({
           {/* Collections Section */}
           {collections && collections.length > 0 && (
             <Suspense fallback={<LoadingFallback />}>
-              <div className='p-4'>
+              <div className='panel p-4'>
                 <LazyCollections collections={collections} />
               </div>
             </Suspense>
@@ -457,7 +457,7 @@ function Recipe({
           {/* Tags Section */}
           {tags && (
             <Suspense fallback={<LoadingFallback />}>
-              <div className='p-4'>
+              <div className='panel p-4'>
                 <LazyTags tags={tags} />
               </div>
             </Suspense>
@@ -466,7 +466,7 @@ function Recipe({
           {/* Nutrition Section - At the end for mobile */}
           {nutritions && (
             <Suspense fallback={<LoadingFallback />}>
-              <div className='p-4 text-white'>
+              <div className='panel p-4'>
                 <LazyNutrition nutritions={nutritions} />
               </div>
             </Suspense>

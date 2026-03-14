@@ -13,28 +13,71 @@
 }
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
   --plcore-vorwerk-icon-font-family: 'Vorwerk Icons';
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+@layer base {
+  html {
+    @apply h-full bg-neutral-950 text-neutral-50;
+    color-scheme: dark;
+  }
+
+  body {
+    @apply min-h-screen bg-neutral-950 text-neutral-50 font-sans antialiased;
+    overflow-x: hidden;
+  }
+
+  a {
+    @apply text-green-400 hover:text-green-300;
+  }
+
+  input,
+  textarea,
+  select {
+    @apply bg-neutral-900 text-neutral-50 placeholder:text-neutral-500 border border-neutral-700 rounded-md;
+  }
+
+  input:focus,
+  textarea:focus,
+  select:focus {
+    @apply outline-none ring-2 ring-green-500/30 border-green-500/60;
   }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+@layer components {
+  .page-header {
+    @apply sticky top-0 z-50;
+  }
+
+  .panel {
+    @apply rounded-xl border border-neutral-800 bg-neutral-900/60 shadow-xl backdrop-blur;
+  }
+
+  .menu-surface {
+    @apply rounded-xl border border-neutral-800 bg-neutral-950 shadow-2xl;
+  }
+}
+
+@layer utilities {
+  @keyframes pulseHighlight {
+    0% {
+      box-shadow: 0 0 0 0 rgb(34 197 94 / 0.60);
+    }
+    70% {
+      box-shadow: 0 0 0 10px rgb(34 197 94 / 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgb(34 197 94 / 0);
+    }
+  }
+
+  .highlighted-card {
+    @apply border-2 border-green-500;
+    animation: pulseHighlight 2s infinite;
+    transform: scale(1.03);
+    transition: all 0.3s ease;
+    z-index: 10;
+  }
 }
 
 
@@ -157,12 +200,10 @@ body {
 }
 
 body {
-  color: #333;
   font-family: Roboto, Helvetica Neue, Arial, sans-serif;
   font-size: 1rem;
   font-weight: 400;
   line-height: 150%;
-  overflow-x: hidden;
 }
 
 .icon--automated,

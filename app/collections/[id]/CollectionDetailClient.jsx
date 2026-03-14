@@ -1,0 +1,272 @@
+"use client";
+
+import { useState, useEffect, useContext, useMemo, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import Navbar from '@/components/Navbar';
+import Card from '@/components/Card';
+import { CalichefContext } from '@/context/MyContext';
+import { useAuth } from '@/context/AuthContext';
+import Image from 'next/image';
+import { FaHeart, FaRegHeart, FaArrowLeft } from 'react-icons/fa';
+import { IoClose } from 'react-icons/io5';
+
+export default function CollectionDetailClient({ collectionId }) {
+  const router = useRouter();
+  const [collection, setCollection] = useState(null);
+  const [collectionRecipes, setCollectionRecipes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchRecipes, setSearchRecipes] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  const { collections, originalData } = useContext(CalichefContext);
+  const { user, updateFavoriteCollections, isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchRecipes);
+    }, 400);
+
+    return () => clearTimeout(handler);
+  }, [searchRecipes]);
+
+  useEffect(() => {
+    if (!collections || !originalData || !collectionId) return;
+
+    const currentCollection = collections.find((c) => c.id === collectionId);
+    if (!currentCollection) {
+      setCollection(null);
+      setCollectionRecipes([]);
+      setLoading(false);
+      return;
+    }
+
+    setCollection(currentCollection);
+
+    if (currentCollection.recipes && Array.isArray(currentCollection.recipes)) {
+      const recipeIdsSet = new Set(currentCollection.recipes);
+      const recipesInCollection = originalData.filter((recipe) => recipeIdsSet.has(recipe.id));
+      setCollectionRecipes(recipesInCollection);
+    } else {
+      setCollectionRecipes([]);
+    }
+
+    setIsFavorite(user?.favoriteCollections?.includes(currentCollection.id) || false);
+    setLoading(false);
+  }, [collections, originalData, collectionId, user]);
+
+  const filteredRecipes = useMemo(() => {
+    if (!debouncedSearch.trim()) return collectionRecipes;
+
+    const searchTermsArray = debouncedSearch.toLowerCase().split(' ').filter(Boolean);
+    return collectionRecipes.filter((recipe) =>
+      searchTermsArray.every((term) => recipe.title.toLowerCase().includes(term))
+    );
+  }, [collectionRecipes, debouncedSearch]);
+
+  const handleSearch = useCallback((event) => {
+    setSearchRecipes(event.target.value);
+  }, []);
+
+  const handleClearSearch = useCallback(() => {
+    setSearchRecipes('');
+    setDebouncedSearch('');
+  }, []);
+
+  const handleToggleFavorite = useCallback(() => {
+    if (!collection?.id) return;
+    updateFavoriteCollections(collection.id);
+    setIsFavorite((prev) => !prev);
+  }, [collection?.id, updateFavoriteCollections]);
+
+  const handleBack = useCallback(
+    (e) => {
+      e.preventDefault();
+
+      if (collection && collection.id) {
+        const index = collections.findIndex((c) => c.id === collection.id);
+
+        if (index !== -1) {
+          localStorage.setItem('lastCollectionIndex', index);
+        }
+      }
+      router.back();
+    },
+    [router, collection, collections]
+  );
+
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+        <div className="container mx-auto py-2 px-4 min-h-screen flex justify-center items-center">
+          <div className="text-center">
+            <svg
+              className="animate-spin h-8 w-8 text-neutral-300 mx-auto"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+            <p className="mt-4 text-lg text-neutral-300">Loading...</p>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  if (!collection) {
+    return (
+      <>
+        <Navbar />
+        <div className="container mx-auto py-2 px-4 min-h-screen">
+          <div className="text-center py-10">
+            <p className="text-white text-lg mb-4">Collection not found</p>
+            <a
+              onClick={handleBack}
+              className="text-white text-xl hover:text-gray-400 mb-4 flex items-center pt-4 cursor-pointer"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 mr-1"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Navbar />
+      <div className="container mx-auto py-2 px-4 min-h-screen">
+        <div className="mb-6">
+          <div className="text-white text-4xl py-4 lg:pl-4 hover:text-green-500 flex items-center cursor-pointer">
+            <FaArrowLeft onClick={handleBack} className="mr-2" />
+          </div>
+
+          <div className="flex justify-center flex-col md:flex-row gap-6 items-center md:items-start mb-8">
+            {collection.image_url && (
+              <div>
+                <Image
+                  src={collection.image_url}
+                  alt={collection.title}
+                  width={250}
+                  height={250}
+                  className="rounded-lg shadow-md"
+                />
+              </div>
+            )}
+
+            <div className="w-full md:w-2/3">
+              <div className="flex justify-between items-start w-full">
+                <div>
+                  <h1 className="text-3xl font-bold text-white mb-4">{collection.title}</h1>
+                  {collection.description && (
+                    <p className="text-gray-300 mb-4">{collection.description}</p>
+                  )}
+                  <p className="text-gray-400">{filteredRecipes.length} recipes</p>
+                </div>
+                {isAuthenticated && (
+                  <div className="text-4xl cursor-pointer">
+                    {isFavorite ? (
+                      <FaHeart onClick={handleToggleFavorite} className="text-red-500 hover:text-red-700" />
+                    ) : (
+                      <FaRegHeart onClick={handleToggleFavorite} className="text-white hover:text-gray-500" />
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {collectionRecipes.length > 0 && (
+            <form onSubmit={(e) => e.preventDefault()} className="relative mb-8">
+              <div className="relative">
+                <input
+                  id="Buscar"
+                  className="block rounded-md px-6 pt-6 pb-1 w-full text-md text-white bg-neutral-700 appearance-none focus:outline-none focus:ring-0 peer"
+                  placeholder=" "
+                  value={searchRecipes}
+                  onChange={handleSearch}
+                />
+                <label
+                  htmlFor="Buscar"
+                  className="absolute text-md text-zinc-400 duration-150 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-5 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3"
+                >
+                  Search for recipes in this collection
+                </label>
+                {searchRecipes && (
+                  <button
+                    onClick={handleClearSearch}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+                    aria-label="Clear search"
+                    type="button"
+                  >
+                    <IoClose className="text-xl" />
+                  </button>
+                )}
+              </div>
+            </form>
+          )}
+
+          {filteredRecipes.length > 0 ? (
+            <>
+              <p className="text-white flex justify-end items-center py-2">{filteredRecipes.length} recipes found</p>
+              <div className="flex flex-wrap justify-center md:justify-between items-center gap-y-5">
+                {filteredRecipes.map((recipe) => (
+                  <Card
+                    key={recipe.id}
+                    id={recipe.id}
+                    title={recipe.title}
+                    rating_score={recipe.rating_score || 0}
+                    rating_count={recipe.rating_count || 0}
+                    time={recipe.total_time}
+                    img_url={recipe.image_url}
+                    category={recipe.category}
+                  />
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="text-center py-10">
+              <p className="text-white text-lg mb-4">
+                {searchRecipes
+                  ? 'No recipes were found with that search term.'
+                  : 'There are no recipes in this collection.'}
+              </p>
+              <button
+                onClick={() => router.push('/')}
+                className="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-200"
+              >
+                Explore Recipes
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}

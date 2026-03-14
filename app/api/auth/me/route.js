@@ -30,7 +30,23 @@ export async function GET(request) {
     }
     
     // Verificar token
-    const decoded = jwt.verify(token, JWT_SECRET);
+    let decoded;
+    try {
+      decoded = jwt.verify(token, JWT_SECRET);
+    } catch (err) {
+      const response = NextResponse.json(
+        { success: false, message: 'No autorizado' },
+        { status: 401 }
+      );
+      response.cookies.set({
+        name: 'token',
+        value: '',
+        httpOnly: true,
+        expires: new Date(0),
+        path: '/',
+      });
+      return response;
+    }
     
     // Conectar a la base de datos
     await connectDB();
@@ -82,7 +98,23 @@ export async function POST(request) {
     }
     
     // Verificar token
-    const decoded = jwt.verify(token, JWT_SECRET);
+    let decoded;
+    try {
+      decoded = jwt.verify(token, JWT_SECRET);
+    } catch (err) {
+      const response = NextResponse.json(
+        { success: false, message: 'No autorizado' },
+        { status: 401 }
+      );
+      response.cookies.set({
+        name: 'token',
+        value: '',
+        httpOnly: true,
+        expires: new Date(0),
+        path: '/',
+      });
+      return response;
+    }
     
     // Conectar a la base de datos
     await connectDB();

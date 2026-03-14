@@ -196,7 +196,7 @@ export default function Home() {
       <div className='flex justify-center items-center h-screen'>
         <div className='text-center'>
           <svg
-            className='animate-spin h-8 w-8 text-gray-600 mx-auto'
+            className='animate-spin h-8 w-8 text-neutral-300 mx-auto'
             xmlns='http://www.w3.org/2000/svg'
             fill='none'
             viewBox='0 0 24 24'
@@ -215,30 +215,14 @@ export default function Home() {
               d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
             ></path>
           </svg>
-          <p className='mt-4 text-lg text-gray-600'>Loading...</p>
+          <p className='mt-4 text-lg text-neutral-300'>Loading...</p>
         </div>
       </div>
     )
   }
-  // Estilos para la tarjeta destacada
-  const highlightedCardStyle = `
-    @keyframes pulseHighlight {
-      0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
-      70% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
-    }
-    .highlighted-card {
-      border: 2px solid #22c55e !important;
-      animation: pulseHighlight 2s infinite;
-      transform: scale(1.03);
-      transition: all 0.3s ease;
-      z-index: 10;
-    }
-  `;
 
   return (
     <>
-      <style jsx global>{highlightedCardStyle}</style>
       <Navbar countRecipies={recipesCount} className='pb-10' />
       <ScrollToTop />
       <div 
@@ -249,16 +233,16 @@ export default function Home() {
         {AllData ? (
           <>
             <div className='flex flex-col sm:flex-row justify-between mb-4'>
-              <p className='text-white flex justify-end items-center py-2'>
+              <p className='text-neutral-200 flex justify-end items-center py-2'>
                 {recipesCount} recipes found
               </p>
               <div className='flex justify-end items-center'>
-                <label htmlFor='sortBy' className='text-white mr-2'>Sort By:</label>
+                <label htmlFor='sortBy' className='text-neutral-200 mr-2'>Sort By:</label>
                 <select
                   id='sortBy'
                   value={sortBy}
                   onChange={e => setSortBy(e.target.value)}
-                  className='rounded-md px-3 py-1 bg-neutral-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-green-500'
+                  className='rounded-md px-3 py-1 bg-neutral-900/60 text-white border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-green-500'
                 >
                   {SORT_OPTIONS.map(opt => (
                     <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -290,7 +274,7 @@ export default function Home() {
           <div className='flex justify-center items-center h-screen'>
             <div className='text-center'>
               <svg
-                className='animate-spin h-8 w-8 text-gray-600 mx-auto'
+                className='animate-spin h-8 w-8 text-neutral-300 mx-auto'
                 xmlns='http://www.w3.org/2000/svg'
                 fill='none'
                 viewBox='0 0 24 24'
@@ -309,7 +293,7 @@ export default function Home() {
                   d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
                 ></path>
               </svg>
-              <p className='mt-4 text-lg text-gray-600'>Loading...</p>
+              <p className='mt-4 text-lg text-neutral-300'>Loading...</p>
             </div>
           </div>
         )}

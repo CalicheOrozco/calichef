@@ -66,14 +66,14 @@ export default function Login() {
   return (
     <>
       <Navbar />
-      <div className="flex items-center justify-center min-h-screen bg-black">
-        <div className="max-w-lg w-full bg-neutral-900 p-8 rounded-lg shadow-md">
+      <div className="flex items-center justify-center min-h-screen px-4 py-16">
+        <div className="max-w-lg w-full panel p-8">
           <Image src="/calichefLogo.png" alt="Logo" className="mx-auto mb-4" width={200} height={80} />
           
           <h2 className="text-xl text-center text-white mb-6">Welcome</h2>
           
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            <div className="bg-red-950/40 border border-red-900 text-red-200 px-4 py-3 rounded-lg mb-4" role="alert">
               {error}
             </div>
           )}
@@ -86,7 +86,7 @@ export default function Login() {
                 placeholder="Email*"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-neutral-800 text-white"
+                className="w-full px-3 py-2 border border-neutral-700 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-neutral-900/60 text-white"
                 required
               />
             </div>
@@ -98,13 +98,13 @@ export default function Login() {
                 placeholder="Password*"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-neutral-800 text-white"
+                className="w-full px-3 py-2 border border-neutral-700 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-neutral-900/60 text-white"
                 required
               />
               <button 
                 type="button"
                 onClick={togglePasswordVisibility}
-                className="absolute right-3 top-2.5 text-white focus:outline-none"
+                className="absolute right-3 top-2.5 text-neutral-200 hover:text-white focus:outline-none"
                 aria-label={showPassword ? "Hide Password" : "Show Password"}
               >
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
@@ -123,7 +123,7 @@ export default function Login() {
           <div className="mt-4 text-center">
             <p className="text-white">
               Don&apos;t have an account?{' '}
-              <Link href="/register" className="text-blue-500 hover:text-blue-600">
+              <Link href="/register" className="text-sky-400 hover:text-sky-300">
                 Register
               </Link>
             </p>

@@ -76,11 +76,11 @@ export default function Register() {
     <>
       <Navbar />
       <main className="flex items-center justify-center min-h-screen py-16 px-4">
-        <div className="w-full max-w-md bg-neutral-900 p-8 rounded-lg shadow-lg">
+        <div className="w-full max-w-md panel p-8">
           <h1 className="text-2xl text-white font-bold text-center mb-6">Create Account</h1>
           
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
+            <div className="bg-red-950/40 border border-red-900 text-red-200 px-4 py-3 rounded-lg mb-4" role="alert">
               <p>{error}</p>
             </div>
           )}
@@ -95,7 +95,7 @@ export default function Register() {
                 id="name"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-3 py-2 border border-neutral-700 bg-neutral-900/60 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 required
                 aria-required="true"
               />
@@ -110,7 +110,7 @@ export default function Register() {
                 id="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-3 py-2 border border-neutral-700 bg-neutral-900/60 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 required
                 aria-required="true"
                 autoComplete="email"
@@ -126,7 +126,7 @@ export default function Register() {
                 id="password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-3 py-2 border border-neutral-700 bg-neutral-900/60 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 required
                 aria-required="true"
                 minLength={6}
@@ -144,7 +144,7 @@ export default function Register() {
                 id="confirmPassword"
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-3 py-2 border border-neutral-700 bg-neutral-900/60 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 required
                 aria-required="true"
                 autoComplete="new-password"

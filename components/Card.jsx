@@ -116,9 +116,9 @@ const Card = memo(function Card({
   }
 
   return (
-    <div className={`relative bg-neutral-800 rounded-lg shadow-lg overflow-hidden ${
+    <div className={`relative overflow-hidden rounded-xl bg-neutral-900/60 ring-1 ring-white/10 shadow-lg ${
       isCollection ? 'w-[240px] h-[330px]' : 'h-[380px] w-[347px]'
-    } mx-auto transform transition duration-300 md:hover:scale-105 cursor-pointer md:hover:shadow-2xl border border-neutral-700 card-item`}>
+    } mx-auto transform transition duration-300 md:hover:-translate-y-1 md:hover:shadow-2xl cursor-pointer card-item`}>
       <div className='relative'>
         <Link href={`/${isCollection ? `collections/${cardId}` : cardId}`} passHref>
           {isCollection ? (
@@ -128,11 +128,14 @@ const Card = memo(function Card({
                 alt={title}
                 width={240}
                 height={240}
-                className="object-cover rounded-t-lg"
+                className="object-cover rounded-t-xl"
               />
             </div>
           ) : (
-            <Image src={img_url} alt={title} width={400} height={240} className="w-full h-60 object-cover" />
+            <div className='relative'>
+              <Image src={img_url} alt={title} width={400} height={240} className="w-full h-60 object-cover" />
+              <div className='pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-black/0 to-black/0' />
+            </div>
           )}
         </Link>
         <div className='absolute top-2 right-2 text-4xl'>
@@ -140,12 +143,12 @@ const Card = memo(function Card({
             isFavorite ? (
               <FaHeart
                 onClick={handleFavoriteClick}
-                className='text-red-500 hover:text-red-700 cursor-pointer'
+                className='text-red-500 hover:text-red-400 cursor-pointer drop-shadow'
               />
             ) : (
               <FaRegHeart
                 onClick={handleFavoriteClick}
-                className='text-red-500 hover:text-red-700 cursor-pointer'
+                className='text-red-500 hover:text-red-400 cursor-pointer drop-shadow'
               />
             )
           )}
@@ -153,23 +156,23 @@ const Card = memo(function Card({
       </div>
       <Link href={`/${cardId}`} className='block'>
         <div className='p-4'>
-          <h2 className='text-lg font-semibold mb-2 line-clamp-2 text-white'>{title}</h2>
+          <h2 className='text-lg font-semibold mb-2 line-clamp-2 text-neutral-50'>{title}</h2>
           <div className='flex items-center justify-between'>
             {rating_score !== undefined && rating_score !== null && (
               <div className='flex items-center'>
                 {renderStars().map((star, index) => (
                   <span key={index}>
-                    <FaStar className={star > 0 ? 'text-yellow-500' : 'text-gray-300'} />
+                    <FaStar className={star > 0 ? 'text-yellow-400' : 'text-neutral-600'} />
                   </span>
                 ))}
-                <span className='ml-2 text-gray-400'>{rating_score}</span>
-                <span className='ml-2 text-gray-400'>({rating_count || 0})</span>
+                <span className='ml-2 text-neutral-400'>{rating_score}</span>
+                <span className='ml-2 text-neutral-500'>({rating_count || 0})</span>
               </div>
             )}
-            <div className='text-gray-400'>{time}</div>
+            <div className='text-neutral-400'>{time}</div>
           </div>
           {!isCollection && (
-            <div className='text-gray-400 pt-4'>
+            <div className='text-neutral-400 pt-4 line-clamp-2'>
               {Array.isArray(category) ? category.join(', ') : category}
             </div>
           )}

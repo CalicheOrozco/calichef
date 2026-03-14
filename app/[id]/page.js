@@ -1,7 +1,7 @@
 'use client'
 import { usePathname } from 'next/navigation'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState, useContext, useMemo } from 'react'
+import { useEffect, useState, useContext, useMemo, Suspense } from 'react'
 import { FaArrowLeft } from "react-icons/fa6"
 import Head from 'next/head'
 
@@ -9,6 +9,34 @@ import Recipe from '@/components/Recipe'
 import Navbar from '@/components/Navbar'
 import { CalichefContext } from '../../context/MyContext'
 import '../globals.css'
+
+const RouteFallback = () => (
+  <div className='flex justify-center items-center h-screen'>
+    <div className='text-center'>
+      <svg
+        className='animate-spin h-8 w-8 text-neutral-300 mx-auto'
+        xmlns='http://www.w3.org/2000/svg'
+        fill='none'
+        viewBox='0 0 24 24'
+      >
+        <circle
+          className='opacity-25'
+          cx='12'
+          cy='12'
+          r='10'
+          stroke='currentColor'
+          strokeWidth='4'
+        />
+        <path
+          className='opacity-75'
+          fill='currentColor'
+          d='M4 12a 8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+        />
+      </svg>
+      <p className='mt-4 text-lg text-neutral-300'>Loading...</p>
+    </div>
+  </div>
+)
 
 const Post = () => {
   const pathname = usePathname()
@@ -79,7 +107,7 @@ const Post = () => {
     <div className='flex justify-center items-center h-screen'>
       <div className='text-center'>
         <svg
-          className='animate-spin h-8 w-8 text-gray-600 mx-auto'
+          className='animate-spin h-8 w-8 text-neutral-300 mx-auto'
           xmlns='http://www.w3.org/2000/svg'
           fill='none'
           viewBox='0 0 24 24'
@@ -98,7 +126,7 @@ const Post = () => {
             d='M4 12a 8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
           />
         </svg>
-        <p className='mt-4 text-lg text-gray-600'>Loading...</p>
+        <p className='mt-4 text-lg text-neutral-300'>Loading...</p>
       </div>
     </div>
   )
@@ -140,4 +168,10 @@ const Post = () => {
   )
 }
 
-export default Post
+export default function Page() {
+  return (
+    <Suspense fallback={<RouteFallback />}>
+      <Post />
+    </Suspense>
+  )
+}

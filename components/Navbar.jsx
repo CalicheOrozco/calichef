@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 'use client'
-import React, { useContext, useState, useEffect, useCallback, useRef, useMemo } from 'react'
+import React, { useContext, useState, useEffect, useCallback, useRef, useMemo, Suspense } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { CalichefContext } from '../context/MyContext'
 import { FaSearch, FaStar, FaUserCircle } from 'react-icons/fa'
@@ -160,7 +160,7 @@ const SearchSuggestions = ({ suggestions, handleSuggestionClick, handleSuggestio
   )
 }
 
-export default function Navbar({ countRecipies }) {
+function NavbarImpl({ countRecipies }) {
   // Router and pathname
   const router = useRouter()
   const pathname = usePathname()
@@ -796,7 +796,7 @@ export default function Navbar({ countRecipies }) {
   return (
     <>
       <header tabIndex='-1' className='page-header'>
-        <div className='w-full flex flex-row h-16 md:h-20 bg-neutral-800 border-b border-neutral-700 px-2 md:px-4 justify-between items-center'>
+        <div className='w-full flex flex-row h-16 md:h-20 bg-neutral-950/70 backdrop-blur border-b border-neutral-800 px-3 md:px-6 justify-between items-center'>
           <Link href='/' className='w-48 md:w-96' passHref>
             <Image className='object-contain' src='/calichefLogo.png' alt='Calichef Logo' width={524} height={94} />
           </Link>
@@ -824,42 +824,42 @@ export default function Navbar({ countRecipies }) {
                   <FaUserCircle className="text-2xl hover:text-green-300 transition-colors" />
                 </div>
                 {showMenu && (
-                  <div className="absolute right-0 mt-2 w-56 bg-black rounded-lg shadow-lg py-2 z-50">
-                    <div className="px-4 py-4 text-xl text-white font-semibold border-b">
+                  <div className="absolute right-0 mt-2 w-60 menu-surface py-2 z-50">
+                    <div className="px-4 py-4 text-xl text-white font-semibold border-b border-neutral-800">
                       {user.name.charAt(0).toUpperCase() + user.name.slice(1)}
                     </div>
                     <Link href="/profile" passHref>
-                      <span className="flex gap-x-2 items-center px-4 py-4 text-lg text-white hover:bg-green-900 cursor-pointer">
+                      <span className="flex gap-x-2 items-center px-4 py-3 text-base text-white hover:bg-neutral-900 cursor-pointer">
                         <FaUser />
                         Profile
                       </span>
                     </Link>
                     <Link href="/collections" passHref>
-                      <span className="flex gap-x-2 items-center px-4 py-4 text-lg text-white hover:bg-green-900 cursor-pointer">
+                      <span className="flex gap-x-2 items-center px-4 py-3 text-base text-white hover:bg-neutral-900 cursor-pointer">
                         <FaLayerGroup />
                         Collections
                       </span>
                     </Link>
                     <Link href="/favorites" passHref>
-                      <span className="flex gap-x-2 items-center px-4 py-4 text-lg text-white hover:bg-green-900 cursor-pointer">
+                      <span className="flex gap-x-2 items-center px-4 py-3 text-base text-white hover:bg-neutral-900 cursor-pointer">
                       <FaHeart />
                       My Favorites
                       </span>
                     </Link>
                     <Link href="/favoriteCollections" passHref>
-                      <span className="flex gap-x-2 items-center px-4 py-4 text-lg text-white hover:bg-green-900 cursor-pointer icon--cooking-station">
+                      <span className="flex gap-x-2 items-center px-4 py-3 text-base text-white hover:bg-neutral-900 cursor-pointer icon--cooking-station">
                         My Collections
                       </span>
                     </Link>
                     <Link href="/shopping-list" passHref>
-                      <span className="flex gap-x-2 items-center px-4 py-4 text-lg text-white hover:bg-green-900 cursor-pointer">
+                      <span className="flex gap-x-2 items-center px-4 py-3 text-base text-white hover:bg-neutral-900 cursor-pointer">
                       <MdShoppingCart />
                       Shopping List
                       </span>
                     </Link>
                     <button
                       onClick={logout}
-                      className="flex gap-x-2 items-center w-full text-left px-4 py-4 text-lg text-red-600 hover:bg-red-600 hover:text-white"
+                      className="flex gap-x-2 items-center w-full text-left px-4 py-3 text-base text-red-400 hover:bg-red-600 hover:text-white"
                     >
                       <FaRightFromBracket />
                       Log Out
@@ -876,17 +876,17 @@ export default function Navbar({ countRecipies }) {
                   <FaUserCircle className="text-2xl hover:text-green-300 transition-colors" />
                 </div>
                 {showMenu && (
-                  <div className="absolute right-0 mt-2 w-48 bg-black rounded-lg shadow-lg py-2 z-50">
+                  <div className="absolute right-0 mt-2 w-56 menu-surface py-2 z-50">
                     <Link href="/login" passHref>
                       <button
-                        className="block w-full text-left bg-black px-4 py-4 text-lg text-green-600 hover:bg-green-100"
+                        className="block w-full text-left px-4 py-3 text-base text-green-400 hover:bg-neutral-900"
                       >
                         Login
                       </button>
                     </Link>
                     <Link href="/register" passHref>
                       <button
-                        className="block w-full text-left bg-black px-4 py-4 text-lg text-blue-600 hover:bg-blue-100"
+                        className="block w-full text-left px-4 py-3 text-base text-sky-400 hover:bg-neutral-900"
                       >
                         Register
                       </button>
@@ -922,7 +922,7 @@ export default function Navbar({ countRecipies }) {
                                     onChange={handleSearchInputChange}
                                     onKeyDown={handleKeyPress}
                                     ref={searchInputRef}
-                                    className='w-full px-3 md:px-4 py-2 md:py-3 border-2 border-neutral-700 bg-neutral-700 text-white rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200 text-sm md:text-base'
+                                  className='w-full px-3 md:px-4 py-2 md:py-3 border-2 border-neutral-800 bg-neutral-950/40 text-white rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-500/30 transition-all duration-200 text-sm md:text-base'
                                     aria-label='Search'
                                 />
                                 {searchTerm && (
@@ -986,7 +986,7 @@ export default function Navbar({ countRecipies }) {
                                                         setCountryFilter(['All']);
                                                     }
                                                 }}
-                                                className='w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500'
+                                              className='h-4 w-4 rounded border-neutral-700 bg-neutral-950/30 accent-green-500 focus:ring-2 focus:ring-green-500/30'
                                             />
                                             <span className='ml-3 text-white'>All countries</span>
                                         </div>
@@ -1021,7 +1021,7 @@ export default function Navbar({ countRecipies }) {
                                                                 : [...countryFilter.filter(country => country !== 'All'), code];
                                                             setCountryFilter(newFilter.length ? newFilter : ['All']);
                                                         }}
-                                                        className='w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500'
+                                                      className='h-4 w-4 rounded border-neutral-700 bg-neutral-950/30 accent-green-500 focus:ring-2 focus:ring-green-500/30'
                                                     />
                                                     {flagUrl && (
                                                         <Image 
@@ -1053,7 +1053,7 @@ export default function Navbar({ countRecipies }) {
                                                 type="checkbox"
                                                 checked={difficultyFilter === 'All'}
                                                 onChange={() => setDifficultyFilter('All')}
-                                                className='w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500'
+                                              className='h-4 w-4 rounded border-neutral-700 bg-neutral-950/30 accent-green-500 focus:ring-2 focus:ring-green-500/30'
                                             />
                                             <span className='ml-3 text-white'>All difficulties</span>
                                         </div>
@@ -1075,7 +1075,7 @@ export default function Navbar({ countRecipies }) {
                                                         type="checkbox"
                                                         checked={difficultyFilter === code}
                                                         onChange={() => setDifficultyFilter(difficultyFilter === code ? 'All' : code)}
-                                                        className='w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500'
+                                                      className='h-4 w-4 rounded border-neutral-700 bg-neutral-950/30 accent-green-500 focus:ring-2 focus:ring-green-500/30'
                                                     />
                                                     <span className='ml-3 text-white'>{name}</span>
                                                 </div>
@@ -1110,7 +1110,7 @@ export default function Navbar({ countRecipies }) {
                                                         setLanguageFilter(['All']);
                                                     }
                                                 }}
-                                                className='w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500'
+                                              className='h-4 w-4 rounded border-neutral-700 bg-neutral-950/30 accent-green-500 focus:ring-2 focus:ring-green-500/30'
                                             />
                                             <span className='ml-3 text-white'>All languages</span>
                                         </div>
@@ -1142,7 +1142,7 @@ export default function Navbar({ countRecipies }) {
                                                                 : [...languageFilter.filter(lang => lang !== 'All'), code];
                                                             setLanguageFilter(newFilter.length ? newFilter : ['All']);
                                                         }}
-                                                        className='w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500'
+                                                      className='h-4 w-4 rounded border-neutral-700 bg-neutral-950/30 accent-green-500 focus:ring-2 focus:ring-green-500/30'
                                                     />
                                                     <span className='ml-3 text-white'>{name}</span>
                                                 </div>
@@ -1201,7 +1201,7 @@ export default function Navbar({ countRecipies }) {
                                                         : [...categoryFilter, category.name];
                                                     setCategoryFilter(newFilter);
                                                 }}
-                                                className='w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500'
+                                              className='h-4 w-4 rounded border-neutral-700 bg-neutral-950/30 accent-green-500 focus:ring-2 focus:ring-green-500/30'
                                             />
                                             <span className='ml-3 text-white'>{category.name}</span>
                                         </div>
@@ -1312,12 +1312,12 @@ export default function Navbar({ countRecipies }) {
 
                     </div>
                 </div>
-                <div className='sticky bottom-0 bg-neutral-900 py-4 border-t border-neutral-700 p-4 md:p-8'>
+                <div className='sticky bottom-0 bg-neutral-950/70 backdrop-blur py-4 border-t border-neutral-800 p-4 md:p-8'>
                     <div className='flex justify-end gap-x-2 md:gap-x-4'>
                         {areFiltersActive && (
                             <button
                                 onClick={handleClearFilters}
-                                className='px-4 md:px-6 py-2 md:py-3 rounded-xl bg-red-50 text-red-600 font-medium hover:bg-red-100 transition-colors duration-200 text-sm md:text-base'
+                        className='px-4 md:px-6 py-2 md:py-3 rounded-xl bg-red-500/10 text-red-200 ring-1 ring-red-500/20 font-medium hover:bg-red-500/15 transition-colors duration-200 text-sm md:text-base'
                             >
                                 Clear
                             </button>
@@ -1335,5 +1335,24 @@ export default function Navbar({ countRecipies }) {
     </div>
 )}
     </>
+  )
+}
+
+const NavbarFallback = () => (
+  <header className='page-header'>
+    <div className='w-full flex flex-row h-16 md:h-20 bg-neutral-950/70 backdrop-blur border-b border-neutral-800 px-3 md:px-6 justify-between items-center'>
+      <Link href='/' className='w-48 md:w-96' passHref>
+        <Image className='object-contain' src='/calichefLogo.png' alt='Calichef Logo' width={524} height={94} />
+      </Link>
+      <div className='h-8 w-8 rounded-full bg-neutral-800 animate-pulse' aria-hidden='true' />
+    </div>
+  </header>
+)
+
+export default function Navbar(props) {
+  return (
+    <Suspense fallback={<NavbarFallback />}>
+      <NavbarImpl {...props} />
+    </Suspense>
   )
 }

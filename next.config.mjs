@@ -22,6 +22,10 @@ const nextConfig = {
   },
   // Ensure Turbopack is explicitly configured (silences webpack/turbopack conflict)
   turbopack: {},
+  // Enable modern Partial Prerendering (PPR) and cache components
+  experimental: {
+    cacheComponents: true,
+  },
 }
 
 // Configure PWA settings for better performance

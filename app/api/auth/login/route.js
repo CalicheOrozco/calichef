@@ -10,7 +10,11 @@ import { config } from 'dotenv';
 config();
 
 // Obtener la clave secreta de las variables de entorno
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-key-for-development';
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+  throw new Error('La variable de entorno JWT_SECRET no está definida');
+}
 
 export async function POST(request) {
   try {

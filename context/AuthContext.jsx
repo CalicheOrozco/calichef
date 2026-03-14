@@ -113,11 +113,20 @@ export const AuthProvider = ({ children }) => {
 
       const data = await res.json();
 
+      if (res.status === 401) {
+        setUser(null);
+        router.push('/login');
+        router.refresh();
+        return;
+      }
+
       if (res.ok && data.success) {
         setUser({
           ...user,
           favorites: data.favorites
         });
+      } else {
+        console.error('Error al actualizar favoritos:', data);
       }
     } catch (error) {
       console.error('Error al actualizar favoritos:', error);
@@ -139,11 +148,20 @@ export const AuthProvider = ({ children }) => {
 
       const data = await res.json();
 
+      if (res.status === 401) {
+        setUser(null);
+        router.push('/login');
+        router.refresh();
+        return;
+      }
+
       if (res.ok && data.success) {
         setUser({
           ...user,
           favoriteCollections: data.favoriteCollections
         });
+      } else {
+        console.error('Error al actualizar colecciones favoritas:', data);
       }
     } catch (error) {
       console.error('Error al actualizar colecciones favoritas:', error);
