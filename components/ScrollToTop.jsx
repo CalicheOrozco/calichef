@@ -3,42 +3,62 @@ import { useState, useEffect, useRef } from 'react'
 
 const ScrollToTop = () => {
   const [isVisible, setIsVisible] = useState(false)
-  const containerRef = useRef(null)
+  const scrollElRef = useRef(null)
 
   useEffect(() => {
-    // Find the container with the class that has the cards scroll
-    containerRef.current = document.querySelector('.container.scrollbar-hidden') || document.querySelector('.container')
+    const isScrollable = (el) => {
+      if (!el) return false
+      const style = window.getComputedStyle(el)
+      const overflowY = style.overflowY
+      const canScroll = overflowY === 'auto' || overflowY === 'scroll'
+      return canScroll && el.scrollHeight > el.clientHeight
+    }
+
+    // Prefer the explicit scroll container if it actually scrolls; otherwise fall back to the page scroll.
+    const candidate = document.querySelector('.container.scrollbar-hidden') || document.querySelector('.container')
+    scrollElRef.current = isScrollable(candidate) ? candidate : document.scrollingElement
 
     const toggleVisibility = () => {
-      if (!containerRef.current) return
+      const el = scrollElRef.current
+      if (!el) return
+
+      const currentScrollTop = el === document.scrollingElement ? window.scrollY : el.scrollTop
 
       // Show button when container is scrolled up to 300px
-      if (containerRef.current.scrollTop > 300) {
+      if (currentScrollTop > 300) {
         setIsVisible(true)
       } else {
         setIsVisible(false)
       }
     }
 
-    const currentContainer = containerRef.current
-    if (currentContainer) {
-      currentContainer.addEventListener('scroll', toggleVisibility)
+    const el = scrollElRef.current
+    if (el === document.scrollingElement) {
+      window.addEventListener('scroll', toggleVisibility)
+    } else if (el) {
+      el.addEventListener('scroll', toggleVisibility)
     }
 
+    // Initialize visibility based on current scroll position
+    toggleVisibility()
+
     return () => {
-      if (currentContainer) {
-        currentContainer.removeEventListener('scroll', toggleVisibility)
+      if (el === document.scrollingElement) {
+        window.removeEventListener('scroll', toggleVisibility)
+      } else if (el) {
+        el.removeEventListener('scroll', toggleVisibility)
       }
     }
   }, [])
 
   const scrollToTop = () => {
-    if (!containerRef.current) return
-    
-    containerRef.current.scrollTo({
-      top: 0,
-      behavior: 'smooth',
-    })
+    // Always scroll the window so the Navbar becomes visible.
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+
+    const el = scrollElRef.current
+    if (!el || el === document.scrollingElement) return
+
+    el.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   return (

@@ -94,9 +94,9 @@ export default function Favorites() {
 
     if (user.favorites && originalData) {
       // Preserve the user's favorites order instead of inheriting originalData order
-      const recipeById = new Map(originalData.map((recipe) => [recipe.id, recipe]));
+      const recipesById = new Map(originalData.map((recipe) => [recipe.id, recipe]));
       const favorites = user.favorites
-        .map((id) => recipeById.get(id))
+        .map((favoriteId) => recipesById.get(favoriteId))
         .filter(Boolean);
       setFavoriteRecipes(favorites);
     }

@@ -39,10 +39,11 @@ export default function FavoriteCollections() {
   // Calcular colecciones favoritas
   const favoriteCollections = useMemo(() => {
     if (!user?.favoriteCollections || !collections) return [];
-    
-    return collections.filter(collection => 
-      user.favoriteCollections.includes(collection.id)
-    );
+
+    const collectionsById = new Map(collections.map((collection) => [collection.id, collection]));
+    return user.favoriteCollections
+      .map((favoriteId) => collectionsById.get(favoriteId))
+      .filter(Boolean);
   }, [user?.favoriteCollections, collections]);
 
   // Filtrar colecciones según la búsqueda
