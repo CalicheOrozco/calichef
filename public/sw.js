@@ -1,101 +1,135 @@
-/**
- * Copyright 2018 Google Inc. All Rights Reserved.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *     http://www.apache.org/licenses/LICENSE-2.0
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+const CACHE_NAME = 'calichef-v1';
 
-// If the loader is already loaded, just stop.
-if (!self.define) {
-  let registry = {};
+// Assets críticos que se cachean al instalar el SW
+const PRECACHE_URLS = [
+  '/',
+  '/manifest.json',
+  '/icon-192x192.jpg',
+  '/icon-512x512.jpg',
+];
 
-  // Used for `eval` and `importScripts` where we can't get script URL by other means.
-  // In both cases, it's safe to use a global var because those functions are synchronous.
-  let nextDefineUri;
+// ─── INSTALL ────────────────────────────────────────────────────────────────
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(PRECACHE_URLS))
+      .then(() => self.skipWaiting())
+  );
+});
 
-  const singleRequire = (uri, parentUri) => {
-    uri = new URL(uri + ".js", parentUri).href;
-    return registry[uri] || (
-      
-        new Promise(resolve => {
-          if ("document" in self) {
-            const script = document.createElement("script");
-            script.src = uri;
-            script.onload = resolve;
-            document.head.appendChild(script);
-          } else {
-            nextDefineUri = uri;
-            importScripts(uri);
-            resolve();
+// ─── ACTIVATE ───────────────────────────────────────────────────────────────
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(
+        keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
+      ))
+      .then(() => self.clients.claim())
+  );
+});
+
+// ─── FETCH ──────────────────────────────────────────────────────────────────
+self.addEventListener('fetch', event => {
+  const { request } = event;
+  const url = new URL(request.url);
+
+  // Solo manejar GET
+  if (request.method !== 'GET') return;
+
+  // Solo http/https
+  if (!url.protocol.startsWith('http')) return;
+
+  // API routes: red primero, respuesta de error si está offline
+  if (url.pathname.startsWith('/api/')) {
+    event.respondWith(
+      fetch(request).catch(() =>
+        new Response(
+          JSON.stringify({ error: 'offline', message: 'Sin conexión a internet' }),
+          { status: 503, headers: { 'Content-Type': 'application/json' } }
+        )
+      )
+    );
+    return;
+  }
+
+  // Archivos _next/static (JS, CSS con hash): caché primero (son inmutables)
+  if (url.pathname.startsWith('/_next/static/')) {
+    event.respondWith(
+      caches.match(request).then(cached => {
+        if (cached) return cached;
+        return fetch(request).then(response => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(request, clone));
           }
-        })
-      
-      .then(() => {
-        let promise = registry[uri];
-        if (!promise) {
-          throw new Error(`Module ${uri} didn’t register its module`);
-        }
-        return promise;
+          return response;
+        });
       })
     );
-  };
+    return;
+  }
 
-  self.define = (depsNames, factory) => {
-    const uri = nextDefineUri || ("document" in self ? document.currentScript.src : "") || location.href;
-    if (registry[uri]) {
-      // Module is already loading or loaded.
-      return;
-    }
-    let exports = {};
-    const require = depUri => singleRequire(depUri, uri);
-    const specialDeps = {
-      module: { uri },
-      exports,
-      require
-    };
-    registry[uri] = Promise.all(depsNames.map(
-      depName => specialDeps[depName] || require(depName)
-    )).then(deps => {
-      factory(...deps);
-      return exports;
-    });
-  };
-}
-define(['./workbox-e43f5367'], (function (workbox) { 'use strict';
+  // Archivos JSON de recetas en /public: caché primero, actualizar en background
+  if (url.pathname.endsWith('.json') && url.origin === self.location.origin) {
+    event.respondWith(
+      caches.open(CACHE_NAME).then(cache =>
+        cache.match(request).then(cached => {
+          const networkFetch = fetch(request).then(response => {
+            if (response.ok) cache.put(request, response.clone());
+            return response;
+          }).catch(() => null);
 
-  importScripts();
-  self.skipWaiting();
-  workbox.clientsClaim();
-  workbox.registerRoute("/", new workbox.NetworkFirst({
-    "cacheName": "start-url",
-    plugins: [{
-      cacheWillUpdate: async ({
-        request,
-        response,
-        event,
-        state
-      }) => {
-        if (response && response.type === 'opaqueredirect') {
-          return new Response(response.body, {
-            status: 200,
-            statusText: 'OK',
-            headers: response.headers
-          });
+          return cached || networkFetch;
+        })
+      )
+    );
+    return;
+  }
+
+  // Imágenes de CDN externo: caché primero, sin bloquear si falla red
+  if (
+    url.hostname.includes('tmecosys.com') ||
+    url.hostname.includes('vorwerk-digital.com')
+  ) {
+    event.respondWith(
+      caches.match(request).then(cached => {
+        if (cached) return cached;
+        return fetch(request)
+          .then(response => {
+            if (response.ok) {
+              const clone = response.clone();
+              caches.open(CACHE_NAME).then(cache => cache.put(request, clone));
+            }
+            return response;
+          })
+          .catch(() => new Response('', { status: 408, statusText: 'Offline' }));
+      })
+    );
+    return;
+  }
+
+  // Páginas de la app y demás assets: red primero, caché como fallback
+  event.respondWith(
+    fetch(request)
+      .then(response => {
+        if (response.ok) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(request, clone));
         }
         return response;
-      }
-    }]
-  }), 'GET');
-  workbox.registerRoute(/.*/i, new workbox.NetworkOnly({
-    "cacheName": "dev",
-    plugins: []
-  }), 'GET');
-
-}));
-//# sourceMappingURL=sw.js.map
+      })
+      .catch(() =>
+        caches.match(request).then(cached => {
+          if (cached) return cached;
+          // Para navegación, servir la página raíz cacheada
+          if (request.mode === 'navigate') {
+            return caches.match('/');
+          }
+          return new Response('Sin conexión', {
+            status: 503,
+            statusText: 'Service Unavailable',
+          });
+        })
+      )
+  );
+});

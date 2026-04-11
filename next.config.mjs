@@ -1,5 +1,3 @@
-import withPWA from 'next-pwa'
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -28,58 +26,4 @@ const nextConfig = {
   },
 }
 
-// Configure PWA settings for better performance
-const pwaConfig = {
-  dest: 'public',
-  disable: process.env.NODE_ENV === 'development',
-  register: true,
-  skipWaiting: true,
-  runtimeCaching: [
-    {
-      urlPattern: /^https:\/\/assets\.tmecosys\.com\/.*/,
-      handler: 'CacheFirst',
-      options: {
-        cacheName: 'image-cache',
-        expiration: {
-          maxEntries: 50,
-          maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
-        },
-      },
-    },
-    {
-      urlPattern: /^https:\/\/patternlib-all\.prod\.external\.eu-tm-prod\.vorwerk-digital\.com\/.*/,
-      handler: 'CacheFirst',
-      options: {
-        cacheName: 'pattern-image-cache',
-        expiration: {
-          maxEntries: 50,
-          maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
-        },
-      },
-    },
-    {
-      urlPattern: /\.(?:js|css)$/,
-      handler: 'StaleWhileRevalidate',
-      options: {
-        cacheName: 'static-resources',
-      },
-    },
-    {
-      urlPattern: /^https?.*/,
-      handler: 'NetworkFirst',
-      options: {
-        cacheName: 'https-calls',
-        networkTimeoutSeconds: 15,
-        expiration: {
-          maxEntries: 150,
-          maxAgeSeconds: 60 * 60 * 24, // 24 hours
-        },
-        cacheableResponse: {
-          statuses: [200],
-        },
-      },
-    },
-  ],
-}
-
-export default withPWA(pwaConfig)(nextConfig)
+export default nextConfig
